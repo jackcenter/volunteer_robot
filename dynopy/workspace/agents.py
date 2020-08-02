@@ -16,6 +16,10 @@ class Robot:
         self.state = state
         self.volunteer = volunteer
 
+        self.waypoints = []
+        self.path = []
+        self.trajectory = []
+
     def plot(self):
         x = self.state[0] + 0.5
         y = self.state[1] + 0.5
@@ -23,6 +27,63 @@ class Robot:
 
     def get_volunteer_status(self):
         return self.volunteer
+
+    def generate_path(self, w_0):
+        """
+        Could use any type of path planner here. This is just a straight line style implementation
+        Assume waypoint 1 is the starting location
+        :return:
+        """
+        start = self.waypoints[w_0]
+        goal = self.waypoints[w_0 + 1]
+        path = [start]
+
+        # --- Straight line assumption ---
+        x = start[0]
+        y = start[1]
+        goal_found = False
+
+        # North
+        if start[1] < goal[1]:
+            while not goal_found:
+                y += 1
+                path.append((x, y))
+
+                if (x, y) == goal:
+                    goal_found = True
+        # East
+        elif start[0] < goal[0]:
+            while not goal_found:
+                x += 1
+                path.append((x, y))
+
+                if (x, y) == goal:
+                    goal_found = True
+        # South
+        elif start[1] > goal[1]:
+            while not goal_found:
+                y -= 1
+                path.append((x, y))
+
+                if (x, y) == goal:
+                    goal_found = True
+        # West
+        elif start[0] > goal[0]:
+            while not goal_found:
+                x -= 1
+                path.append((x, y))
+
+                if (x, y) == goal:
+                    goal_found = True
+        # Error
+        else:
+            print("ERROR: Something's wrong with the start or goal position for {}".format(self.name))
+
+        return path
+
+
+    def generate_trajectory(self):
+        pass
 
     def step(self, action):
         """

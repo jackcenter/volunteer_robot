@@ -30,7 +30,7 @@ class Workspace:
         y_ords = self.y_ordinates.copy()
         y_ords.append(self.boundary_coordinates[0][1])
 
-        plt.plot(x_ords, y_ords, 'k-')
+        plt.plot(x_ords, y_ords, 'b-')
 
         x_min = self.x_bounds[0]
         x_max = self.x_bounds[1] + 1
