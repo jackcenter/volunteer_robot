@@ -46,6 +46,8 @@ class Workspace:
 
         for robot in self.agents:
             robot.plot()
+            robot.plot_visited_cells()
+            robot.plot_path()
 
     def add_agent(self, agent):
         self.agents.append(agent)

@@ -16,19 +16,36 @@ class Robot:
         self.state = state
         self.volunteer = volunteer
 
-        self.waypoints = []
-        self.path = []
-        self.trajectory = []
+        self.waypoints = []         # list of points the agent needs to reach
+        self.path = []              # list of 2D positions
+        self.path_log = []
+        self.trajectory = []        # last element, [-1], is the next action to take
+        self.trajectory_log = []    # stores actions taken in order, ie [0] is the first action
 
     def plot(self):
         x = self.state[0] + 0.5
         y = self.state[1] + 0.5
         plt.plot(x, y, 'x', color=self.color)
 
+    def plot_visited_cells(self):
+        for pos in self.path_log:
+            x = pos[0] + 0.5
+            y = pos[1] + 0.5
+            plt.plot(x, y, 'o', color=self.color, mfc='none')
+
+    def plot_path(self):
+        for pos in self.path:
+            x = pos[0] + 0.5
+            y = pos[1] + 0.5
+            plt.plot(x, y, '.', color=self.color)
+
     def get_volunteer_status(self):
         return self.volunteer
 
-    def generate_path(self, w_0):
+    def generate_full_path(self):
+        pass
+
+    def generate_straight_line_path(self, w_0):
         """
         Could use any type of path planner here. This is just a straight line style implementation
         Assume waypoint 1 is the starting location
@@ -79,35 +96,55 @@ class Robot:
         else:
             print("ERROR: Something's wrong with the start or goal position for {}".format(self.name))
 
-        return path
-
+        path.reverse()
+        self.path = path
+        self.path_log.append(self.path.pop())    # agent is already at first point in the path
 
     def generate_trajectory(self):
-        pass
+        traj = []
+        path = self.path.copy()
+        w_1 = path.pop()
 
-    def step(self, action):
+        while path:
+            w_0 = w_1
+            w_1 = path.pop()
+            traj.append(self.checkCellDirection(w_0, w_1))
+
+        traj.reverse()
+        self.trajectory = traj
+
+    def step(self):
         """
         moves the agent in the commanded direction
-        :param action: string: left, right, forward, or backward
+        :param
         :return:
         """
+        action = self.trajectory.pop()
 
-        if action == 'left':
-            turn = pi/2
-        elif action == 'right':
-            turn = -pi/2
-        elif action == 'forward':
-            turn = 0
-        elif action == 'backward':
-            turn = pi
+        if action == 'north':
+            self.state[1] += 1
+        elif action == 'east':
+            self.state[0] += 1
+        elif action == 'south':
+            self.state[1] -= 1
+        elif action == 'west':
+            self.state[0] -= 1
         else:
-            print("ERROR: robot action not understood. Needs to be left, right, forward, or backward")
-            turn = 0
+            print("ERROR: robot action not understood. Needs to be north, east, south, or west")
+            return
 
-        x3_new = (self.state[2] + turn) % (2*pi)
-        x1_new = cos(x3_new)
-        x2_new = sin(x3_new)
+        self.trajectory_log.append(action)
+        self.path_log.append(self.path.pop())
 
-        self.state[2] = x3_new
-        self.state[0] += x1_new
-        self.state[1] += x2_new
+    @staticmethod
+    def checkCellDirection(a, b):
+        if a[0] == b[0] and a[1] < b[1]:
+            return "north"
+        elif a[0] < b[0] and a[1] == b[1]:
+            return "east"
+        elif a[0] == b[0] and a[1] > b[1]:
+            return "south"
+        elif a[0] > b[0] and a[1] == b[1]:
+            return "west"
+        else:
+            print("ERROR: couldn't determine the orientation of these two cells: {}, {}".format(a, b))

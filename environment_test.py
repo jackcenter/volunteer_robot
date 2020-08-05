@@ -12,22 +12,32 @@ def main():
     ]
 
     ws = Workspace(boundary)
-    robot1 = Robot("Inky", "cyan", [1, 0, 1.57])
+    robot1 = Robot("Inky", "cyan", [1, 0])
     wp1 = [
-        (9, 9),
+        (1, 0),
         (1, 9)
     ]
     robot1.waypoints = wp1
-    path = robot1.generate_path(0)
-    print(path)
+    robot1.generate_straight_line_path(0)
 
-    robot2 = Robot("Clyde", "orange", [4, 9, -1.57])
+    robot1.generate_trajectory()
+
+    robot2 = Robot("Clyde", "orange", [4, 9])
     wp2 = [
+        (6, 9),
         (4, 9),
         (4, 0)
     ]
+    robot2.waypoints = wp2
+    robot2.generate_straight_line_path(0)
+    robot2.generate_trajectory()
 
-    volunteer = Robot("Blinky", "red", [0, 5, 0], True)
+    print(robot1.path)
+    print(robot1.trajectory)
+    print(robot2.path)
+    print(robot2.trajectory)
+
+    volunteer = Robot("Blinky", "red", [0, 5], True)
 
     ws.add_agent(robot1)
     ws.add_agent(robot2)
@@ -41,13 +51,14 @@ def main():
     for i in range(2):
         cycle(ws)
         ws.plot()
-        # plt.show()
+        plt.show()
 
 
 def cycle(ws):
     for robot in ws.agents:
         if not robot.get_volunteer_status():
-            robot.step('forward')
+            robot.step()
+            print(robot.path_log)
 
 
 if __name__ == "__main__":
