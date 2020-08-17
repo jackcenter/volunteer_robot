@@ -12,6 +12,10 @@ def main():
     ]
 
     ws = Workspace(boundary)
+
+    ws.generate_initial_distribution()
+    ws.plot_grid_approximation()
+
     robot1 = Robot("Inky", "cyan", [1, 0])
     wp1 = [
         (1, 0),
@@ -22,7 +26,7 @@ def main():
 
     robot1.generate_trajectory()
 
-    robot2 = Robot("Clyde", "orange", [4, 9])
+    robot2 = Robot("Clyde", "orange", [6, 9])
     wp2 = [
         (6, 9),
         (4, 9),

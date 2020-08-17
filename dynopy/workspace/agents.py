@@ -1,6 +1,4 @@
-from math import pi, cos, sin
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 class Robot:
@@ -9,7 +7,7 @@ class Robot:
 
         :param name:
         :param color:
-        :param state: [x position, y_position, orientation]
+        :param state: [x position, y_position]
         """
         self.name = name
         self.color = color
@@ -51,6 +49,8 @@ class Robot:
         Assume waypoint 1 is the starting location
         :return:
         """
+
+        # TODO: Need to fix this to be more generic so the full path can be generated
         start = self.waypoints[w_0]
         goal = self.waypoints[w_0 + 1]
         path = [start]
