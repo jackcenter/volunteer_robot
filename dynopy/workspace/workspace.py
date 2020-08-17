@@ -17,6 +17,8 @@ class Workspace:
 
         self.x_bounds = (min(self.x_ordinates), max(self.x_ordinates))
         self.y_bounds = (min(self.y_ordinates), max(self.y_ordinates))
+
+        self.map = None         # list of map coordinates
         self.pXY = None
 
         self.agents = []
@@ -54,6 +56,20 @@ class Workspace:
 
     def add_agent(self, agent):
         self.agents.append(agent)
+
+    def generate_grid(self):
+        x_range = np.arange(self.x_bounds[0], self.x_bounds[1])
+        y_range = np.arange(self.y_bounds[0], self.y_bounds[1])
+
+        coordinates = []
+        for x in x_range:
+            row = []
+            for y in y_range:
+                row.append((x, y))
+
+            coordinates.append(row)
+
+        self.map = coordinates
 
     def generate_initial_distribution(self, dx=1, dy=1):
         x_range = np.arange(self.x_bounds[0], self.x_bounds[1], dx)

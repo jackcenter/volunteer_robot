@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class Robot:
@@ -20,6 +21,13 @@ class Robot:
         self.trajectory = []        # last element, [-1], is the next action to take
         self.trajectory_log = []    # stores actions taken in order, ie [0] is the first action
 
+        self.pD = 0.85              # probability of detection
+        self._pD = 1 - self.pD      # probability of no detection
+
+        self.workspace = None       # current workspace
+        self.map = None             # list of coordinates corresponding to the map
+        self.pdf = None             # current probability distribution
+
     def plot(self):
         x = self.state[0] + 0.5
         y = self.state[1] + 0.5
@@ -39,6 +47,15 @@ class Robot:
 
     def get_volunteer_status(self):
         return self.volunteer
+
+    def set_workspace(self, ws):
+        self.workspace = ws
+
+    def set_map(self):
+        self.map = self.workspace.map
+
+    def set_initial_pdf(self):
+        self.pdf = self.workspace.pXY.copy()
 
     def generate_full_path(self):
         pass
@@ -113,6 +130,17 @@ class Robot:
         traj.reverse()
         self.trajectory = traj
 
+    def update_pdf(self):
+        """
+        updated probability target is in current grid cell for the time step
+        :return:
+        """
+        x = self.state[0]
+        y = self.state[1]
+
+        self.pdf[x][y] *= self._pD
+        self.pdf = self.pdf/np.sum(self.pdf)      # normalize
+
     def step(self):
         """
         moves the agent in the commanded direction
@@ -135,6 +163,7 @@ class Robot:
 
         self.trajectory_log.append(action)
         self.path_log.append(self.path.pop())
+        self.update_pdf()
 
     @staticmethod
     def checkCellDirection(a, b):
