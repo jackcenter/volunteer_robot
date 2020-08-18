@@ -24,8 +24,13 @@ def main():
 
     wp1 = [
         (1, 0),
-        (1, 9)
+        (1, 9),
+        (2, 9),
+        (2, 0),
+        (3, 0),
+        (3, 9)
     ]
+
     robot1.waypoints = wp1
     robot1.generate_full_path()
     robot1.generate_trajectory()
@@ -74,6 +79,8 @@ def main():
 
 
 def cycle(ws):
+    ws.step()
+
     for robot in ws.agents:
         if not robot.get_volunteer_status():
             # print(robot.pdf)

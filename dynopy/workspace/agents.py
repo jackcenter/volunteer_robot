@@ -17,7 +17,7 @@ class Robot:
 
         self.waypoints = []         # list of points the agent needs to reach
         self.path = []              # list of 2D positions
-        self.path_log = [(self.state[0], self.state[1])]
+        self.path_log = [((self.state[0], self.state[1]), 0)]
         self.trajectory = []        # last element, [-1], is the next action to take
         self.trajectory_log = []    # stores actions taken in order, ie [0] is the first action
 
@@ -34,13 +34,15 @@ class Robot:
         plt.plot(x, y, 'x', color=self.color)
 
     def plot_visited_cells(self):
-        for pos in self.path_log:
+        for node in self.path_log:
+            pos = node[0]
             x = pos[0] + 0.5
             y = pos[1] + 0.5
             plt.plot(x, y, 'o', color=self.color, mfc='none')
 
     def plot_path(self):
-        for pos in self.path:
+        for node in self.path:
+            pos = node[0]
             x = pos[0] + 0.5
             y = pos[1] + 0.5
             plt.plot(x, y, '.', color=self.color)
@@ -60,38 +62,42 @@ class Robot:
     def generate_full_path(self):
 
         temp_path = [self.waypoints[0]]
+        current_step = self.workspace.get_time_step()
 
         for i in range(0, len(self.waypoints) - 1):
-            path = self.generate_straight_line_path(i)
+            path = self.generate_straight_line_path(i, current_step)
             temp_path.pop()
             temp_path.extend(path)
+            current_step = temp_path[-1][1]
 
         temp_path.reverse()
         temp_path.pop()
         self.path = temp_path
 
-    def generate_straight_line_path(self, w_0):
+    def generate_straight_line_path(self, w_0, k=0):
         """
         Could use any type of path planner here. This is just a straight line style implementation
         Assume waypoint 1 is the starting location
         :return:
         """
 
-        # TODO: Need to fix this to be more generic so the full path can be generated
         start = self.waypoints[w_0]
         goal = self.waypoints[w_0 + 1]
-        path = [start]
 
         # --- Straight line assumption ---
+
+        path = [(start, k)]
         x = start[0]
         y = start[1]
+
         goal_found = False
 
         # North
         if start[1] < goal[1]:
             while not goal_found:
                 y += 1
-                path.append((x, y))
+                k += 1
+                path.append(((x, y), k))
 
                 if (x, y) == goal:
                     goal_found = True
@@ -99,7 +105,8 @@ class Robot:
         elif start[0] < goal[0]:
             while not goal_found:
                 x += 1
-                path.append((x, y))
+                k += 1
+                path.append(((x, y), k))
 
                 if (x, y) == goal:
                     goal_found = True
@@ -107,7 +114,8 @@ class Robot:
         elif start[1] > goal[1]:
             while not goal_found:
                 y -= 1
-                path.append((x, y))
+                k += 1
+                path.append(((x, y), k))
 
                 if (x, y) == goal:
                     goal_found = True
@@ -115,7 +123,8 @@ class Robot:
         elif start[0] > goal[0]:
             while not goal_found:
                 x -= 1
-                path.append((x, y))
+                k += 1
+                path.append(((x, y), k))
 
                 if (x, y) == goal:
                     goal_found = True
@@ -133,7 +142,7 @@ class Robot:
         while path:
             w_0 = w_1
             w_1 = path.pop()
-            traj.append(self.checkCellDirection(w_0, w_1))
+            traj.append(self.checkCellDirection(w_0[0], w_1[0]))
 
         traj.reverse()
         self.trajectory = traj

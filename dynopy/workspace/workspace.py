@@ -11,6 +11,7 @@ class Workspace:
         """
         self.boundary_coordinates = boundary_coordinates
         self.agents = []
+        self.time_step = 0
 
         self.x_ordinates = [i[0] for i in self.boundary_coordinates]
         self.y_ordinates = [i[1] for i in self.boundary_coordinates]
@@ -53,6 +54,12 @@ class Workspace:
             robot.plot()
             robot.plot_visited_cells()
             robot.plot_path()
+
+    def get_time_step(self):
+        return self.time_step
+
+    def step(self):
+        self.time_step += 1
 
     def add_agent(self, agent):
         self.agents.append(agent)
