@@ -27,7 +27,7 @@ def main():
         (1, 9)
     ]
     robot1.waypoints = wp1
-    robot1.generate_straight_line_path(0)
+    robot1.generate_full_path()
     robot1.generate_trajectory()
 
     ws.add_agent(robot1)
@@ -45,7 +45,7 @@ def main():
         (4, 0)
     ]
     robot2.waypoints = wp2
-    robot2.generate_straight_line_path(0)
+    robot2.generate_full_path()
     robot2.generate_trajectory()
 
     ws.add_agent(robot2)
@@ -67,7 +67,7 @@ def main():
     ws.plot()
     plt.show()
 
-    for i in range(2):
+    for i in range(4):
         cycle(ws)
         ws.plot()
         plt.show()
@@ -76,8 +76,8 @@ def main():
 def cycle(ws):
     for robot in ws.agents:
         if not robot.get_volunteer_status():
-            print(robot.pdf)
-            print()
+            # print(robot.pdf)
+            # print()
 
             robot.step()
             print(robot.path_log)

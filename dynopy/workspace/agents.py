@@ -17,7 +17,7 @@ class Robot:
 
         self.waypoints = []         # list of points the agent needs to reach
         self.path = []              # list of 2D positions
-        self.path_log = []
+        self.path_log = [(self.state[0], self.state[1])]
         self.trajectory = []        # last element, [-1], is the next action to take
         self.trajectory_log = []    # stores actions taken in order, ie [0] is the first action
 
@@ -58,7 +58,17 @@ class Robot:
         self.pdf = self.workspace.pXY.copy()
 
     def generate_full_path(self):
-        pass
+
+        temp_path = [self.waypoints[0]]
+
+        for i in range(0, len(self.waypoints) - 1):
+            path = self.generate_straight_line_path(i)
+            temp_path.pop()
+            temp_path.extend(path)
+
+        temp_path.reverse()
+        temp_path.pop()
+        self.path = temp_path
 
     def generate_straight_line_path(self, w_0):
         """
@@ -113,14 +123,12 @@ class Robot:
         else:
             print("ERROR: Something's wrong with the start or goal position for {}".format(self.name))
 
-        path.reverse()
-        self.path = path
-        self.path_log.append(self.path.pop())    # agent is already at first point in the path
+        return path
 
     def generate_trajectory(self):
         traj = []
         path = self.path.copy()
-        w_1 = path.pop()
+        w_1 = self.path_log[0]
 
         while path:
             w_0 = w_1
