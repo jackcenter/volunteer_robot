@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from dynopy.data_objects.node import Node
+
 
 class Robot:
     def __init__(self, name: str, color: str, state: list, volunteer=False):
@@ -17,7 +19,7 @@ class Robot:
 
         self.waypoints = []         # list of points the agent needs to reach
         self.path = []              # list of 2D positions
-        self.path_log = [((self.state[0], self.state[1]), 0)]
+        self.path_log = []
         self.trajectory = []        # last element, [-1], is the next action to take
         self.trajectory_log = []    # stores actions taken in order, ie [0] is the first action
 
@@ -29,6 +31,22 @@ class Robot:
         self.pdf = None             # current probability distribution
         self.i_gained = []          # information gained along path
 
+    def start(self, workspace):
+        self.set_workspace(workspace)
+        self.set_map()
+        self.set_initial_pdf()
+        self.update_pdf()
+
+        current_step = self.workspace.get_time_step()
+        i = self.get_information_available(self.state)
+        start_node = Node(tuple(self.state), current_step, i)
+        self.path_log.append(start_node)
+
+    def load_waypoints(self, waypoints):
+        self.waypoints = waypoints
+        self.generate_full_path()
+        self.generate_trajectory()
+
     def plot(self):
         x = self.state[0] + 0.5
         y = self.state[1] + 0.5
@@ -36,14 +54,14 @@ class Robot:
 
     def plot_visited_cells(self):
         for node in self.path_log:
-            pos = node[0]
+            pos = node.get_position()
             x = pos[0] + 0.5
             y = pos[1] + 0.5
             plt.plot(x, y, 'o', color=self.color, mfc='none')
 
     def plot_path(self):
         for node in self.path:
-            pos = node[0]
+            pos = node.get_position()
             x = pos[0] + 0.5
             y = pos[1] + 0.5
             plt.plot(x, y, '.', color=self.color)
@@ -62,18 +80,21 @@ class Robot:
 
     def generate_full_path(self):
 
-        temp_path = [self.waypoints[0]]
-        current_step = self.workspace.get_time_step()
+        path = []         # place holder, value will be removed
+        current_step = self.path_log[-1].get_time_step()
 
         for i in range(0, len(self.waypoints) - 1):
-            path = self.generate_straight_line_path(i, current_step)
+            temp_path = self.generate_straight_line_path(i, current_step)
+            temp_path.reverse()
             temp_path.pop()
             temp_path.extend(path)
-            current_step = temp_path[-1][1]
 
-        temp_path.reverse()
-        temp_path.pop()
-        self.path = temp_path
+            path = temp_path
+            current_step = path[0].get_time_step()
+
+        # temp_path.reverse()
+        # self.path_log.append(temp_path.pop())
+        self.path = path
 
     def generate_straight_line_path(self, w_0, k=0):
         """
@@ -88,7 +109,7 @@ class Robot:
         # --- Straight line assumption ---
 
         i = self.get_information_available(start)
-        path = [[start, k, i]]
+        path = [Node(start, k, i)]
 
         x = start[0]
         y = start[1]
@@ -96,42 +117,42 @@ class Robot:
         goal_found = False
 
         # North
-        if start[1] < goal[1]:
+        if y < goal[1]:
             while not goal_found:
                 y += 1
                 k += 1
                 i = self.get_information_available((x, y))
-                path.append([(x, y), k, i])
+                path.append(Node((x, y), k, i))
 
                 if (x, y) == goal:
                     goal_found = True
         # East
-        elif start[0] < goal[0]:
+        elif x < goal[0]:
             while not goal_found:
                 x += 1
                 k += 1
                 i = self.get_information_available((x, y))
-                path.append([(x, y), k, i])
+                path.append(Node((x, y), k, i))
 
                 if (x, y) == goal:
                     goal_found = True
         # South
-        elif start[1] > goal[1]:
+        elif y > goal[1]:
             while not goal_found:
                 y -= 1
                 k += 1
                 i = self.get_information_available((x, y))
-                path.append([(x, y), k, i])
+                path.append(Node((x, y), k, i))
 
                 if (x, y) == goal:
                     goal_found = True
         # West
-        elif start[0] > goal[0]:
+        elif x > goal[0]:
             while not goal_found:
                 x -= 1
                 k += 1
                 i = self.get_information_available((x, y))
-                path.append([(x, y), k, i])
+                path.append(Node((x, y), k, i))
 
                 if (x, y) == goal:
                     goal_found = True
@@ -144,12 +165,12 @@ class Robot:
     def generate_trajectory(self):
         traj = []
         path = self.path.copy()
-        w_1 = self.path_log[0]
+        w_1 = self.path_log[-1]
 
         while path:
             w_0 = w_1
             w_1 = path.pop()
-            traj.append(self.checkCellDirection(w_0[0], w_1[0]))
+            traj.append(self.checkCellDirection(w_0.get_position(), w_1.get_position()))
 
         traj.reverse()
         self.trajectory = traj
