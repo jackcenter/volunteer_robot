@@ -27,6 +27,7 @@ class Robot:
         self.workspace = None       # current workspace
         self.map = None             # list of coordinates corresponding to the map
         self.pdf = None             # current probability distribution
+        self.i_gained = []          # information gained along path
 
     def plot(self):
         x = self.state[0] + 0.5
@@ -86,7 +87,9 @@ class Robot:
 
         # --- Straight line assumption ---
 
-        path = [(start, k)]
+        i = self.get_information_available(start)
+        path = [[start, k, i]]
+
         x = start[0]
         y = start[1]
 
@@ -97,7 +100,8 @@ class Robot:
             while not goal_found:
                 y += 1
                 k += 1
-                path.append(((x, y), k))
+                i = self.get_information_available((x, y))
+                path.append([(x, y), k, i])
 
                 if (x, y) == goal:
                     goal_found = True
@@ -106,7 +110,8 @@ class Robot:
             while not goal_found:
                 x += 1
                 k += 1
-                path.append(((x, y), k))
+                i = self.get_information_available((x, y))
+                path.append([(x, y), k, i])
 
                 if (x, y) == goal:
                     goal_found = True
@@ -115,7 +120,8 @@ class Robot:
             while not goal_found:
                 y -= 1
                 k += 1
-                path.append(((x, y), k))
+                i = self.get_information_available((x, y))
+                path.append([(x, y), k, i])
 
                 if (x, y) == goal:
                     goal_found = True
@@ -124,7 +130,8 @@ class Robot:
             while not goal_found:
                 x -= 1
                 k += 1
-                path.append(((x, y), k))
+                i = self.get_information_available((x, y))
+                path.append([(x, y), k, i])
 
                 if (x, y) == goal:
                     goal_found = True
@@ -147,6 +154,16 @@ class Robot:
         traj.reverse()
         self.trajectory = traj
 
+    def get_information_available(self, pos):
+        """
+
+        :return:
+        """
+        x = pos[0]
+        y = pos[1]
+
+        return self.pdf[x][y]
+
     def update_pdf(self):
         """
         updated probability target is in current grid cell for the time step
@@ -155,8 +172,14 @@ class Robot:
         x = self.state[0]
         y = self.state[1]
 
-        self.pdf[x][y] *= self._pD
+        i_available = self.pdf[x][y]
+        i_remaining = i_available * self._pD
+        i_gained = i_available - i_remaining
+
+        self.pdf[x][y] = i_remaining
         self.pdf = self.pdf/np.sum(self.pdf)      # normalize
+
+        return i_gained
 
     def step(self):
         """
@@ -179,8 +202,9 @@ class Robot:
             return
 
         self.trajectory_log.append(action)
+        i_gained = self.update_pdf()
+        self.i_gained.append(i_gained)
         self.path_log.append(self.path.pop())
-        self.update_pdf()
 
     @staticmethod
     def checkCellDirection(a, b):

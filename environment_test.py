@@ -88,6 +88,7 @@ def cycle(ws):
 
             robot.step()
             print(robot.path_log)
+            print(robot.i_gained)
 
 
 if __name__ == "__main__":
