@@ -81,6 +81,11 @@ def main():
 
 
 def cycle(ws):
+    """
+    Cycles forward one time step
+    :param ws:
+    :return:
+    """
     ws.step()
 
     for robot in ws.agents:

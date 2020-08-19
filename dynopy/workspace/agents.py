@@ -27,13 +27,18 @@ class Robot:
         self._pD = 1 - self.pD      # probability of no detection
 
         self.workspace = None       # current workspace
-        self.map = None             # list of coordinates corresponding to the map
+        # self.map = None             # list of coordinates corresponding to the map
         self.pdf = None             # current probability distribution
         self.i_gained = []          # information gained along path
 
     def start(self, workspace):
+        """
+        Set initial conditions for the robot in a specified workspace
+        :param workspace: Workspace object that describes the environment the agent is working in
+        :return:
+        """
         self.set_workspace(workspace)
-        self.set_map()
+        # self.set_map()
         self.set_initial_pdf()
         self.update_pdf()
 
@@ -72,13 +77,17 @@ class Robot:
     def set_workspace(self, ws):
         self.workspace = ws
 
-    def set_map(self):
-        self.map = self.workspace.map
+    # def set_map(self):
+    #     self.map = self.workspace.map
 
     def set_initial_pdf(self):
         self.pdf = self.workspace.pXY.copy()
 
     def generate_full_path(self):
+        """
+        Creates a list of nodes associated with each time step
+        :return:
+        """
 
         path = []         # place holder, value will be removed
         current_step = self.path_log[-1].get_time_step()
@@ -163,6 +172,7 @@ class Robot:
         return path
 
     def generate_trajectory(self):
+
         traj = []
         path = self.path.copy()
         w_1 = self.path_log[-1]
@@ -178,7 +188,7 @@ class Robot:
     def get_information_available(self, pos):
         """
 
-        :return:
+        :return: information available in the specified grid cell.
         """
         x = pos[0]
         y = pos[1]

@@ -6,7 +6,8 @@ import scipy.stats as stats
 class Workspace:
     def __init__(self, boundary_coordinates):
         """
-
+        Contains information associated with an environment the agents can work in.
+        TODO: add obstacle functionality
         :param boundary_coordinates: list of tuples
         """
         self.boundary_coordinates = boundary_coordinates
@@ -19,8 +20,8 @@ class Workspace:
         self.x_bounds = (min(self.x_ordinates), max(self.x_ordinates))
         self.y_bounds = (min(self.y_ordinates), max(self.y_ordinates))
 
-        self.map = None         # list of map coordinates
-        self.pXY = None
+        # self.map = None         # list of map coordinates
+        self.pdf = None
 
         self.agents = []
 
@@ -59,26 +60,36 @@ class Workspace:
         return self.time_step
 
     def step(self):
+        """
+        Moves the workspace forward one time step
+        :return:
+        """
         self.time_step += 1
 
     def add_agent(self, agent):
         self.agents.append(agent)
 
-    def generate_grid(self):
-        x_range = np.arange(self.x_bounds[0], self.x_bounds[1])
-        y_range = np.arange(self.y_bounds[0], self.y_bounds[1])
-
-        coordinates = []
-        for x in x_range:
-            row = []
-            for y in y_range:
-                row.append((x, y))
-
-            coordinates.append(row)
-
-        self.map = coordinates
+    # def generate_grid(self):
+    #     x_range = np.arange(self.x_bounds[0], self.x_bounds[1])
+    #     y_range = np.arange(self.y_bounds[0], self.y_bounds[1])
+    #
+    #     coordinates = []
+    #     for x in x_range:
+    #         row = []
+    #         for y in y_range:
+    #             row.append((x, y))
+    #
+    #         coordinates.append(row)
+    #
+    #     self.map = coordinates
 
     def generate_initial_distribution(self, dx=1, dy=1):
+        """
+        Creates the initial distribution across the grid world.
+        :param dx: grid size in the x direction
+        :param dy: grid size in the y direction
+        :return:
+        """
         x_range = np.arange(self.x_bounds[0], self.x_bounds[1], dx)
         y_range = np.arange(self.y_bounds[0], self.y_bounds[1], dy)
         X, Y = np.meshgrid(x_range, y_range)
@@ -89,7 +100,4 @@ class Workspace:
 
         pX = x_uniform.pdf(X)
         pY = y_uniform.pdf(Y)
-        self.pXY = pX*pY
-
-        print(self.pXY)
-        print()
+        self.pdf = pX*pY
