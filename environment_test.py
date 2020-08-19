@@ -12,7 +12,7 @@ def main():
     ]
 
     ws = Workspace(boundary)
-    ws.generate_grid()
+    # ws.generate_grid()
     ws.generate_initial_distribution()
 
     # ROBOT 1 =====================================================
