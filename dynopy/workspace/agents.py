@@ -81,7 +81,7 @@ class Robot:
     #     self.map = self.workspace.map
 
     def set_initial_pdf(self):
-        self.pdf = self.workspace.pXY.copy()
+        self.pdf = self.workspace.pdf.copy()
 
     def generate_full_path(self):
         """
