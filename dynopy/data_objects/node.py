@@ -1,16 +1,16 @@
 class Node:
-    def __init__(self, position, cost, information, time_step):
+    def __init__(self, position, cost=0, information=0, time=0):
         """
         Data object that holds information for nodes used in motion planning.
         :param position: tuple with x and y locations
         :param cost: cost of node along path
         :param information: probability the target can be seen from the node position
-        :param time_step: int for node time_step
+        :param time: int for node time_step
         """
         self.pos = position
         self.c = cost
         self.i = information
-        self.k = time_step
+        self.k = time
 
     def get_position(self):
         return self.pos
@@ -30,8 +30,8 @@ class Node:
     def set_information(self, i):
         self.i = i
 
-    def get_time_step(self):
+    def get_time(self):
         return self.k
 
-    def set_time_step(self, k):
+    def set_time(self, k):
         self.k = k
