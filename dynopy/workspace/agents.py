@@ -44,7 +44,7 @@ class Robot:
 
         current_step = self.workspace.get_time_step()
         i = self.get_information_available(self.state)
-        start_node = Node(tuple(self.state), current_step, i)
+        start_node = Node.init_without_cost(tuple(self.state), i, current_step)
         self.path_log.append(start_node)
 
     def load_waypoints(self, waypoints):
@@ -90,7 +90,7 @@ class Robot:
         """
 
         path = []         # place holder, value will be removed
-        current_step = self.path_log[-1].get_time_step()
+        current_step = self.path_log[-1].get_time()
 
         for i in range(0, len(self.waypoints) - 1):
             temp_path = self.generate_straight_line_path(i, current_step)
@@ -99,7 +99,7 @@ class Robot:
             temp_path.extend(path)
 
             path = temp_path
-            current_step = path[0].get_time_step()
+            current_step = path[0].get_time()
 
         # temp_path.reverse()
         # self.path_log.append(temp_path.pop())
@@ -118,7 +118,7 @@ class Robot:
         # --- Straight line assumption ---
 
         i = self.get_information_available(start)
-        path = [Node(start, k, i)]
+        path = [Node.init_without_cost(start, i, k)]
 
         x = start[0]
         y = start[1]
@@ -131,7 +131,7 @@ class Robot:
                 y += 1
                 k += 1
                 i = self.get_information_available((x, y))
-                path.append(Node((x, y), k, i))
+                path.append(Node.init_without_cost((x, y), i, k))
 
                 if (x, y) == goal:
                     goal_found = True
@@ -141,7 +141,7 @@ class Robot:
                 x += 1
                 k += 1
                 i = self.get_information_available((x, y))
-                path.append(Node((x, y), k, i))
+                path.append(Node.init_without_cost((x, y), i, k))
 
                 if (x, y) == goal:
                     goal_found = True
@@ -151,7 +151,7 @@ class Robot:
                 y -= 1
                 k += 1
                 i = self.get_information_available((x, y))
-                path.append(Node((x, y), k, i))
+                path.append(Node.init_without_cost((x, y), i, k))
 
                 if (x, y) == goal:
                     goal_found = True
@@ -161,7 +161,7 @@ class Robot:
                 x -= 1
                 k += 1
                 i = self.get_information_available((x, y))
-                path.append(Node((x, y), k, i))
+                path.append(Node.init_without_cost((x, y), i, k))
 
                 if (x, y) == goal:
                     goal_found = True

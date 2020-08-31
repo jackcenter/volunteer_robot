@@ -35,3 +35,7 @@ class Node:
 
     def set_time(self, k):
         self.k = k
+
+    @staticmethod
+    def init_without_cost(position, information, time):
+        return Node(position, information=information, time=time)
