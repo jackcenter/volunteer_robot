@@ -1,3 +1,4 @@
+from dynopy.data_objects.node import Node
 
 
 def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
@@ -15,8 +16,8 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
     # Initialize cost C, information I, starting node x_0, node list V, edge list E, and tree T
     I_init = initial_information(x_0, epsilon)      # Initial node information
     C_init = 0                                      # Initial node cost
-    n = (x_0, C_init, I_init)                       # Initial node      # TODO make this a node object
-    V = [n]                                         # Node list
+    n_0 = Node(x_0, C_init, I_init)                 # Initial node
+    V = [n_0]                                       # Node list
     V_closed = []                                   # Closed node list
     E = []                                          # Edge list
 
@@ -24,22 +25,22 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
     running = True
     while running:
         x_sample = sample(X_all)
-        n_nearest = nearest(x_sample, V_open)    # TODO: needs to be V\Vclosed
-        x_feasible = steer(x_n_nearest, x_sample, d)
+        n_nearest = nearest(x_sample, list(set(V).difference(V_closed)))
+        x_feasible = steer(n_nearest.get_position(), x_sample, d)
 
         # find near points to be extended
-        n_near = near(x_feasible, V_open, R)
+        n_near = near(x_feasible, list(set(V).difference(V_closed)), R)
 
         for n in n_near:
             # extend towards new point
-            x_new = steer(x_n_near, x_feasible, d)
-            if no_collision(x_n_near, x_new, X_free):
+            x_new = steer(n_near.get_position(), x_feasible, d)
+            if no_collision(n_near.get_position(), x_new, X_free):
                 # calculate new information and cost
-                I_new = information(I_n_near, x_new, epsilon)
+                I_new = information(n_near.get_information, x_new, epsilon)
                 # TODO: clean up this cost stuff below
-                C(x_new) = evaluate_cost(x_n_near, x_new)
-                C_new = n_near.cost + C(x_new)
-                n_new = (x_new, C_new, I_new)
+                C_x_new = evaluate_cost(n_near.get_position(), x_new)
+                C_new = n_near.get_cost() + C_x_new
+                n_new = Node(x_new, C_new, I_new)
 
                 if prune(n_new):
                     pass
@@ -52,6 +53,7 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
                         V_closed.append(n_new)
 
     return V, E
+
 
 def initial_information(x_0, epsilon):
     """
