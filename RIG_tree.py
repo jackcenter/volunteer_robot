@@ -36,7 +36,8 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
             x_new = steer(n_near.get_position(), x_feasible, d)
             if no_collision(n_near.get_position(), x_new, X_free):
                 # calculate new information and cost
-                I_new = information(n_near.get_information, x_new, epsilon)
+                # TODO: how does information change with time and how do I account for it?
+                I_new = information(n_near.get_information(), x_new, epsilon)
                 # TODO: clean up this cost stuff below
                 C_x_new = evaluate_cost(n_near.get_position(), x_new)
                 C_new = n_near.get_cost() + C_x_new
