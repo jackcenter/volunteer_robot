@@ -1,3 +1,4 @@
+import numpy as np
 from dynopy.data_objects.node import Node
 
 
@@ -73,7 +74,24 @@ def sample(X_all):
     :param X_all:
     :return:
     """
-    pass
+    x_min, x_max = X_all.get_x_position()
+    y_min, y_max = X_all.get_y_position()
+
+    x = random_sample(x_min, x_max)
+    y = random_sample(y_min, y_max)
+
+    return x, y
+
+
+def random_sample(a, b):
+    """
+
+    :param a: lower bound
+    :param b: upper bound
+    :return: random value between a and b
+    """
+    r = np.random.rand()
+    return a + r*(b - a)
 
 
 def nearest(x_s, V_open):
