@@ -1,3 +1,4 @@
+from math import sqrt
 import numpy as np
 from dynopy.data_objects.node import Node
 
@@ -70,7 +71,7 @@ def initial_information(x_0, epsilon):
 
 def sample(X_all):
     """
-
+    samples the configuration space for a random node position
     :param X_all:
     :return:
     """
@@ -96,13 +97,32 @@ def random_sample(a, b):
 
 def nearest(x_s, V_open):
     """
-
+    finds the node in the tree closest to the sampled position
     :param x_s: sampled position
     :param V_open: set of nodes that are still open
-    :return:
+    :return: the node with a position closest to the sampled position
     """
-    pass
 
+    node_nearest = V_open[0]
+    min_dist = get_distance(x_s, node_nearest.get_position())
+
+    for node in V_open:
+        test_dist = get_distance(x_s, node.get_position())
+
+        if min_dist > test_dist:
+            node_nearest = node
+
+    return node_nearest
+
+
+def get_distance(x1, x2):
+    """
+
+    :param x1: first x, y position
+    :param x2: second x, y position
+    :return: euclidean distance apart
+    """
+    return sqrt((x2[0] - x1[0])**2 + (x2[1] - x2[0])**2)
 
 def steer(x_n_nearest, x_sample, d):
     """
