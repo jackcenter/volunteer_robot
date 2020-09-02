@@ -2,6 +2,7 @@ class State_2D:
     def __init__(self, x_pos, y_pos):
         self.x1 = x_pos
         self.x2 = y_pos
+        self.state_names = {"x1": "x position", "x2": "y position"}
 
     def get_position(self):
         return self.x1, self.x2

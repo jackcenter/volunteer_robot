@@ -16,6 +16,7 @@ class Robot:
         self.name = name
         self.color = color
         self.state = state
+        self.configuration_space = None
         self.volunteer = volunteer
 
         self.waypoints = []         # list of points the agent needs to reach
@@ -83,6 +84,12 @@ class Robot:
 
     def set_initial_pdf(self):
         self.pdf = self.workspace.pdf.copy()
+
+    def set_configuration_space(self):
+        c1 = self.workspace.get_x_bounds()
+        c2 = self.workspace.get_y_bounds()
+
+        self.configuration_space = State_2D(c1, c2)
 
     def generate_full_path(self):
         """

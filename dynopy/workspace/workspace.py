@@ -59,6 +59,20 @@ class Workspace:
     def get_time_step(self):
         return self.time_step
 
+    def get_x_bounds(self):
+        """
+
+        :return: a tuple of the min and max x value
+        """
+        return self.x_bounds
+
+    def get_y_bounds(self):
+        """
+
+        :return: a tuple of the min and max y value
+        """
+        return self.y_bounds
+
     def step(self):
         """
         Moves the workspace forward one time step

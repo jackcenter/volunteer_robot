@@ -63,7 +63,8 @@ def initial_information(x_0, epsilon):
     :param epsilon: environment pdf
     :return: initial information
     """
-    x, y = x_0.get_position
+    x, y = x_0.get_position()
+    return epsilon[x][y]
 
 
 def sample(X_all):
