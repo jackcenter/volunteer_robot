@@ -1,5 +1,6 @@
 from math import sqrt
 import numpy as np
+import scipy.stats as stats
 from dynopy.data_objects.node import Node
 
 
@@ -124,15 +125,27 @@ def get_distance(x1, x2):
     """
     return sqrt((x2[0] - x1[0])**2 + (x2[1] - x2[0])**2)
 
-def steer(x_n_nearest, x_sample, d):
+
+def steer(x_0, x_sample, d):
     """
 
-    :param x_n_nearest: position of the nearest node
+    :param x_0: position of the nearest node
     :param x_sample: sampled position
     :param d: step size of the agent
-    :return: x_feasible - a feasible position
+    :return: x_feasible, a feasible position
     """
-    pass
+    # sample dynamics starting at x_nearest state
+    samples = 4
+    x_nearest = x_0
+
+    # sample between -1 and 1 for x and y then normalize to 0
+    uniform = stats.uniform(loc=-1, scale=1)
+
+    for i in range(0, samples):
+        rand_pos = (uniform.rvs(), uniform.rvs())
+        # find angle, actually, just find a random angle would be better!
+        # step in that direction and get (x, y)
+    # TODO: finish this function
 
 
 def near(x_feasible, V_open, R):
