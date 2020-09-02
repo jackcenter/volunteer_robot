@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from dynopy.workspace.workspace import Workspace
 from dynopy.workspace.agents import Robot
+from dynopy.data_objects.state import State_2D
 
 
 def main():
@@ -17,6 +18,7 @@ def main():
 
     # ROBOT 1 =====================================================
     robot1 = Robot("Inky", "cyan", [1, 0])
+    robot1 = Robot("Inky", "cyan", State_2D(1, 0))
     robot1.start(ws)
     # robot1.set_workspace(ws)
     # robot1.set_map()
@@ -39,7 +41,8 @@ def main():
     ws.add_agent(robot1)
 
     # ROBOT 2 =====================================================
-    robot2 = Robot("Clyde", "orange", [6, 9])
+    # robot2 = Robot("Clyde", "orange", [6, 9])
+    robot2 = Robot("Clyde", "orange", State_2D(6, 9))
     # robot2.set_workspace(ws)
     # robot2.set_map()
     # robot2.set_initial_pdf()
@@ -58,16 +61,13 @@ def main():
     ws.add_agent(robot2)
 
     # VOLUNTEER ===================================================
-    volunteer = Robot("Blinky", "red", [0, 5], True)
+    volunteer = Robot("Blinky", "red", State_2D(0, 5), True)
     volunteer.set_workspace(ws)
     volunteer.set_initial_pdf()
 
     ws.add_agent(volunteer)
 
-    print(robot1.path)
-    print(robot1.trajectory)
-    print(robot2.path)
-    print(robot2.trajectory)
+    print(volunteer.pdf)
 
     plt.style.use('dark_background')
     plt.figure(figsize=(10, 10))

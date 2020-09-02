@@ -58,12 +58,12 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
 
 def initial_information(x_0, epsilon):
     """
-
+    takes initial position and determines information gained from being there for one time step.
     :param x_0: initial state
-    :param epsilon: environment
+    :param epsilon: environment pdf
     :return: initial information
     """
-    pass
+    x, y = x_0.get_position
 
 
 def sample(X_all):

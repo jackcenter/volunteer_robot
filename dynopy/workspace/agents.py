@@ -2,10 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from dynopy.data_objects.node import Node
+from dynopy.data_objects.state import State_2D
 
 
 class Robot:
-    def __init__(self, name: str, color: str, state: list, volunteer=False):
+    def __init__(self, name: str, color: str, state, volunteer=False):
         """
 
         :param name:
@@ -44,7 +45,7 @@ class Robot:
 
         current_step = self.workspace.get_time_step()
         i = self.get_information_available(self.state)
-        start_node = Node.init_without_cost(tuple(self.state), i, current_step)
+        start_node = Node.init_without_cost(self.state.get_position(), i, current_step)
         self.path_log.append(start_node)
 
     def load_waypoints(self, waypoints):
@@ -53,8 +54,8 @@ class Robot:
         self.generate_trajectory()
 
     def plot(self):
-        x = self.state[0] + 0.5
-        y = self.state[1] + 0.5
+        x = self.state.get_x_position() + 0.5
+        y = self.state.get_y_position() + 0.5
         plt.plot(x, y, 'x', color=self.color)
 
     def plot_visited_cells(self):
@@ -190,8 +191,18 @@ class Robot:
 
         :return: information available in the specified grid cell.
         """
-        x = pos[0]
-        y = pos[1]
+        if isinstance(pos, tuple):
+            x = pos[0]
+            y = pos[1]
+
+        elif isinstance(pos, State_2D):
+            x = pos.get_x_position()
+            y = pos.get_y_position()
+
+        else:
+            print("Error: data type unknown for get_information_available")
+            print(type(pos))
+            return [[]]
 
         return self.pdf[x][y]
 
@@ -200,8 +211,8 @@ class Robot:
         updated probability target is in current grid cell for the time step
         :return:
         """
-        x = self.state[0]
-        y = self.state[1]
+        x = self.state.get_x_position()
+        y = self.state.get_y_position()
 
         i_available = self.pdf[x][y]
         i_remaining = i_available * self._pD
@@ -221,13 +232,17 @@ class Robot:
         action = self.trajectory.pop()
 
         if action == 'north':
-            self.state[1] += 1
+            # self.state[1] += 1
+            self.state.set_y_position(self.state.get_y_position() + 1)
         elif action == 'east':
-            self.state[0] += 1
+            # self.state[0] += 1
+            self.state.set_x_position(self.state.get_x_position() + 1)
         elif action == 'south':
-            self.state[1] -= 1
+            # self.state[1] -= 1
+            self.state.set_y_position(self.state.get_y_position() - 1)
         elif action == 'west':
-            self.state[0] -= 1
+            # self.state[0] -= 1
+            self.state.set_x_position(self.state.get_x_position() - 1)
         else:
             print("ERROR: robot action not understood. Needs to be north, east, south, or west")
             return
