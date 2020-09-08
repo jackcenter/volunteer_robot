@@ -209,12 +209,13 @@ def information(I_n_near, x_new, epsilon):
 
 def evaluate_cost(x_n_near, x_new):
     """
-
+    Simply uses the distance traveled as the cost.
     :param x_n_near: position of nearest node
     :param x_new: position of new node
     :return:
     """
-    pass
+    cost = get_distance(x_n_near, x_new)
+    return cost
 
 
 def prune(n_new):
@@ -223,4 +224,5 @@ def prune(n_new):
     :param n_new:
     :return:
     """
-    pass
+    # TODO: function is being bypassed for now
+    return False
