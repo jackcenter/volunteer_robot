@@ -1,4 +1,4 @@
-from math import sqrt
+from math import sqrt, cos, sin
 import numpy as np
 import scipy.stats as stats
 from dynopy.data_objects.node import Node
@@ -126,7 +126,7 @@ def get_distance(x1, x2):
     return sqrt((x2[0] - x1[0])**2 + (x2[1] - x2[0])**2)
 
 
-def steer(x_0, x_sample, d):
+def steer(x_0, x_sample, d, samples):
     """
 
     :param x_0: position of the nearest node
@@ -135,17 +135,23 @@ def steer(x_0, x_sample, d):
     :return: x_feasible, a feasible position
     """
     # sample dynamics starting at x_nearest state
-    samples = 4
     x_nearest = x_0
+    d_nearest = get_distance(x_0, x_sample)
 
     # sample between -1 and 1 for x and y then normalize to 0
-    uniform = stats.uniform(loc=-1, scale=1)
+    uniform = stats.uniform(loc=0, scale=3.1415)
 
     for i in range(0, samples):
-        rand_pos = (uniform.rvs(), uniform.rvs())
-        # find angle, actually, just find a random angle would be better!
-        # step in that direction and get (x, y)
-    # TODO: finish this function
+        theta_rand = uniform.rvs()
+        x_rand = d*cos(theta_rand)
+        y_rand = d*sin(theta_rand)
+        rand_pos = (x_rand, y_rand)
+        d_rand = get_distance(rand_pos, x_sample)
+
+        if d_rand < d_nearest:
+            x_nearest = rand_pos
+
+    return x_nearest
 
 
 def near(x_feasible, V_open, R):
