@@ -57,7 +57,7 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
                     # add edge and node
                     E.append((n_near, n_new))
                     V.append(n_new)
-                    if C_new > B:
+                    if n_new.get_cost() > B:
                         V_closed.append(n_new)
 
         count += 1
@@ -73,7 +73,7 @@ def initial_information(x_0, epsilon):
     :param epsilon: environment pdf
     :return: initial information
     """
-    x, y = x_0
+    x, y = trunc(x_0[0]), trunc(x_0[1])
     return epsilon[x][y]
 
 
@@ -130,7 +130,7 @@ def get_distance(x1, x2):
     :param x2: second x, y position
     :return: euclidean distance apart
     """
-    return sqrt((x2[0] - x1[0])**2 + (x2[1] - x2[0])**2)
+    return sqrt((x2[0] - x1[0])**2 + (x2[1] - x2[1])**2)
 
 
 def steer(x_0, x_sample, d, samples):
@@ -151,8 +151,8 @@ def steer(x_0, x_sample, d, samples):
 
     for i in range(0, samples):
         theta_rand = uniform.rvs()
-        x_rand = d*cos(theta_rand)
-        y_rand = d*sin(theta_rand)
+        x_rand = x_0[0] + d*cos(theta_rand)
+        y_rand = x_0[1] + d*sin(theta_rand)
         rand_pos = (x_rand, y_rand)
         d_rand = get_distance(rand_pos, x_sample)
 

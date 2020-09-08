@@ -43,7 +43,7 @@ def main():
     ws.add_agent(robot2)
 
     # VOLUNTEER ===================================================
-    volunteer = Robot("Blinky", "red", State_2D(0, 5), True)
+    volunteer = Robot("Blinky", "red", State_2D(0.5, 5.5), True)
     volunteer.set_workspace(ws)
     volunteer.set_configuration_space()
     volunteer.set_initial_pdf()
@@ -52,7 +52,7 @@ def main():
     print(volunteer.pdf)
 
     tree = RIG_tree(1, 10, volunteer.get_X_free(), volunteer.get_X_free(), volunteer.get_pdf(), volunteer.get_position()
-                    , 1)
+                    , 2)
 
     plt.style.use('dark_background')
     plt.figure(figsize=(10, 10))
