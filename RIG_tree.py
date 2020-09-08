@@ -186,19 +186,25 @@ def no_collision(x_n_near, x_new, X_free):
     :param X_free:
     :return:
     """
-    #TODO: actually check for obstacles
+    # TODO: actually check for obstacles
     return True
 
 
 def information(I_n_near, x_new, epsilon):
     """
-
+    Takes the current information gained on the branch and adds it to the information that can be gained from moving to
+    the new position.
     :param I_n_near: information in the near node
     :param x_new: new node position
     :param epsilon: environment
     :return: new information
     """
-    pass
+    # TODO: needs to account for a changing pdf
+    x = x_new[0]
+    y = x_new[1]
+    I_new = epsilon[x][y]
+    I_total = I_n_near + I_new
+    return I_total
 
 
 def evaluate_cost(x_n_near, x_new):
