@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from RIG_tree import RIG_tree
 from dynopy.workspace.workspace import Workspace
 from dynopy.workspace.agents import Robot
 from dynopy.data_objects.state import State_2D
@@ -17,13 +18,8 @@ def main():
     ws.generate_initial_distribution()
 
     # ROBOT 1 =====================================================
-    robot1 = Robot("Inky", "cyan", [1, 0])
     robot1 = Robot("Inky", "cyan", State_2D(1, 0))
     robot1.start(ws)
-    # robot1.set_workspace(ws)
-    # robot1.set_map()
-    # robot1.set_initial_pdf()
-    # robot1.update_pdf()
 
     wp1 = [
         (1, 0),
@@ -33,20 +29,10 @@ def main():
     ]
 
     robot1.load_waypoints(wp1)
-
-    # robot1.waypoints = wp1
-    # robot1.generate_full_path()
-    # robot1.generate_trajectory()
-
     ws.add_agent(robot1)
 
     # ROBOT 2 =====================================================
-    # robot2 = Robot("Clyde", "orange", [6, 9])
     robot2 = Robot("Clyde", "orange", State_2D(6, 9))
-    # robot2.set_workspace(ws)
-    # robot2.set_map()
-    # robot2.set_initial_pdf()
-    # robot2.update_pdf()
     robot2.start(ws)
     wp2 = [
         (6, 9),
@@ -54,20 +40,19 @@ def main():
         (4, 0)
     ]
     robot2.load_waypoints(wp2)
-    # robot2.waypoints = wp2
-    # robot2.generate_full_path()
-    # robot2.generate_trajectory()
-
     ws.add_agent(robot2)
 
     # VOLUNTEER ===================================================
     volunteer = Robot("Blinky", "red", State_2D(0, 5), True)
     volunteer.set_workspace(ws)
+    volunteer.set_configuration_space()
     volunteer.set_initial_pdf()
 
     ws.add_agent(volunteer)
-
     print(volunteer.pdf)
+
+    tree = RIG_tree(1, 10, volunteer.get_X_free(), volunteer.get_X_free(), volunteer.get_pdf(), volunteer.get_position()
+                    , 1)
 
     plt.style.use('dark_background')
     plt.figure(figsize=(10, 10))
@@ -94,7 +79,7 @@ def cycle(ws):
             # print()
 
             robot.step()
-            print(robot.path_log)
+            print([x.get_position() for x in robot.path_log])
             print(robot.i_gained)
 
 

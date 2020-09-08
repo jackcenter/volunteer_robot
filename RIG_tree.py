@@ -1,4 +1,4 @@
-from math import sqrt, cos, sin
+from math import sqrt, cos, sin, trunc
 import numpy as np
 import scipy.stats as stats
 from config import config
@@ -29,8 +29,8 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
     E = []                                          # Edge list
 
     # Sample configuration space of vehicle and find nearest node
-    running = True
-    while running:
+    count = 0
+    while count < 10:
         x_sample = sample(X_all)
         n_nearest = nearest(x_sample, list(set(V).difference(V_closed)))
         x_feasible = steer(n_nearest.get_position(), x_sample, d, input_samples)
@@ -60,6 +60,9 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
                     if C_new > B:
                         V_closed.append(n_new)
 
+        count += 1
+        print(count)
+
     return V, E
 
 
@@ -70,7 +73,7 @@ def initial_information(x_0, epsilon):
     :param epsilon: environment pdf
     :return: initial information
     """
-    x, y = x_0.get_position()
+    x, y = x_0
     return epsilon[x][y]
 
 
@@ -136,6 +139,7 @@ def steer(x_0, x_sample, d, samples):
     :param x_0: position of the nearest node
     :param x_sample: sampled position
     :param d: step size of the agent
+    :param samples: number of inputs to sample
     :return: x_feasible, a feasible position
     """
     # sample dynamics starting at x_nearest state
@@ -173,7 +177,7 @@ def near(x_feasible, V_open, R):
         d = get_distance(x_node, x_feasible)
 
         if d < R:
-            nodes_near.append(x_node)
+            nodes_near.append(node)
 
     return nodes_near
 
@@ -200,8 +204,7 @@ def information(I_n_near, x_new, epsilon):
     :return: new information
     """
     # TODO: needs to account for a changing pdf
-    x = x_new[0]
-    y = x_new[1]
+    x, y = trunc(x_new[0]), trunc(x_new[1])
     I_new = epsilon[x][y]
     I_total = I_n_near + I_new
     return I_total

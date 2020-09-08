@@ -85,11 +85,20 @@ class Robot:
     def set_initial_pdf(self):
         self.pdf = self.workspace.pdf.copy()
 
+    def get_pdf(self):
+        return self.pdf
+
     def set_configuration_space(self):
         c1 = self.workspace.get_x_bounds()
         c2 = self.workspace.get_y_bounds()
 
         self.configuration_space = State_2D(c1, c2)
+
+    def get_X_free(self):
+        return self.configuration_space
+
+    def get_position(self):
+        return self.state.get_position()
 
     def generate_full_path(self):
         """
