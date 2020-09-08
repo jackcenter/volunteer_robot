@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from RIG_tree import RIG_tree
+from RIG_tree import RIG_tree, plot_tree
 from dynopy.workspace.workspace import Workspace
 from dynopy.workspace.agents import Robot
 from dynopy.data_objects.state import State_2D
@@ -51,17 +51,18 @@ def main():
     ws.add_agent(volunteer)
     print(volunteer.pdf)
 
-    tree = RIG_tree(1, 10, volunteer.get_X_free(), volunteer.get_X_free(), volunteer.get_pdf(), volunteer.get_position()
-                    , 2)
+    V, E = RIG_tree(1, 10, volunteer.get_X_free(), volunteer.get_X_free(), volunteer.get_pdf(), volunteer.get_position()
+                    , 1.1)
 
     plt.style.use('dark_background')
     plt.figure(figsize=(10, 10))
-    ws.plot()
-    plt.show()
+    # ws.plot()
+    # plt.show()
 
-    for i in range(4):
+    for i in range(2):
         cycle(ws)
         ws.plot()
+        plot_tree(E)
         plt.show()
 
 

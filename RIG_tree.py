@@ -1,4 +1,5 @@
-from math import sqrt, cos, sin, trunc
+from math import sqrt, cos, sin, trunc, pi
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as stats
 from config import config
@@ -55,13 +56,23 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
 
                 else:
                     # add edge and node
-                    E.append((n_near, n_new))
+                    E.append((node, n_new))
                     V.append(n_new)
                     if n_new.get_cost() > B:
                         V_closed.append(n_new)
 
-        count += 1
+
+            plot_tree(E)
+            plt.plot(x_sample[0], x_sample[1], 'bx')
+            plt.plot(x_feasible[0], x_feasible[1], 'go')
+            plt.plot(node.get_position()[0], node.get_position()[1], 'kx')
+            plt.plot(x_new[0], x_new[1], 'kx')
+            plt.axis('equal')
+            plt.show()
+
         print(count)
+        count += 1
+
 
     return V, E
 
@@ -147,7 +158,7 @@ def steer(x_0, x_sample, d, samples):
     d_nearest = get_distance(x_0, x_sample)
 
     # sample between -1 and 1 for x and y then normalize to 0
-    uniform = stats.uniform(loc=0, scale=3.1415)
+    uniform = stats.uniform(loc=0, scale=2*pi)
 
     for i in range(0, samples):
         theta_rand = uniform.rvs()
@@ -205,7 +216,12 @@ def information(I_n_near, x_new, epsilon):
     """
     # TODO: needs to account for a changing pdf
     x, y = trunc(x_new[0]), trunc(x_new[1])
-    I_new = epsilon[x][y]
+
+    try:
+        I_new = epsilon[x][y]
+    except IndexError:
+        I_new = 0
+
     I_total = I_n_near + I_new
     return I_total
 
@@ -229,3 +245,20 @@ def prune(n_new):
     """
     # TODO: function is being bypassed for now
     return False
+
+
+def plot_leaves(V):
+    for node in V:
+        x, y = node.get_position()
+        plt.plot(x, y, 'o', color='red', mfc='none')
+
+
+def plot_tree(E, color='red'):
+
+    for node_0, node_1 in E:
+        x0, y0 = node_0.get_position()
+        x1, y1 = node_1.get_position()
+        x_ords = [x1, x0]
+        y_ords = [y1, y0]
+        plt.plot(x_ords, y_ords, ls='-', c=color, marker='o', mfc=color, mec=color)
+

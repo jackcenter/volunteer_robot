@@ -4,7 +4,7 @@
 
 def get_parameters():
     cfg = {
-        "samples": 4
+        "samples": 16
     }
 
     return cfg
