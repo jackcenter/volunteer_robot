@@ -1,6 +1,7 @@
 from math import sqrt, cos, sin
 import numpy as np
 import scipy.stats as stats
+from config import config
 from dynopy.data_objects.node import Node
 
 
@@ -17,6 +18,9 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
     :return: a list of nodes and edges
     """
     # Initialize cost C, information I, starting node x_0, node list V, edge list E, and tree T
+    cfg = config.get_parameters()
+    input_samples = cfg["samples"]
+
     I_init = initial_information(x_0, epsilon)      # Initial node information
     C_init = 0                                      # Initial node cost
     n_0 = Node(x_0, C_init, I_init)                 # Initial node
@@ -29,21 +33,21 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
     while running:
         x_sample = sample(X_all)
         n_nearest = nearest(x_sample, list(set(V).difference(V_closed)))
-        x_feasible = steer(n_nearest.get_position(), x_sample, d)
+        x_feasible = steer(n_nearest.get_position(), x_sample, d, input_samples)
 
         # find near points to be extended
         n_near = near(x_feasible, list(set(V).difference(V_closed)), R)
 
-        for n in n_near:
+        for node in n_near:
             # extend towards new point
-            x_new = steer(n_near.get_position(), x_feasible, d)
-            if no_collision(n_near.get_position(), x_new, X_free):
+            x_new = steer(node.get_position(), x_feasible, d, input_samples)
+            if no_collision(node.get_position(), x_new, X_free):
                 # calculate new information and cost
                 # TODO: how does information change with time and how do I account for it?
-                I_new = information(n_near.get_information(), x_new, epsilon)
+                I_new = information(node.get_information(), x_new, epsilon)
                 # TODO: clean up this cost stuff below
-                C_x_new = evaluate_cost(n_near.get_position(), x_new)
-                C_new = n_near.get_cost() + C_x_new
+                C_x_new = evaluate_cost(node.get_position(), x_new)
+                C_new = node.get_cost() + C_x_new
                 n_new = Node(x_new, C_new, I_new)
 
                 if prune(n_new):
@@ -162,18 +166,28 @@ def near(x_feasible, V_open, R):
     :param R: nearest neighbor radius parameter
     :return: list of nodes near x_feasible
     """
-    pass
+    nodes_near = []
+
+    for node in V_open:
+        x_node = node.get_position()
+        d = get_distance(x_node, x_feasible)
+
+        if d < R:
+            nodes_near.append(x_node)
+
+    return nodes_near
 
 
 def no_collision(x_n_near, x_new, X_free):
     """
-
+    No collision checking is done at the moment, assuming no obstacles
     :param x_n_near:
     :param x_new:
     :param X_free:
     :return:
     """
-    pass
+    #TODO: actually check for obstacles
+    return True
 
 
 def information(I_n_near, x_new, epsilon):
