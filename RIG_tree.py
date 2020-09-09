@@ -6,7 +6,7 @@ from config import config
 from dynopy.data_objects.node import Node
 
 
-def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
+def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, cycles=10):
     """
 
     :param d: single dynamic step
@@ -16,6 +16,7 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
     :param epsilon: environment
     :param x_0: initial state
     :param R: nearest neighbor radius
+    :param cycles: number of times to sample and extend
     :return: a list of nodes and edges
     """
     # Initialize cost C, information I, starting node x_0, node list V, edge list E, and tree T
@@ -31,22 +32,22 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
 
     # Sample configuration space of vehicle and find nearest node
     count = 0
-    while count < 10:
+    while count < cycles:
         x_sample = sample(X_all)
         n_nearest = nearest(x_sample, list(set(V).difference(V_closed)))
         x_feasible = steer(n_nearest.get_position(), x_sample, d, input_samples, 'y.')
 
         # find near points to be extended
+        # print("Full list: {}".format(V))
+        # print("Closed list: {}".format(V_closed))
+        # print("Open list: {}".format(list(set(V).difference(V_closed))))
         n_near = near(x_feasible, list(set(V).difference(V_closed)), R)
 
         for node in n_near:
             # extend towards new point
             x_new = steer(node.get_position(), x_feasible, d, input_samples)
             if no_collision(node.get_position(), x_new, X_free):
-                # calculate new information and cost
-                # TODO: how does information change with time and how do I account for it?
                 I_new = information(node.get_information(), x_new, epsilon)
-                # TODO: clean up this cost stuff below
                 C_x_new = evaluate_cost(node.get_position(), x_new)
                 C_new = node.get_cost() + C_x_new
                 n_new = Node(x_new, C_new, I_new)
@@ -62,13 +63,13 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
                         V_closed.append(n_new)
 
 
-            plot_tree(E)
-            plt.plot(x_sample[0], x_sample[1], 'bx')
-            plt.plot(x_feasible[0], x_feasible[1], 'yo')
-            plt.plot(node.get_position()[0], node.get_position()[1], 'k.')
-            plt.plot(x_new[0], x_new[1], 'kx')
-            plt.axis('equal')
-            plt.show()
+            # plot_tree(E)
+            # plt.plot(x_sample[0], x_sample[1], 'bx')
+            # plt.plot(x_feasible[0], x_feasible[1], 'yo')
+            # plt.plot(node.get_position()[0], node.get_position()[1], 'k.')
+            # plt.plot(x_new[0], x_new[1], 'kx')
+            # plt.axis('equal')
+            # plt.show()
 
         print(count)
         count += 1
@@ -169,12 +170,9 @@ def steer(x_0, x_sample, d, samples, marker='g.'):
         rand_pos = (x_rand, y_rand)
         d_rand = get_distance(rand_pos, x_sample)
 
-        print("The random node is at: {}, {} which is {} from the sample".format(x_rand, y_rand, d_rand))
-
-        plt.plot(x_rand, y_rand, marker)
+        # plt.plot(x_rand, y_rand, marker)
 
         if d_rand < d_nearest:
-            print("Update nearest")
             x_nearest = rand_pos
             d_nearest = d_rand
 
@@ -258,7 +256,7 @@ def prune(n_new):
 def plot_leaves(V):
     for node in V:
         x, y = node.get_position()
-        plt.plot(x, y, 'o', color='red', mfc='none')
+        plt.plot(x, y, '.', color='red', mfc='none')
 
 
 def plot_tree(E, color='red'):
@@ -268,5 +266,5 @@ def plot_tree(E, color='red'):
         x1, y1 = node_1.get_position()
         x_ords = [x1, x0]
         y_ords = [y1, y0]
-        plt.plot(x_ords, y_ords, ls='-', c=color, marker='o', mfc=color, mec=color)
+        plt.plot(x_ords, y_ords, ls='-', c=color, marker='.', mfc=color, mec=color)
 

@@ -55,9 +55,16 @@ class Robot:
         self.generate_trajectory()
 
     def plot(self):
-        x = self.state.get_x_position() + 0.5
-        y = self.state.get_y_position() + 0.5
-        plt.plot(x, y, 'x', color=self.color)
+
+        if self.volunteer:
+            x = self.state.get_x_position()
+            y = self.state.get_y_position()
+            plt.plot(x, y, 'x', color=self.color)
+
+        else:
+            x = self.state.get_x_position() + 0.5
+            y = self.state.get_y_position() + 0.5
+            plt.plot(x, y, 'x', color=self.color)
 
     def plot_visited_cells(self):
         for node in self.path_log:

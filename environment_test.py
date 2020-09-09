@@ -52,7 +52,7 @@ def main():
     print(volunteer.pdf)
 
     V, E = RIG_tree(1, 10, volunteer.get_X_free(), volunteer.get_X_free(), volunteer.get_pdf(), volunteer.get_position()
-                    , 1.1)
+                    , 1.2)
 
     plt.style.use('dark_background')
     plt.figure(figsize=(10, 10))
