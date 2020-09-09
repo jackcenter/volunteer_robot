@@ -34,7 +34,7 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
     while count < 10:
         x_sample = sample(X_all)
         n_nearest = nearest(x_sample, list(set(V).difference(V_closed)))
-        x_feasible = steer(n_nearest.get_position(), x_sample, d, input_samples)
+        x_feasible = steer(n_nearest.get_position(), x_sample, d, input_samples, 'y.')
 
         # find near points to be extended
         n_near = near(x_feasible, list(set(V).difference(V_closed)), R)
@@ -64,8 +64,8 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R):
 
             plot_tree(E)
             plt.plot(x_sample[0], x_sample[1], 'bx')
-            plt.plot(x_feasible[0], x_feasible[1], 'go')
-            plt.plot(node.get_position()[0], node.get_position()[1], 'kx')
+            plt.plot(x_feasible[0], x_feasible[1], 'yo')
+            plt.plot(node.get_position()[0], node.get_position()[1], 'k.')
             plt.plot(x_new[0], x_new[1], 'kx')
             plt.axis('equal')
             plt.show()
@@ -128,8 +128,9 @@ def nearest(x_s, V_open):
     for node in V_open:
         test_dist = get_distance(x_s, node.get_position())
 
-        if min_dist > test_dist:
+        if test_dist < min_dist:
             node_nearest = node
+            min_dist = test_dist
 
     return node_nearest
 
@@ -141,16 +142,17 @@ def get_distance(x1, x2):
     :param x2: second x, y position
     :return: euclidean distance apart
     """
-    return sqrt((x2[0] - x1[0])**2 + (x2[1] - x2[1])**2)
+    return sqrt((x2[0] - x1[0])**2 + (x2[1] - x1[1])**2)
 
 
-def steer(x_0, x_sample, d, samples):
+def steer(x_0, x_sample, d, samples, marker='g.'):
     """
 
     :param x_0: position of the nearest node
     :param x_sample: sampled position
     :param d: step size of the agent
     :param samples: number of inputs to sample
+    :param marker: color for plotting
     :return: x_feasible, a feasible position
     """
     # sample dynamics starting at x_nearest state
@@ -167,8 +169,14 @@ def steer(x_0, x_sample, d, samples):
         rand_pos = (x_rand, y_rand)
         d_rand = get_distance(rand_pos, x_sample)
 
+        print("The random node is at: {}, {} which is {} from the sample".format(x_rand, y_rand, d_rand))
+
+        plt.plot(x_rand, y_rand, marker)
+
         if d_rand < d_nearest:
+            print("Update nearest")
             x_nearest = rand_pos
+            d_nearest = d_rand
 
     return x_nearest
 
