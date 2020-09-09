@@ -268,3 +268,28 @@ def plot_tree(E, color='red'):
         y_ords = [y1, y0]
         plt.plot(x_ords, y_ords, ls='-', c=color, marker='.', mfc=color, mec=color)
 
+
+def pick_path(V, E):
+    """
+    TODO: test this function
+    picks a path simply based on the highest information in a path
+    :param V: list of nodes
+    :param E: list of directed node tuples
+    :return: list of nodes that represent a path
+    """
+
+    searching = True
+    # find the highest information of all of the nodes
+    # TODO: actually find the right node
+    path = V[-1]
+    # work backward through the edges to find all of the nodes
+    while searching:
+        for root, leaf in E:
+            if leaf == path[-1]:
+                path.append(leaf)
+                break
+            searching = False     # the node is not a leaf, so it is the root, so the search is complete
+
+    # end when there isn't another edge found.
+    return path
+
