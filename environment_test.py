@@ -7,7 +7,7 @@ from dynopy.workspace.workspace import Workspace
 from dynopy.workspace.agents import Robot
 from dynopy.data_objects.state import State_2D
 from RIG_tree import RIG_tree
-from tree_analysis import plot_tree, pick_path, identify_fusion_nodes
+from tree_analysis import plot_tree, pick_path, identify_fusion_nodes, update_information
 
 
 def main():
@@ -60,10 +60,15 @@ def main():
     V, E = RIG_tree(cfg["step_size"], cfg["budget"], volunteer.get_X_free(), volunteer.get_X_free(),
                     volunteer.get_pdf(), volunteer.get_position(), cfg["radius"], cfg["cycles"])
 
-    volunteer.path = pick_path(V, E)
-    print([x.get_position() for x in volunteer.path])
+    # print(sum([x.get_information() for x in V]))
+    # print([x.__dict__ for x in V])
+    update_information(V, E, volunteer.pdf)
+    # print(sum([x.get_information() for x in V]))
+    # print([x.__dict__ for x in V])
+
     identify_fusion_nodes(V, robot1.get_path(), robot1.name, 2)
     identify_fusion_nodes(V, robot2.get_path(), robot2.name, 2)
+    volunteer.path = pick_path(V, E)
 
     plt.style.use('dark_background')
     plt.figure(figsize=(10, 10))
@@ -91,8 +96,8 @@ def cycle(ws):
             # print()
 
             robot.step()
-            print([x.get_position() for x in robot.path_log])
-            print(robot.i_gained)
+            # print([x.get_position() for x in robot.path_log])
+            # print(robot.i_gained)
 
 
 if __name__ == "__main__":

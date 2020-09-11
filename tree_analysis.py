@@ -9,7 +9,7 @@ from config import config
 cfg = config.get_parameters()
 
 
-def update_information(V, E, epsilon_0, gamma):
+def update_information(V, E, epsilon_0):
     """
     Walk through the path and update information at each node.
     :param V: list of nodes
@@ -20,7 +20,9 @@ def update_information(V, E, epsilon_0, gamma):
     """
 
     ol = [V[0]]
+    bl = []     # branch list for visted nodes
     cl = []
+
     epsilon_list = [epsilon_0]
 
     # while ol:
@@ -40,20 +42,33 @@ def update_information(V, E, epsilon_0, gamma):
     while ol:
         node = ol[-1]
         epsilon_k0 = epsilon_list[-1]
-        I_new = get_information_gained(epsilon_k0, node, cfg["gamma"])
-        node.set_information(I_new)
-        epsilon_k1 = update_epsilon(epsilon_k0, node)
-        epsilon_list.append(epsilon_k1)
 
-        neighbors_all = find_neighbors(node, E)
+        if bl:
+            parent_info = bl[-1].get_information()
+        else:
+            parent_info = 0
+
+        neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
+
+        I_gained = get_information_gained(epsilon_k0, node, cfg["gamma"])
+        I_new = I_gained + parent_info
+
+        if node not in bl:
+            # keeps information from being updated twice
+            node.set_information(I_new)
+
+        epsilon_k1 = update_epsilon(epsilon_k0, node, I_gained)
+        epsilon_list.append(epsilon_k1)
 
         if neighbors_open:
             ol.extend(neighbors_open)
+            bl.append(node)
+
         else:
-            epsilon_list.pop()
             cl.append(node)
             ol.pop()
+            epsilon_list.pop()
 
 
     # # expand the root
@@ -93,10 +108,9 @@ def get_information_gained(epsilon, node, gamma):
     return I_gained
 
 
-def update_epsilon(epsilon_k0, node):
+def update_epsilon(epsilon_k0, node, I_gained):
 
     I_available = get_information_available(epsilon_k0, node)
-    I_gained = node.get_information()
     I_remaining = I_available - I_gained
     epsilon_k1 = set_information_available(epsilon_k0.copy(), node, I_remaining)
     return epsilon_k1
@@ -115,7 +129,7 @@ def set_information_available(epsilon, node, value):
     x = trunc(x)
     y = trunc(y)
     epsilon[x][y] = value
-    normalize_pdf(epsilon)
+    epsilon = normalize_pdf(epsilon)
     return epsilon
 
 
@@ -130,7 +144,11 @@ def find_neighbors(E, node):
     :param node: base node
     :return: list of neighbors
     """
-    return []
+    neighbors_list = []
+    for parent, child in E:
+        if node == parent:
+            neighbors_list.append(child)
+    return neighbors_list
 
 
 def identify_fusion_nodes(V_a, V_b, channel, fusion_range):

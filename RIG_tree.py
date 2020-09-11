@@ -69,14 +69,7 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, cycles=10):
 
             if cfg["plot_full"]:
                 plot_expansion(x_sample, x_feasible, node.get_position(), x_new)
-            # plt.plot(x_sample[0], x_sample[1], 'bx')
-            # plt.plot(x_feasible[0], x_feasible[1], 'yo')
-            # plt.plot(node.get_position()[0], node.get_position()[1], 'k.')
-            # plt.plot(x_new[0], x_new[1], 'kx')
-            # plt.axis('equal')
-            # plt.show()
 
-        print(count)
         count += 1
 
     return V, E
