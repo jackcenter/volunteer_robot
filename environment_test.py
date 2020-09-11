@@ -6,7 +6,8 @@ from config import config
 from dynopy.workspace.workspace import Workspace
 from dynopy.workspace.agents import Robot
 from dynopy.data_objects.state import State_2D
-from RIG_tree import RIG_tree, plot_tree, pick_path
+from RIG_tree import RIG_tree
+from tree_analysis import plot_tree, pick_path
 
 
 def main():
