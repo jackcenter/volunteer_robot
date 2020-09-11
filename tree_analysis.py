@@ -1,23 +1,62 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from math import sqrt
 import matplotlib.pyplot as plt
 
 
-def update_information():
+def update_information(path, epsilon, gamma):
     """
-    Walk through the tree and update information at each node. Should account for
-    :return:
+    Walk through the path and update information at each node.
+    :param path: selected path
+    :param epsilon: information in the environment
+    :param gamma: sensor efficiency
+    :return: List of nodes with updated information values
     """
+
+
+    # expand the root
+    for root, leaf in E:
+        branches = 0
+        node = open_list.pop
+        if node == root:
+            open_list.append(leaf)
+            branches += 1
+
+
+
+    # Start at the root, take position and update epsilon with a depth first approach
+    #   find all leaves
+    #
+    # Find all leaves
+    x, y = node.get_position()
+    i_available = epsilon[x][y]
+    node.set_information(i_available)
+
+    i_remaining = i_available * gamma
+    epsilon[x][y] = i_remaining
+
     pass
 
 
-def identify_fusion_nodes():
+def identify_fusion_nodes(V_a, V_b, channel, fusion_range):
     """
     Look for nodes that are going to be in close proximity to other agents
+    :param V_a: List of nodes for agent a (the volunteer)
+    :param V_b: List of nodes for agent b (the independent agent)
+    :param channel: agent the fusion will happen with
+    :param fusion_range
     :return:
     """
-    pass
+    for node_b in V_b:
+        pos_b = node_b.get_position()
+        k_b = node_b.get_time()
+        for node_a in V_a:
+            pos_a = node_a.get_position()
+            k_a = node_a.get_time()
+
+            if node_a.get_distance_from(node_b) < fusion_range and node_a.compare_time(node_b):
+                node_a.add_fusion(channel)
 
 
 def pick_path(V, E):
@@ -40,9 +79,6 @@ def pick_path(V, E):
                 searching = True
                 break
 
-                # the node is not a leaf, so it is the root, so the search is complete
-
-    # end when there isn't another edge found.
     return path
 
 

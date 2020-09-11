@@ -9,7 +9,7 @@ def get_parameters():
         "radius": 1.2,
         "cycles": 20,
         "samples": 16,
-        "plot_full": True
+        "plot_full": False
     }
 
     return cfg

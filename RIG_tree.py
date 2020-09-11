@@ -29,7 +29,7 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, cycles=10):
 
     I_init = initial_information(x_0, epsilon)      # Initial node information
     C_init = 0                                      # Initial node cost
-    n_0 = Node(x_0, C_init, I_init)                 # Initial node
+    n_0 = Node(x_0, C_init, I_init, 0)              # Initial node
     V = [n_0]                                       # Node list
     V_closed = []                                   # Closed node list
     E = []                                          # Edge list
@@ -54,7 +54,8 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, cycles=10):
                 I_new = information(node.get_information(), x_new, epsilon)
                 C_x_new = evaluate_cost(node.get_position(), x_new)
                 C_new = node.get_cost() + C_x_new
-                n_new = Node(x_new, C_new, I_new)
+                k_new = node.get_time() + 1             # represents one time step, could be actual time
+                n_new = Node(x_new, C_new, I_new, k_new)
 
                 if prune(n_new):
                     pass
@@ -77,7 +78,6 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, cycles=10):
 
         print(count)
         count += 1
-
 
     return V, E
 
