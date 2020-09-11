@@ -296,3 +296,6 @@ class Robot:
             return "west"
         else:
             print("ERROR: couldn't determine the orientation of these two cells: {}, {}".format(a, b))
+
+    def get_path(self):
+        return self.path

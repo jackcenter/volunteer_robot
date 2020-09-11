@@ -7,7 +7,7 @@ from dynopy.workspace.workspace import Workspace
 from dynopy.workspace.agents import Robot
 from dynopy.data_objects.state import State_2D
 from RIG_tree import RIG_tree
-from tree_analysis import plot_tree, pick_path
+from tree_analysis import plot_tree, pick_path, identify_fusion_nodes
 
 
 def main():
@@ -62,6 +62,8 @@ def main():
 
     volunteer.path = pick_path(V, E)
     print([x.get_position() for x in volunteer.path])
+    identify_fusion_nodes(V, robot1.get_path(), robot1.name, 2)
+    identify_fusion_nodes(V, robot2.get_path(), robot2.name, 2)
 
     plt.style.use('dark_background')
     plt.figure(figsize=(10, 10))

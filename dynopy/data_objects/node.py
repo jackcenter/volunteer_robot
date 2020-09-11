@@ -58,7 +58,7 @@ class Node:
         """
         x1, y1 = self.get_position()
         x2, y2 = node.get_position()
-        return sqrt((x2[0] - x1[0]) ** 2 + (x2[1] - x1[1]) ** 2)
+        return sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
     def compare_time(self, node):
         """

@@ -15,26 +15,26 @@ def update_information(path, epsilon, gamma):
     """
 
 
-    # expand the root
-    for root, leaf in E:
-        branches = 0
-        node = open_list.pop
-        if node == root:
-            open_list.append(leaf)
-            branches += 1
-
-
-
-    # Start at the root, take position and update epsilon with a depth first approach
-    #   find all leaves
+    # # expand the root
+    # for root, leaf in E:
+    #     branches = 0
+    #     node = open_list.pop
+    #     if node == root:
+    #         open_list.append(leaf)
+    #         branches += 1
     #
-    # Find all leaves
-    x, y = node.get_position()
-    i_available = epsilon[x][y]
-    node.set_information(i_available)
-
-    i_remaining = i_available * gamma
-    epsilon[x][y] = i_remaining
+    #
+    #
+    # # Start at the root, take position and update epsilon with a depth first approach
+    # #   find all leaves
+    # #
+    # # Find all leaves
+    # x, y = node.get_position()
+    # i_available = epsilon[x][y]
+    # node.set_information(i_available)
+    #
+    # i_remaining = i_available * gamma
+    # epsilon[x][y] = i_remaining
 
     pass
 
@@ -49,14 +49,10 @@ def identify_fusion_nodes(V_a, V_b, channel, fusion_range):
     :return:
     """
     for node_b in V_b:
-        pos_b = node_b.get_position()
-        k_b = node_b.get_time()
         for node_a in V_a:
-            pos_a = node_a.get_position()
-            k_a = node_a.get_time()
-
             if node_a.get_distance_from(node_b) < fusion_range and node_a.compare_time(node_b):
                 node_a.add_fusion(channel)
+                print("fusion with {} found at: {}, k = {}".format(channel, node_a.get_position(), node_a.get_time()))
 
 
 def pick_path(V, E):

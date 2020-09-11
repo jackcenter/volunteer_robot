@@ -6,8 +6,8 @@ def get_parameters():
     cfg = {
         "budget": 20,
         "step_size": 1,
-        "radius": 1.2,
-        "cycles": 20,
+        "radius": 1,
+        "cycles": 30,
         "samples": 16,
         "plot_full": False
     }
