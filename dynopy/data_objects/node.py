@@ -1,3 +1,6 @@
+# !/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 class Node:
     def __init__(self, position, cost=0, information=0, time=0):
         """

@@ -1,3 +1,6 @@
+# !/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import matplotlib.pyplot as plt
 from config import config
 from dynopy.workspace.workspace import Workspace

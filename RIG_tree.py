@@ -1,3 +1,6 @@
+# !/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from math import sqrt, cos, sin, trunc, pi
 import matplotlib.pyplot as plt
 import numpy as np

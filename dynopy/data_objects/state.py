@@ -1,3 +1,6 @@
+# !/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 class State_2D:
     def __init__(self, x_pos, y_pos):
         self.x1 = x_pos
