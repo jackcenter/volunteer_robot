@@ -1,8 +1,9 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from math import sqrt
+from math import trunc
 import matplotlib.pyplot as plt
+import numpy as np
 from config import config
 
 cfg = config.get_parameters()
@@ -13,7 +14,7 @@ def update_information(V, E, epsilon_0, gamma):
     Walk through the path and update information at each node.
     :param V: list of nodes
     :param E: list of edges
-    :param epsilon: information in the environment
+    :param epsilon_0: information in the environment
     :param gamma: sensor efficiency
     :return: List of nodes with updated information values
     """
@@ -39,7 +40,7 @@ def update_information(V, E, epsilon_0, gamma):
     while ol:
         node = ol[-1]
         epsilon_k0 = epsilon_list[-1]
-        I_new = get_information_gained(epsilon_k0, node.get_position(), cfg["gamma"])
+        I_new = get_information_gained(epsilon_k0, node, cfg["gamma"])
         node.set_information(I_new)
         epsilon_k1 = update_epsilon(epsilon_k0, node)
         epsilon_list.append(epsilon_k1)
@@ -79,19 +80,47 @@ def update_information(V, E, epsilon_0, gamma):
     pass
 
 
-def get_information_gained(epsilon, pos, gamma):
+def get_information_gained(epsilon, node, gamma):
     """
     returns the information gained
     :param epsilon:
-    :param pos:
+    :param node:
     :param gamma: coefficient for the rate at which information is gained compared to information available
     :return:
     """
-    return 0
+    I_available = get_information_available(epsilon, node)
+    I_gained = gamma*I_available
+    return I_gained
 
 
-def update_epsilon(epsilon, node):
-    return 0
+def update_epsilon(epsilon_k0, node):
+
+    I_available = get_information_available(epsilon_k0, node)
+    I_gained = node.get_information()
+    I_remaining = I_available - I_gained
+    epsilon_k1 = set_information_available(epsilon_k0.copy(), node, I_remaining)
+    return epsilon_k1
+
+
+def get_information_available(epsilon, node):
+    x, y = node.get_position()
+    x = trunc(x)
+    y = trunc(y)
+    I_available = epsilon[x][y]
+    return I_available
+
+
+def set_information_available(epsilon, node, value):
+    x, y = node.get_position()
+    x = trunc(x)
+    y = trunc(y)
+    epsilon[x][y] = value
+    normalize_pdf(epsilon)
+    return epsilon
+
+
+def normalize_pdf(pdf):
+    return pdf / np.sum(pdf)
 
 
 def find_neighbors(E, node):
