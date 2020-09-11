@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from RIG_tree import RIG_tree, plot_tree
+from RIG_tree import RIG_tree, plot_tree, pick_path
 from dynopy.workspace.workspace import Workspace
 from dynopy.workspace.agents import Robot
 from dynopy.data_objects.state import State_2D
@@ -53,6 +53,9 @@ def main():
 
     V, E = RIG_tree(1, 10, volunteer.get_X_free(), volunteer.get_X_free(), volunteer.get_pdf(), volunteer.get_position()
                     , 1.2)
+
+    path = pick_path(V, E)
+    print([x.get_position() for x in path])
 
     plt.style.use('dark_background')
     plt.figure(figsize=(10, 10))

@@ -271,7 +271,6 @@ def plot_tree(E, color='red'):
 
 def pick_path(V, E):
     """
-    TODO: test this function
     picks a path simply based on the highest information in a path
     :param V: list of nodes
     :param E: list of directed node tuples
@@ -279,16 +278,18 @@ def pick_path(V, E):
     """
 
     searching = True
-    # find the highest information of all of the nodes
-    # TODO: actually find the right node
-    path = V[-1]
-    # work backward through the edges to find all of the nodes
+    max_node = max(V, key=lambda item: item.get_information())  # finds node with most information
+    path = [max_node]
+
     while searching:
+        searching = False
         for root, leaf in E:
             if leaf == path[-1]:
-                path.append(leaf)
+                path.append(root)
+                searching = True
                 break
-            searching = False     # the node is not a leaf, so it is the root, so the search is complete
+
+                # the node is not a leaf, so it is the root, so the search is complete
 
     # end when there isn't another edge found.
     return path
