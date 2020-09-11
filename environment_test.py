@@ -1,11 +1,13 @@
 import matplotlib.pyplot as plt
-from RIG_tree import RIG_tree, plot_tree, pick_path
+from config import config
 from dynopy.workspace.workspace import Workspace
 from dynopy.workspace.agents import Robot
 from dynopy.data_objects.state import State_2D
+from RIG_tree import RIG_tree, plot_tree, pick_path
 
 
 def main():
+    cfg = config.get_parameters()
     boundary = [
         (0, 0),
         (10, 0),
@@ -51,11 +53,11 @@ def main():
     ws.add_agent(volunteer)
     print(volunteer.pdf)
 
-    V, E = RIG_tree(1, 10, volunteer.get_X_free(), volunteer.get_X_free(), volunteer.get_pdf(), volunteer.get_position()
-                    , 1.2)
+    V, E = RIG_tree(cfg["step_size"], cfg["budget"], volunteer.get_X_free(), volunteer.get_X_free(),
+                    volunteer.get_pdf(), volunteer.get_position(), cfg["radius"], cfg["cycles"])
 
-    path = pick_path(V, E)
-    print([x.get_position() for x in path])
+    volunteer.path = pick_path(V, E)
+    print([x.get_position() for x in volunteer.path])
 
     plt.style.use('dark_background')
     plt.figure(figsize=(10, 10))
@@ -64,8 +66,8 @@ def main():
 
     for i in range(2):
         cycle(ws)
+        plot_tree(E, 'lightcoral')
         ws.plot()
-        plot_tree(E)
         plt.show()
 
 

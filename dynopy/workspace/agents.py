@@ -74,10 +74,16 @@ class Robot:
             plt.plot(x, y, 'o', color=self.color, mfc='none')
 
     def plot_path(self):
+
+        if self.volunteer:
+            adjust = 0
+        else:
+            adjust = 0.5
+
         for node in self.path:
             pos = node.get_position()
-            x = pos[0] + 0.5
-            y = pos[1] + 0.5
+            x = pos[0] + adjust
+            y = pos[1] + adjust
             plt.plot(x, y, '.', color=self.color)
 
     def get_volunteer_status(self):

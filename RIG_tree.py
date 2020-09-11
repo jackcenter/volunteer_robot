@@ -266,7 +266,7 @@ def plot_tree(E, color='red'):
         x1, y1 = node_1.get_position()
         x_ords = [x1, x0]
         y_ords = [y1, y0]
-        plt.plot(x_ords, y_ords, ls='-', c=color, marker='.', mfc=color, mec=color)
+        plt.plot(x_ords, y_ords, ls='--', c=color)
 
 
 def pick_path(V, E):

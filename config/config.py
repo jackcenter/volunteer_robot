@@ -4,6 +4,10 @@
 
 def get_parameters():
     cfg = {
+        "budget": 20,
+        "step_size": 1,
+        "radius": 1.2,
+        "cycles": 20,
         "samples": 16
     }
 
