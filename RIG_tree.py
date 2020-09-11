@@ -5,6 +5,8 @@ import scipy.stats as stats
 from config import config
 from dynopy.data_objects.node import Node
 
+cfg = config.get_parameters()
+
 
 def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, cycles=10):
     """
@@ -20,7 +22,6 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, cycles=10):
     :return: a list of nodes and edges
     """
     # Initialize cost C, information I, starting node x_0, node list V, edge list E, and tree T
-    cfg = config.get_parameters()
     input_samples = cfg["samples"]
 
     I_init = initial_information(x_0, epsilon)      # Initial node information
@@ -62,8 +63,8 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, cycles=10):
                     if n_new.get_cost() > B:
                         V_closed.append(n_new)
 
-
-            # plot_tree(E)
+            if cfg["plot_full"]:
+                plot_expansion(x_sample, x_feasible, node.get_position(), x_new)
             # plt.plot(x_sample[0], x_sample[1], 'bx')
             # plt.plot(x_feasible[0], x_feasible[1], 'yo')
             # plt.plot(node.get_position()[0], node.get_position()[1], 'k.')
@@ -170,7 +171,8 @@ def steer(x_0, x_sample, d, samples, marker='g.'):
         rand_pos = (x_rand, y_rand)
         d_rand = get_distance(rand_pos, x_sample)
 
-        # plt.plot(x_rand, y_rand, marker)
+        if cfg["plot_full"]:
+            plt.plot(x_rand, y_rand, marker)
 
         if d_rand < d_nearest:
             x_nearest = rand_pos
@@ -251,6 +253,20 @@ def prune(n_new):
     """
     # TODO: function is being bypassed for now
     return False
+
+
+def plot_expansion(x_sample, x_feasible, node_pos, x_new):
+    """
+    used to troubleshoot issues with the tree expansion
+    :return:
+    """
+    plt.plot(x_sample[0], x_sample[1], 'bx')
+    plt.plot(x_feasible[0], x_feasible[1], 'yo')
+    plt.plot(node_pos[0], node_pos[1], 'k.')
+    plt.plot(x_new[0], x_new[1], 'kx')
+    plt.axis('equal')
+    plt.show()
+    pass
 
 
 def plot_leaves(V):
