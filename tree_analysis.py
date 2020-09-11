@@ -3,16 +3,56 @@
 
 from math import sqrt
 import matplotlib.pyplot as plt
+from config import config
+
+cfg = config.get_parameters()
 
 
-def update_information(path, epsilon, gamma):
+def update_information(V, E, epsilon_0, gamma):
     """
     Walk through the path and update information at each node.
-    :param path: selected path
+    :param V: list of nodes
+    :param E: list of edges
     :param epsilon: information in the environment
     :param gamma: sensor efficiency
     :return: List of nodes with updated information values
     """
+
+    ol = [V[0]]
+    cl = []
+    epsilon_list = [epsilon_0]
+
+    # while ol:
+    #   calc new epsilon for last node in open list
+    #       get information gained and adjust node value
+    #       change epsilon value and normalize
+    #       append epsilon to base_epsilon
+
+    #   find neighbors of last node in open list
+    #       if not in the closed list:
+    #           add to ol
+    #           loop
+    #       else -> means no where to expand to:
+    #           remove last appended epsilon
+    #           move node to cl
+
+    while ol:
+        node = ol[-1]
+        epsilon_k0 = epsilon_list[-1]
+        I_new = get_information_gained(epsilon_k0, node.get_position(), cfg["gamma"])
+        node.set_information(I_new)
+        epsilon_k1 = update_epsilon(epsilon_k0, node)
+        epsilon_list.append(epsilon_k1)
+
+        neighbors_all = find_neighbors(node, E)
+        neighbors_open = list(set(neighbors_all).difference(cl))
+
+        if neighbors_open:
+            ol.extend(neighbors_open)
+        else:
+            epsilon_list.pop()
+            cl.append(node)
+            ol.pop()
 
 
     # # expand the root
@@ -39,6 +79,31 @@ def update_information(path, epsilon, gamma):
     pass
 
 
+def get_information_gained(epsilon, pos, gamma):
+    """
+    returns the information gained
+    :param epsilon:
+    :param pos:
+    :param gamma: coefficient for the rate at which information is gained compared to information available
+    :return:
+    """
+    return 0
+
+
+def update_epsilon(epsilon, node):
+    return 0
+
+
+def find_neighbors(E, node):
+    """
+
+    :param E: list of edges
+    :param node: base node
+    :return: list of neighbors
+    """
+    return []
+
+
 def identify_fusion_nodes(V_a, V_b, channel, fusion_range):
     """
     Look for nodes that are going to be in close proximity to other agents
@@ -63,9 +128,10 @@ def pick_path(V, E):
     :return: list of nodes that represent a path
     """
 
-    searching = True
     max_node = max(V, key=lambda item: item.get_information())  # finds node with most information
     path = [max_node]
+
+    searching = True
 
     while searching:
         searching = False
