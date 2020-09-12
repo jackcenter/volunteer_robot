@@ -1,17 +1,20 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import random, time
 import matplotlib.pyplot as plt
 from config import config
 from dynopy.workspace.workspace import Workspace
 from dynopy.workspace.agents import Robot
 from dynopy.data_objects.state import State_2D
 from RIG_tree import RIG_tree
-from tree_analysis import plot_tree, pick_path, identify_fusion_nodes, update_information
+from tree_analysis import plot_tree, pick_path, identify_fusion_nodes, update_information, print_information_in_nodes
+
+cfg = config.get_parameters()
 
 
 def main():
-    cfg = config.get_parameters()
+    random.seed(1)
     boundary = [
         (0, 0),
         (10, 0),
@@ -62,7 +65,10 @@ def main():
 
     # print(sum([x.get_information() for x in V]))
     # print([x.__dict__ for x in V])
+    t_0 = time.process_time()
     update_information(V, E, volunteer.pdf)
+    t_f = time.process_time() - t_0
+    print("information update took: {}".format(t_f))
     # print(sum([x.get_information() for x in V]))
     # print([x.__dict__ for x in V])
 
@@ -75,7 +81,9 @@ def main():
     # ws.plot()
     # plt.show()
 
-    for i in range(2):
+    print_information_in_nodes(V)
+
+    for i in range(1):
         cycle(ws)
         plot_tree(E, 'lightcoral')
         ws.plot()

@@ -22,6 +22,13 @@ class Node:
     def get_position(self):
         return self.pos
 
+    def get_pretty_position(self, digits=2):
+        pretty_pos = []
+        for item in self.pos:
+            pretty_pos.append(round(item, digits))
+
+        return tuple(pretty_pos)
+
     def set_position(self, pos):
         self.pos = pos
 

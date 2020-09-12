@@ -41,35 +41,35 @@ def update_information(V, E, epsilon_0):
 
     while ol:
         node = ol[-1]
-        epsilon_k0 = epsilon_list[-1]
+        epsilon = epsilon_list[-1]
 
-        if bl:
-            parent_info = bl[-1].get_information()
-        else:
-            parent_info = 0
+        if node not in bl:
+            I_gained = get_information_gained(epsilon, node, cfg["gamma"])
+            I_parent = bl[-1].get_information() if bl else 0
+            node.set_information(I_gained + I_parent)
 
         neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
-
-        I_gained = get_information_gained(epsilon_k0, node, cfg["gamma"])
-        I_new = I_gained + parent_info
-
-        if node not in bl:
-            # keeps information from being updated twice
-            node.set_information(I_new)
-
-        epsilon_k1 = update_epsilon(epsilon_k0, node, I_gained)
-        epsilon_list.append(epsilon_k1)
 
         if neighbors_open:
             ol.extend(neighbors_open)
             bl.append(node)
 
-        else:
-            cl.append(node)
+            I_parent = bl[-1].get_information() if bl else 0
+            I_gained = node.get_information() - I_parent
+
+            epsilon_new = update_epsilon(epsilon, node, I_gained)
+            epsilon_list.append(epsilon_new)
+
+        elif node in bl:
             ol.pop()
+            bl.pop()
+            cl.append(node)
             epsilon_list.pop()
 
+        else:
+            ol.pop()
+            cl.append(node)
 
     # # expand the root
     # for root, leaf in E:
@@ -91,8 +91,6 @@ def update_information(V, E, epsilon_0):
     #
     # i_remaining = i_available * gamma
     # epsilon[x][y] = i_remaining
-
-    pass
 
 
 def get_information_gained(epsilon, node, gamma):
@@ -205,3 +203,12 @@ def plot_tree(E, color='red'):
         x_ords = [x1, x0]
         y_ords = [y1, y0]
         plt.plot(x_ords, y_ords, ls='--', c=color)
+
+
+def print_information_in_nodes(V):
+    print()
+    print("Information in nodes:")
+
+    for node in V:
+        print("Time step: {}, Pos: {}, Info: {} \n".format(node.get_time(), node.get_pretty_position(),
+                                                           node.get_information()))
