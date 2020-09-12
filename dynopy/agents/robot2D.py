@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from math import trunc
 import matplotlib.pyplot as plt
 import numpy as np
 from dynopy.data_objects.node import Node
@@ -30,7 +31,7 @@ class Robot2D:
         self.trajectory = []        # last element, [-1], is the next action to take
         self.path_log = []
         self.trajectory_log = []    # stores actions taken in order, ie [0] is the first action
-        self.i_gained = []  # information gained along path
+        self.state_log = []
 
     def plot(self):
         x = self.state.get_x_position()
@@ -53,6 +54,9 @@ class Robot2D:
             for y in range(0, rows):
                 size = self.pdf[y][x]*300
                 plt.plot(x + 0.5, y + 0.5, color='white', marker='o', markersize=size)
+
+    def set_state(self, state):
+        self.state = state
 
     def get_position(self):
         return self.state.get_position()
@@ -86,9 +90,10 @@ class Robot2D:
         """
         self.set_workspace(workspace)
         self.initialize_pdf()
-        i = self.get_information_available(self.state)
-        start_node = Node.init_without_cost(self.state.get_position(), i, 0)
+        I_0 = self.get_information_available(self.state)
+        start_node = Node.init_without_cost(self.state.get_position(), I_0, 0)
         self.path_log.append(start_node)
+        self.state_log.append(self.state)
 
     def get_information_available(self, pos):
         """
@@ -104,9 +109,30 @@ class Robot2D:
         else:
             print("Error: data type unknown for get_information_available")
             print(type(pos))
-            return [[]]
+            return None
 
-        return self.pdf[x][y]
+        x = trunc(x)
+        y = trunc(y)
+
+        return self.pdf[y][x]
+
+    def set_information_available(self, pos, value):
+        if isinstance(pos, tuple):
+            x, y = pos
+
+        elif isinstance(pos, State_2D):
+            x, y = pos.get_position()
+
+        else:
+            print("Error: data type unknown for get_information_available")
+            print(type(pos))
+            return None
+
+        x = trunc(x)
+        y = trunc(y)
+
+        self.pdf[y][x] = value
+        self.pdf = self.pdf / np.sum(self.pdf)  # normalize
 
     def update_information(self):
         """
@@ -115,9 +141,7 @@ class Robot2D:
         """
         i_available = self.get_information_available(self.state)
         i_remaining = i_available * self._pD
-        x, y = self.state.get_position()
-        self.pdf[x][y] = i_remaining
-        self.pdf = self.pdf / np.sum(self.pdf)  # normalize
+        self.set_information_available(self.state, i_remaining)
 
         i_gained = i_available - i_remaining
         self.state.set_information(i_gained)

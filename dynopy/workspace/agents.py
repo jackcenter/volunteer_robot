@@ -291,18 +291,5 @@ class Robot:
         self.i_gained.append(i_gained)
         self.path_log.append(self.path.pop())
 
-    @staticmethod
-    def checkCellDirection(a, b):
-        if a[0] == b[0] and a[1] < b[1]:
-            return "north"
-        elif a[0] < b[0] and a[1] == b[1]:
-            return "east"
-        elif a[0] == b[0] and a[1] > b[1]:
-            return "south"
-        elif a[0] > b[0] and a[1] == b[1]:
-            return "west"
-        else:
-            print("ERROR: couldn't determine the orientation of these two cells: {}, {}".format(a, b))
-
     def get_path(self):
         return self.path

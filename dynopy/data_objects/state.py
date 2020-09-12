@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 class State_2D:
     def __init__(self, x_pos, y_pos, info=0):
         self.x1 = x_pos
@@ -32,3 +33,6 @@ class State_2D:
 
     def set_information(self, I):
         self.x3 = I
+
+    def copy(self):
+        return State_2D(self.x1, self.x2, self.x3)

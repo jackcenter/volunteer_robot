@@ -1,11 +1,12 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import random, time
+import time
 import matplotlib.pyplot as plt
 from config import config
 from dynopy.workspace.workspace import Workspace
-from dynopy.workspace.agents import Robot
+from dynopy.agents.lineFollwer2D import LineFollower2D
+from dynopy.agents.volunteer2D import Volunteer2D
 from dynopy.data_objects.state import State_2D
 from RIG_tree import RIG_tree
 from tree_analysis import plot_tree, pick_path, identify_fusion_nodes, update_information, print_information_in_nodes
@@ -14,7 +15,6 @@ cfg = config.get_parameters()
 
 
 def main():
-    random.seed(1)
     boundary = [
         (0, 0),
         (10, 0),
@@ -27,13 +27,13 @@ def main():
     ws.generate_initial_distribution()
 
     # ROBOT 1 =====================================================
-    robot1 = Robot("Inky", "cyan", State_2D(1, 0))
+    robot1 = LineFollower2D("Inky", "cyan", State_2D(1.5, 0.5), 0.85)
     robot1.start(ws)
 
     wp1 = [
-        (1, 0),
-        (1, 9),
-        (2, 9),
+        (1.5, 0.5),
+        (1.5, 9.5),
+        (2.5, 9.5),
 
     ]
 
@@ -41,21 +41,20 @@ def main():
     ws.add_agent(robot1)
 
     # ROBOT 2 =====================================================
-    robot2 = Robot("Clyde", "orange", State_2D(6, 9))
+    robot2 = LineFollower2D("Clyde", "orange", State_2D(6.5, 9.5), 0.85)
     robot2.start(ws)
     wp2 = [
-        (6, 9),
-        (4, 9),
-        (4, 0)
+        (6.5, 9.5),
+        (4.5, 9.5),
+        (4.5, 0.5)
     ]
     robot2.load_waypoints(wp2)
     ws.add_agent(robot2)
 
     # VOLUNTEER ===================================================
-    volunteer = Robot("Blinky", "red", State_2D(0.5, 5.5), True)
-    volunteer.set_workspace(ws)
-    volunteer.set_configuration_space()
-    volunteer.set_initial_pdf()
+    volunteer = Volunteer2D("Blinky", "red", State_2D(0.5, 5.5), 0.85)
+    volunteer.start(ws)
+    volunteer.set_c_space()
 
     ws.add_agent(volunteer)
     print(volunteer.pdf)
@@ -63,25 +62,20 @@ def main():
     V, E = RIG_tree(cfg["step_size"], cfg["budget"], volunteer.get_X_free(), volunteer.get_X_free(),
                     volunteer.get_pdf(), volunteer.get_position(), cfg["radius"], cfg["cycles"])
 
-    # print(sum([x.get_information() for x in V]))
-    # print([x.__dict__ for x in V])
     t_0 = time.process_time()
     update_information(V, E, volunteer.pdf)
-    t_f = time.process_time() - t_0
-    print("information update took: {}\n".format(t_f))
-    # print(sum([x.get_information() for x in V]))
-    # print([x.__dict__ for x in V])
 
     identify_fusion_nodes(V, robot1.get_path(), robot1.name, 2)
     identify_fusion_nodes(V, robot2.get_path(), robot2.name, 2)
     volunteer.path = pick_path(V, E)
+    volunteer.generate_trajectory()
 
     plt.style.use('dark_background')
     plt.figure(figsize=(10, 10))
     # ws.plot()
     # plt.show()
 
-    for i in range(1):
+    for i in range(7):
         cycle(ws)
         plot_tree(E, 'lightcoral')
         volunteer.plot_pdf()
@@ -98,13 +92,9 @@ def cycle(ws):
     ws.step()
 
     for robot in ws.agents:
-        if not robot.get_volunteer_status():
-            # print(robot.pdf)
-            # print()
-
-            robot.step()
-            # print([x.get_position() for x in robot.path_log])
-            # print(robot.i_gained)
+        robot.step()
+        # print([x.get_position() for x in robot.path_log])
+        # print(robot.i_gained)
 
 
 if __name__ == "__main__":
