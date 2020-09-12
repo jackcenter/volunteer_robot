@@ -89,6 +89,13 @@ class Robot:
             y = pos[1] + adjust
             plt.plot(x, y, '.', color=self.color)
 
+    def plot_pdf(self):
+        rows, cols = self.pdf.shape
+        for x in range(0, cols):
+            for y in range(0, rows):
+                size = self.pdf[y][x]*300
+                plt.plot(x + 0.5, y + 0.5, color='white', marker='o', markersize=size)
+
     def get_volunteer_status(self):
         return self.volunteer
 

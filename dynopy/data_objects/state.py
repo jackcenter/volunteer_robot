@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 class State_2D:
-    def __init__(self, x_pos, y_pos):
+    def __init__(self, x_pos, y_pos, info=0):
         self.x1 = x_pos
         self.x2 = y_pos
-        self.state_names = {"x1": "x position", "x2": "y position"}
+        self.x3 = info
+        self.state_names = {"x1": "x position", "x2": "y position", "x3": "information"}
 
     def get_position(self):
         return self.x1, self.x2
@@ -25,3 +26,9 @@ class State_2D:
 
     def set_y_position(self, y):
         self.x2 = y
+
+    def get_information(self):
+        return self.x3
+
+    def set_information(self, I):
+        self.x3 = I

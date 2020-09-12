@@ -68,7 +68,7 @@ def main():
     t_0 = time.process_time()
     update_information(V, E, volunteer.pdf)
     t_f = time.process_time() - t_0
-    print("information update took: {}".format(t_f))
+    print("information update took: {}\n".format(t_f))
     # print(sum([x.get_information() for x in V]))
     # print([x.__dict__ for x in V])
 
@@ -81,11 +81,10 @@ def main():
     # ws.plot()
     # plt.show()
 
-    print_information_in_nodes(V)
-
     for i in range(1):
         cycle(ws)
         plot_tree(E, 'lightcoral')
+        volunteer.plot_pdf()
         ws.plot()
         plt.show()
 

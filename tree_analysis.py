@@ -15,29 +15,14 @@ def update_information(V, E, epsilon_0):
     :param V: list of nodes
     :param E: list of edges
     :param epsilon_0: information in the environment
-    :param gamma: sensor efficiency
     :return: List of nodes with updated information values
     """
 
-    ol = [V[0]]
-    bl = []     # branch list for visted nodes
-    cl = []
+    ol = [V[0]]     # open list
+    bl = []         # branch list for visited nodes
+    cl = []         # closed list
 
     epsilon_list = [epsilon_0]
-
-    # while ol:
-    #   calc new epsilon for last node in open list
-    #       get information gained and adjust node value
-    #       change epsilon value and normalize
-    #       append epsilon to base_epsilon
-
-    #   find neighbors of last node in open list
-    #       if not in the closed list:
-    #           add to ol
-    #           loop
-    #       else -> means no where to expand to:
-    #           remove last appended epsilon
-    #           move node to cl
 
     while ol:
         node = ol[-1]
@@ -70,27 +55,6 @@ def update_information(V, E, epsilon_0):
         else:
             ol.pop()
             cl.append(node)
-
-    # # expand the root
-    # for root, leaf in E:
-    #     branches = 0
-    #     node = open_list.pop
-    #     if node == root:
-    #         open_list.append(leaf)
-    #         branches += 1
-    #
-    #
-    #
-    # # Start at the root, take position and update epsilon with a depth first approach
-    # #   find all leaves
-    # #
-    # # Find all leaves
-    # x, y = node.get_position()
-    # i_available = epsilon[x][y]
-    # node.set_information(i_available)
-    #
-    # i_remaining = i_available * gamma
-    # epsilon[x][y] = i_remaining
 
 
 def get_information_gained(epsilon, node, gamma):

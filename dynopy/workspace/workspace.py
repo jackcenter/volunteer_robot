@@ -48,7 +48,7 @@ class Workspace:
         y_max = self.y_bounds[1] + 1
 
         plt.axis('equal')
-        plt.grid(b=None, which='major', axis='both')
+        # plt.grid(b=None, which='major', axis='both')
         plt.xticks(range(x_min, x_max, 1))
         plt.yticks(range(y_min, y_max, 1))
         plt.xlabel(r"Easting, $\xi$ [inches]")
