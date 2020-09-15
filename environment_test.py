@@ -64,22 +64,20 @@ def main():
 
     # ================= EXPAND =====================================
     #   Treat next node as root
-    V, E = RIG_tree(cfg["step_size"], cfg["budget"], volunteer.get_X_free(), volunteer.get_X_free(),
-                    volunteer.get_pdf(), volunteer.get_position(), cfg["radius"], cfg["cycles"])
-
+    # V, E = RIG_tree(cfg["step_size"], cfg["budget"], volunteer.get_X_free(), volunteer.get_X_free(),
+    #                 volunteer.get_pdf(), volunteer.get_position(), cfg["radius"], t_limit)
     # ================ SELECT ======================================
-    update_information(V, E, volunteer.pdf)
-    identify_fusion_nodes(V, robot1.get_path(), robot1.name, 2)
-    identify_fusion_nodes(V, robot2.get_path(), robot2.name, 2)
-    volunteer.path = pick_path(V, E)    # TODO: pick path based on reward function
     plt.style.use('dark_background')
-    plot_tree(E, 'blue')
-    V, E = prune_step(V, E, volunteer.get_path())
-    volunteer.generate_trajectory()
+    V, E = volunteer.execute_planning_cycle()
+    # update_information(V, E, volunteer.pdf)
+    # identify_fusion_nodes(V, robot1.get_path(), robot1.name, 2)
+    # identify_fusion_nodes(V, robot2.get_path(), robot2.name, 2)
+    # volunteer.path = pick_path(V, E)    # TODO: pick path based on reward function
+
+    # plot_tree(E, 'blue')
+    # V, E = prune_step(V, E, volunteer.get_path())
+
     #   Prune passed nodes
-
-
-
     for i in range(1):
         plot_tree(E, 'lightcoral')
         cycle(ws)

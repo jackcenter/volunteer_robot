@@ -10,10 +10,6 @@ from config import config
 from dynopy.data_objects.node import Node
 from tree_analysis import plot_tree
 
-# ================================
-# THIS VERSION HAS BEEN DEPRECATED
-# ================================
-
 cfg = config.get_parameters()
 
 
@@ -43,7 +39,6 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, t_limit=0.1):
     # Sample configuration space of vehicle and find nearest node
     t_0 = process_time()
     while process_time() - t_0 < t_limit:
-        print(process_time() - t_0)
         x_sample = sample(X_all)
         n_nearest = nearest(x_sample, list(set(V).difference(V_closed)))
         x_feasible = steer(n_nearest.get_position(), x_sample, d, input_samples, 'y.')

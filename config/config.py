@@ -8,6 +8,7 @@ def get_parameters():
         "step_size": 1,         # distance traveled each time step
         "radius": 1.2,          # radius to search for node expansion in
         "cycles": 20,           # number of times to run expansion
+        "t_limit": 0.1,         # expansion time limit
         "samples": 16,          # number of control inputs to sample
         "plot_full": False,     # plot troubleshooting information
         "gamma": 0.85           # chance of detection if target is in cell

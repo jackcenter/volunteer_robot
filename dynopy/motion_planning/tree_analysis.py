@@ -6,10 +6,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from config import config
 
-# ================================
-# THIS VERSION HAS BEEN DEPRECATED
-# ================================
-
 cfg = config.get_parameters()
 
 
