@@ -9,7 +9,7 @@ from dynopy.agents.lineFollwer2D import LineFollower2D
 from dynopy.agents.volunteer2D import Volunteer2D
 from dynopy.data_objects.state import State_2D
 from RIG_tree import RIG_tree
-from tree_analysis import plot_tree, pick_path, identify_fusion_nodes, update_information, print_information_in_nodes
+from tree_analysis import plot_tree, pick_path, identify_fusion_nodes, update_information, prune_step
 
 cfg = config.get_parameters()
 
@@ -59,28 +59,35 @@ def main():
     ws.add_agent(volunteer)
     print(volunteer.pdf)
 
+    # TODO: needs to be inside of the 'step' function
+    # ================= Fuse =======================================
+
+    # ================= EXPAND =====================================
+    #   Treat next node as root
     V, E = RIG_tree(cfg["step_size"], cfg["budget"], volunteer.get_X_free(), volunteer.get_X_free(),
                     volunteer.get_pdf(), volunteer.get_position(), cfg["radius"], cfg["cycles"])
 
-    t_0 = time.process_time()
+    # ================ SELECT ======================================
     update_information(V, E, volunteer.pdf)
-
     identify_fusion_nodes(V, robot1.get_path(), robot1.name, 2)
     identify_fusion_nodes(V, robot2.get_path(), robot2.name, 2)
-    volunteer.path = pick_path(V, E)
-    volunteer.generate_trajectory()
-
+    volunteer.path = pick_path(V, E)    # TODO: pick path based on reward function
     plt.style.use('dark_background')
-    plt.figure(figsize=(10, 10))
-    # ws.plot()
-    # plt.show()
+    plot_tree(E, 'blue')
+    V, E = prune_step(V, E, volunteer.get_path())
+    volunteer.generate_trajectory()
+    #   Prune passed nodes
 
-    for i in range(7):
-        cycle(ws)
+
+
+    for i in range(1):
         plot_tree(E, 'lightcoral')
+        cycle(ws)
         volunteer.plot_pdf()
         ws.plot()
         plt.show()
+
+
 
 
 def cycle(ws):

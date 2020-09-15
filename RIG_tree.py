@@ -7,6 +7,7 @@ import numpy as np
 import scipy.stats as stats
 from config import config
 from dynopy.data_objects.node import Node
+from tree_analysis import plot_tree
 
 cfg = config.get_parameters()
 
@@ -68,6 +69,7 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, cycles=10):
                         V_closed.append(n_new)
 
             if cfg["plot_full"]:
+                plot_tree(E)
                 plot_expansion(x_sample, x_feasible, node.get_position(), x_new)
 
         count += 1

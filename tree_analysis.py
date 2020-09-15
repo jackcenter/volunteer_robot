@@ -153,6 +153,41 @@ def pick_path(V, E):
     return path
 
 
+def prune_step(V, E, path):
+    ol = []
+    cl = []
+
+    for root, leaf in E:
+        if root == path[-1] and leaf != path[-2]:
+            ol.append(leaf)
+
+    while ol:
+        node = ol[-1]
+        neighbors_all = find_neighbors(E, node)
+        neighbors_open = list(set(neighbors_all).difference(cl))
+
+        if neighbors_open:
+            ol.extend(neighbors_open)
+
+        else:
+            ol.pop()
+            cl.append(node)
+
+    V = delete_nodes(V, cl)
+    E = delete_edges_by_leaf(E, cl)
+    return V, E
+
+
+def delete_nodes(V, nodes):
+    V = [x for x in V if x not in nodes]
+    return V
+
+
+def delete_edges_by_leaf(E, leafs):
+    E = [x for x in E if x[1] not in leafs]
+    return E
+
+
 def plot_leaves(V):
     for node in V:
         x, y = node.get_position()
