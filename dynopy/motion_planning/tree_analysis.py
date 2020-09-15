@@ -9,12 +9,13 @@ from config import config
 cfg = config.get_parameters()
 
 
-def update_information(V, E, epsilon_0):
+def update_information(V, E, epsilon_0, gamma):
     """
     Walk through the path and update information at each node.
     :param V: list of nodes
     :param E: list of edges
     :param epsilon_0: information in the environment
+    :param gamma: probability of detection
     :return: List of nodes with updated information values
     """
 
@@ -29,7 +30,7 @@ def update_information(V, E, epsilon_0):
         epsilon = epsilon_list[-1]
 
         if node not in bl:
-            I_gained = get_information_gained(epsilon, node, cfg["gamma"])
+            I_gained = get_information_gained(epsilon, node, gamma)
             I_parent = bl[-1].get_information() if bl else 0
             node.set_information(I_gained + I_parent)
 

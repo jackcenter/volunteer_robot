@@ -13,7 +13,7 @@ from tree_analysis import plot_tree
 cfg = config.get_parameters()
 
 
-def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, t_limit=0.1):
+def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, input_samples, t_limit=0.1):
     """
 
     :param d: single dynamic step
@@ -24,10 +24,10 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, t_limit=0.1):
     :param x_0: initial state
     :param R: nearest neighbor radius
     :param t_limit: time expansion can run for
+    :param input_samples: how many samples to take for the control input at each expansion
     :return: a list of nodes and edges
     """
     # Initialize cost C, information I, starting node x_0, node list V, edge list E, and tree T
-    input_samples = cfg["samples"]
 
     I_init = initial_information(x_0, epsilon)      # Initial node information
     C_init = 0                                      # Initial node cost

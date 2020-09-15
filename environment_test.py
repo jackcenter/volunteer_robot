@@ -1,15 +1,13 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
 import matplotlib.pyplot as plt
 from config import config
 from dynopy.workspace.workspace import Workspace
 from dynopy.agents.lineFollwer2D import LineFollower2D
 from dynopy.agents.volunteer2D import Volunteer2D
 from dynopy.data_objects.state import State_2D
-from RIG_tree import RIG_tree
-from tree_analysis import plot_tree, pick_path, identify_fusion_nodes, update_information, prune_step
+from tree_analysis import plot_tree
 
 cfg = config.get_parameters()
 
@@ -27,7 +25,7 @@ def main():
     ws.generate_initial_distribution()
 
     # ROBOT 1 =====================================================
-    robot1 = LineFollower2D("Inky", "cyan", State_2D(1.5, 0.5), 0.85)
+    robot1 = LineFollower2D("Inky", State_2D(1.5, 0.5))
     robot1.start(ws)
 
     wp1 = [
@@ -41,7 +39,7 @@ def main():
     ws.add_agent(robot1)
 
     # ROBOT 2 =====================================================
-    robot2 = LineFollower2D("Clyde", "orange", State_2D(6.5, 9.5), 0.85)
+    robot2 = LineFollower2D("Clyde", State_2D(6.5, 9.5))
     robot2.start(ws)
     wp2 = [
         (6.5, 9.5),
@@ -52,27 +50,19 @@ def main():
     ws.add_agent(robot2)
 
     # VOLUNTEER ===================================================
-    volunteer = Volunteer2D("Blinky", "red", State_2D(0.5, 5.5), 0.85)
+    volunteer = Volunteer2D("Blinky", State_2D(0.5, 5.5))
     volunteer.start(ws)
     volunteer.set_c_space()
 
     ws.add_agent(volunteer)
     print(volunteer.pdf)
 
-    # TODO: needs to be inside of the 'step' function
-    # ================= Fuse =======================================
-
-    # ================= EXPAND =====================================
-    #   Treat next node as root
-    # V, E = RIG_tree(cfg["step_size"], cfg["budget"], volunteer.get_X_free(), volunteer.get_X_free(),
-    #                 volunteer.get_pdf(), volunteer.get_position(), cfg["radius"], t_limit)
-    # ================ SELECT ======================================
     plt.style.use('dark_background')
     V, E = volunteer.execute_planning_cycle()
     # update_information(V, E, volunteer.pdf)
     # identify_fusion_nodes(V, robot1.get_path(), robot1.name, 2)
     # identify_fusion_nodes(V, robot2.get_path(), robot2.name, 2)
-    # volunteer.path = pick_path(V, E)    # TODO: pick path based on reward function
+    # volunteer.path = pick_path(V, E)    #
 
     # plot_tree(E, 'blue')
     # V, E = prune_step(V, E, volunteer.get_path())

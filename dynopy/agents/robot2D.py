@@ -4,12 +4,13 @@
 from math import trunc
 import matplotlib.pyplot as plt
 import numpy as np
+from config.config import load_agent_parameters
 from dynopy.data_objects.node import Node
 from dynopy.data_objects.state import State_2D
 
 
 class Robot2D:
-    def __init__(self, name: str, color: str, state, detection_prob):
+    def __init__(self, name: str, state):
         """
 
         :param name:
@@ -17,10 +18,10 @@ class Robot2D:
         :param state: [x position, y_position]
         """
         self.name = name
-        self.color = color
         self.state = state
-        self.pD = detection_prob    # probability of detection
-        self._pD = 1 - self.pD      # probability of no detection
+        # self.pD = detection_prob    # probability of detection
+        # self._pD = 1 - self.pD      # probability of no detection
+        self.cfg = load_agent_parameters(name)
 
         self.pdf = None  # current probability distribution
         self.workspace = None       # current workspace
@@ -36,17 +37,17 @@ class Robot2D:
     def plot(self):
         x = self.state.get_x_position()
         y = self.state.get_y_position()
-        plt.plot(x, y, 'x', color=self.color)
+        plt.plot(x, y, 'x', color=self.cfg["color"])
 
     def plot_visited_cells(self):
         for node in self.path_log:
             x, y = node.get_position()
-            plt.plot(x, y, 'o', color=self.color, mfc='none')
+            plt.plot(x, y, 'o', color=self.cfg["color"], mfc='none')
 
     def plot_path(self):
         for node in self.path:
             x, y = node.get_position()
-            plt.plot(x, y, '.', color=self.color)
+            plt.plot(x, y, '.', color=self.cfg["color"])
 
     def plot_pdf(self):
         rows, cols = self.pdf.shape
@@ -140,7 +141,7 @@ class Robot2D:
         :return:
         """
         i_available = self.get_information_available(self.state)
-        i_remaining = i_available * self._pD
+        i_remaining = i_available * (1 - self.cfg["gamma"])
         self.set_information_available(self.state, i_remaining)
 
         i_gained = i_available - i_remaining

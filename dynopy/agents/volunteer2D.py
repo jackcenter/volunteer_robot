@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from math import sqrt, cos, sin, atan2
-from config import config
 from dynopy.agents.robot2D import Robot2D
 from dynopy.data_objects.state import State_2D
 from dynopy.motion_planning.RIG_tree import RIG_tree
@@ -11,8 +10,8 @@ from dynopy.motion_planning.tree_analysis import update_information, identify_fu
 
 
 class Volunteer2D(Robot2D):
-    def __init__(self, name: str, color: str, state, detection_prob):
-        super().__init__(name, color, state, detection_prob)
+    def __init__(self, name: str, state):
+        super().__init__(name, state)
 
         self.V = []
         self.E = []
@@ -64,16 +63,17 @@ class Volunteer2D(Robot2D):
         pass
 
     def expand_tree(self):
-        cfg = config.get_parameters()
-        V, E = RIG_tree(cfg["step_size"], cfg["budget"], self.get_X_free(), self.get_X_free(),
-                        self.get_pdf(), self.get_position(), cfg["radius"], cfg["t_limit"])
+        V, E = RIG_tree(self.cfg["step_size"], self.cfg["budget"], self.get_X_free(), self.get_X_free(),
+                        self.get_pdf(), self.get_position(), self.cfg["radius"], self.cfg["samples"],
+                        self.cfg["t_limit"])
 
         return V, E
 
     def select_path(self, V, E):
-        update_information(V, E, self.pdf)
+        update_information(V, E, self.pdf, self.cfg["gamma"])
         for agent, path in self.channel_list.items():
             identify_fusion_nodes(V, path, agent, 2)
+        # TODO: pick path based on reward function
         self.path = pick_path(V, E)
 
     def prune_passed_nodes(self, V, E):
