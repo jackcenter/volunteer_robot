@@ -62,6 +62,8 @@ def update_information(V, E, epsilon_0, gamma, channels=None):
             if node.get_fusion():
                 fused_new = update_fused(node.get_fusion(), fused, node.get_information())
                 fused_list.append(fused_new)
+            else:
+                fused_list.append(fused)
 
         elif node in bl:
             ol.pop()
@@ -107,7 +109,7 @@ def update_epsilon(epsilon_k0, node, I_gained):
 def update_fused(channels_fused, F_0, I_node):
     F_new = F_0.copy()
     for channel in channels_fused:
-        F_new.update(channel, I_node)
+        F_new.update({channel: I_node})
 
     return F_new
 
