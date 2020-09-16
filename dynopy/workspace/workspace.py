@@ -59,6 +59,9 @@ class Workspace:
             robot.plot_visited_cells()
             robot.plot_path()
 
+    def get_agents(self):
+        return self.agents
+
     def get_time_step(self):
         return self.time_step
 

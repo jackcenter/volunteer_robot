@@ -7,9 +7,11 @@ from dynopy.workspace.workspace import Workspace
 from dynopy.agents.lineFollwer2D import LineFollower2D
 from dynopy.agents.volunteer2D import Volunteer2D
 from dynopy.data_objects.state import State_2D
-from tree_analysis import plot_tree
 
 cfg = config.get_parameters()
+
+# TODO: check that the path_log and state_log are updating corretly
+# TODO: use a more interesting pdf
 
 
 def main():
@@ -21,7 +23,6 @@ def main():
     ]
 
     ws = Workspace(boundary)
-    # ws.generate_grid()
     ws.generate_initial_distribution()
 
     # ROBOT 1 =====================================================
@@ -52,9 +53,10 @@ def main():
     # VOLUNTEER ===================================================
     volunteer = Volunteer2D("Blinky", State_2D(0.5, 5.5))
     volunteer.start(ws)
-    volunteer.set_c_space()
-
     ws.add_agent(volunteer)
+    volunteer.set_c_space()
+    volunteer.initialize_channels(ws.get_agents())
+    print(volunteer.channel_list)
     print(volunteer.pdf)
 
     # volunteer.execute_planning_cycle()

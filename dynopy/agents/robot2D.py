@@ -56,6 +56,9 @@ class Robot2D:
                 size = self.pdf[y][x]*300
                 plt.plot(x + 0.5, y + 0.5, color='white', marker='o', markersize=size)
 
+    def get_name(self):
+        return self.name
+
     def set_state(self, state):
         self.state = state
 

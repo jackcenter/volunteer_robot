@@ -4,6 +4,7 @@
 from math import sqrt, cos, sin, atan2
 from dynopy.agents.robot2D import Robot2D
 from dynopy.data_objects.state import State_2D
+from dynopy.data_objects.node import Node
 from dynopy.motion_planning.RIG_tree import RIG_tree
 from dynopy.motion_planning.tree_analysis import update_information, identify_fusion_nodes, pick_path, prune_step,\
     plot_tree
@@ -18,6 +19,13 @@ class Volunteer2D(Robot2D):
         self.V_closed = []
         self.B = None
         self.channel_list = {}      # name : path
+        self.information_shared = {}
+
+    def initialize_channels(self, agents):
+        for agent in agents:
+            if agent.get_name != self.name:
+                self.channel_list.update({agent.get_name(): agent.get_path()})
+                self.information_shared.update({agent.get_name: 0.0})
 
     def get_tree(self):
         return self.V, self.E
@@ -45,7 +53,6 @@ class Volunteer2D(Robot2D):
         self.state = state
         self.trajectory_log.append(action)
         self.update_information()
-
 
     def generate_trajectory(self):
         traj = []
@@ -85,10 +92,13 @@ class Volunteer2D(Robot2D):
                                                  self.get_pdf(), self.get_position(), self.cfg)
 
     def select_path(self):
-        update_information(self.V, self.E, self.pdf, self.cfg["gamma"])
         for agent, path in self.channel_list.items():
             identify_fusion_nodes(self.V, path, agent, 2)
+        update_information(self.V, self.E, self.pdf, self.cfg["gamma"])
+        # update_reward()
+
         # TODO: pick path based on reward function
+
         self.path = pick_path(self.V, self.E)
 
     def prune_passed_nodes(self):

@@ -83,7 +83,12 @@ def get_information_available(epsilon, node):
     x, y = node.get_position()
     x = trunc(x)
     y = trunc(y)
-    I_available = epsilon[x][y]
+
+    try:
+        I_available = epsilon[x][y]
+    except IndexError:
+        I_available = 0
+
     return I_available
 
 
@@ -127,7 +132,7 @@ def identify_fusion_nodes(V_a, V_b, channel, fusion_range):
         for node_a in V_a:
             if node_a.get_distance_from(node_b) < fusion_range and node_a.compare_time(node_b):
                 node_a.add_fusion(channel)
-                print("fusion with {} found at: {}, k = {}".format(channel, node_a.get_position(), node_a.get_time()))
+                # print("fusion with {} found at: {}, k = {}".format(channel, node_a.get_position(), node_a.get_time()))
 
 
 def pick_path(V, E):

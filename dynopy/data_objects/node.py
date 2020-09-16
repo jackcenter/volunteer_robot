@@ -5,18 +5,20 @@ from math import sqrt
 
 
 class Node:
-    def __init__(self, position, cost=0, information=0, time=0):
+    def __init__(self, position, cost=0, information=0, time=0, reward=0):
         """
         Data object that holds information for nodes used in motion planning.
         :param position: tuple with x and y locations
         :param cost: cost of node along path
         :param information: probability the target can be seen from the node position
         :param time: int for node time_step
+        :param reward: the reward available in the selected node
         """
         self.pos = position
         self.c = cost
         self.i = information
         self.k = time
+        self.r = reward
         self.f = []             # channels to fuse over
 
     def get_position(self):
@@ -49,6 +51,9 @@ class Node:
 
     def set_time(self, k):
         self.k = k
+
+    def get_fusion(self):
+        return self.f
 
     def add_fusion(self, channel):
         self.f.append(channel)
