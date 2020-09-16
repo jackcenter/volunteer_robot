@@ -9,14 +9,14 @@ from config import config
 cfg = config.get_parameters()
 
 
-def update_information(V, E, epsilon_0, gamma, I_shared):
+def update_information(V, E, epsilon_0, gamma, channels=None):
     """
     Walk through the path and update information at each node.
     :param V: list of nodes
     :param E: list of edges
     :param epsilon_0: information in the environment
     :param gamma: probability of detection
-    :param I_shared: dictionary of current information shared along channels
+    :param channels: list of open channels
     :return: List of nodes with updated information values
     """
 
@@ -28,7 +28,7 @@ def update_information(V, E, epsilon_0, gamma, I_shared):
     cl = []         # closed list
 
     epsilon_list = [epsilon_0]
-    fused_list = [I_shared]
+    fused_list = [create_zero_dict_from_list(channels)]
 
     while ol:
         node = ol[-1]
@@ -42,9 +42,9 @@ def update_information(V, E, epsilon_0, gamma, I_shared):
 
             reward_gained = 0
             if node.get_fusion():
-                reward_gained, fused = set_reward(node.get_fusion(), fused, node.get_information())
-            # reward_parent = bl[-1].get_reward() if bl else 0
-            node.set_reward(reward_gained)
+                reward_gained = set_reward(node.get_fusion(), fused, node.get_information())
+            reward_parent = bl[-1].get_reward() if bl else 0
+            node.set_reward(reward_gained + reward_parent)
 
         neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
@@ -59,7 +59,9 @@ def update_information(V, E, epsilon_0, gamma, I_shared):
             epsilon_new = update_epsilon(epsilon, node, I_gained)
             epsilon_list.append(epsilon_new)
 
-            fused_list.append(fused)
+            if node.get_fusion():
+                fused_new = update_fused(node.get_fusion(), fused, node.get_information())
+                fused_list.append(fused_new)
 
         elif node in bl:
             ol.pop()
@@ -86,12 +88,28 @@ def get_information_gained(epsilon, node, gamma):
     return I_gained
 
 
+def create_zero_dict_from_list(channels):
+    item_dict = {}
+    for channel in channels:
+        item_dict.update({channel: 0})
+
+    return item_dict
+
+
 def update_epsilon(epsilon_k0, node, I_gained):
 
     I_available = get_information_available(epsilon_k0, node)
     I_remaining = I_available - I_gained
     epsilon_k1 = set_information_available(epsilon_k0.copy(), node, I_remaining)
     return epsilon_k1
+
+
+def update_fused(channels_fused, F_0, I_node):
+    F_new = F_0.copy()
+    for channel in channels_fused:
+        F_new.update(channel, I_node)
+
+    return F_new
 
 
 def get_information_available(epsilon, node):
@@ -116,14 +134,13 @@ def set_information_available(epsilon, node, value):
     return epsilon
 
 
-def set_reward(channels, fused, I):
+def set_reward(channels, fused, I_node):
     reward = 0
     for channel in channels:
-        shared = fused[channel]
-        reward += I - shared
-        fused.update({channel: I})
+        I_shared = fused[channel]
+        reward += I_node - I_shared
 
-    return reward, fused
+    return reward
 
 
 def normalize_pdf(pdf):
