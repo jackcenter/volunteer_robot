@@ -7,11 +7,16 @@ from dynopy.workspace.workspace import Workspace
 from dynopy.agents.lineFollwer2D import LineFollower2D
 from dynopy.agents.volunteer2D import Volunteer2D
 from dynopy.data_objects.state import State_2D
+from dynopy.motion_planning.tree_analysis import print_nodes_with_reward
 
 cfg = config.get_parameters()
 
-# TODO: check that the path_log and state_log are updating corretly
+# TODO: check that the path_log and state_log are updating correctly
 # TODO: use a more interesting pdf
+# TODO: look at volunteer start up
+# TODO: check out those negative rewards, not sure why that would happen
+# TODO: agent is jumping path locations, need to figure out why
+# TODO: set seed for samples and try to get side by side of pure RIG vs Fusion aware RIG
 
 
 def main():
@@ -59,23 +64,13 @@ def main():
     print(volunteer.channel_list)
     print(volunteer.pdf)
 
-    # volunteer.execute_planning_cycle()
-    # V, E = volunteer.get_tree()
-    # update_information(V, E, volunteer.pdf)
-    # identify_fusion_nodes(V, robot1.get_path(), robot1.name, 2)
-    # identify_fusion_nodes(V, robot2.get_path(), robot2.name, 2)
-    # volunteer.path = pick_path(V, E)    #
-
-    # plot_tree(E, 'blue')
-    # V, E = prune_step(V, E, volunteer.get_path())
-
-    #   Prune passed nodes
-
     plt.style.use('dark_background')
     for i in range(10):
         cycle(ws)
         volunteer.plot_pdf()
         ws.plot()
+
+        print_nodes_with_reward(volunteer.get_tree()[0])
         plt.show()
 
 

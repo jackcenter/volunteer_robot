@@ -9,30 +9,41 @@ from config import config
 cfg = config.get_parameters()
 
 
-def update_information(V, E, epsilon_0, gamma):
+def update_information(V, E, epsilon_0, gamma, I_shared):
     """
     Walk through the path and update information at each node.
     :param V: list of nodes
     :param E: list of edges
     :param epsilon_0: information in the environment
     :param gamma: probability of detection
+    :param I_shared: dictionary of current information shared along channels
     :return: List of nodes with updated information values
     """
 
+    # TODO: check out those negative rewards, not sure why that would happen
+    # TODO: agent is jumping path locations, need to figure out why
     ol = [V[0]]     # open list
     bl = []         # branch list for visited nodes
     cl = []         # closed list
 
     epsilon_list = [epsilon_0]
+    fused_list = [I_shared]
 
     while ol:
         node = ol[-1]
         epsilon = epsilon_list[-1]
+        fused = fused_list[-1]
 
         if node not in bl:
             I_gained = get_information_gained(epsilon, node, gamma)
             I_parent = bl[-1].get_information() if bl else 0
             node.set_information(I_gained + I_parent)
+
+            reward_gained = 0
+            if node.get_fusion():
+                reward_gained, fused = set_reward(node.get_fusion(), fused, node.get_information())
+            reward_parent = bl[-1].get_reward() if bl else 0
+            node.set_reward(reward_gained + reward_parent)
 
         neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
@@ -47,11 +58,14 @@ def update_information(V, E, epsilon_0, gamma):
             epsilon_new = update_epsilon(epsilon, node, I_gained)
             epsilon_list.append(epsilon_new)
 
+            fused_list.append(fused)
+
         elif node in bl:
             ol.pop()
             bl.pop()
             cl.append(node)
             epsilon_list.pop()
+            fused_list.pop()
 
         else:
             ol.pop()
@@ -101,6 +115,16 @@ def set_information_available(epsilon, node, value):
     return epsilon
 
 
+def set_reward(channels, fused, I):
+    reward = 0
+    for channel in channels:
+        shared = fused[channel]
+        reward += I - shared
+        fused.update({channel: I})
+
+    return reward, fused
+
+
 def normalize_pdf(pdf):
     return pdf / np.sum(pdf)
 
@@ -135,7 +159,7 @@ def identify_fusion_nodes(V_a, V_b, channel, fusion_range):
                 # print("fusion with {} found at: {}, k = {}".format(channel, node_a.get_position(), node_a.get_time()))
 
 
-def pick_path(V, E):
+def pick_path_max_I(V, E):
     """
     picks a path simply based on the highest information in a path
     :param V: list of nodes
@@ -159,13 +183,34 @@ def pick_path(V, E):
     return path
 
 
+def pick_path_max_R(V, E):
+    # TODO: make descending tree (find _root) a separate function
+    max_node = max(V, key=lambda item: item.get_reward())  # finds node with most information
+    path = [max_node]
+
+    searching = True
+
+    while searching:
+        searching = False
+        for root, leaf in E:
+            if leaf == path[-1]:
+                path.append(root)
+                searching = True
+                break
+
+    return path
+
+
 def prune_step(V, E, path):
     ol = []
     cl = []
 
     for root, leaf in E:
-        if root == path[-1] and leaf != path[-2]:
-            ol.append(leaf)
+        try:
+            if root == path[-1] and leaf != path[-2]:
+                ol.append(leaf)
+        except IndexError:
+            break
 
     while ol:
         node = ol[-1]
@@ -218,3 +263,14 @@ def print_information_in_nodes(V):
     for node in V:
         print("Time step: {}, Pos: {}, Info: {} \n".format(node.get_time(), node.get_pretty_position(),
                                                            node.get_information()))
+
+
+def print_nodes_with_reward(V):
+    print()
+    print("Nodes with reward values:")
+    print()
+    for node in V:
+        if node.get_reward():
+            print("Time step: {}, Pos: {}, Reward: {} \n".format(node.get_time(), node.get_pretty_position(),
+                                                               node.get_reward()))
+

@@ -52,6 +52,12 @@ class Node:
     def set_time(self, k):
         self.k = k
 
+    def get_reward(self):
+        return self.r
+
+    def set_reward(self, reward):
+        self.r = reward
+
     def get_fusion(self):
         return self.f
 
