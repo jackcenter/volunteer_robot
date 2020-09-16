@@ -57,8 +57,8 @@ def main():
     ws.add_agent(volunteer)
     print(volunteer.pdf)
 
-    plt.style.use('dark_background')
-    V, E = volunteer.execute_planning_cycle()
+    # volunteer.execute_planning_cycle()
+    # V, E = volunteer.get_tree()
     # update_information(V, E, volunteer.pdf)
     # identify_fusion_nodes(V, robot1.get_path(), robot1.name, 2)
     # identify_fusion_nodes(V, robot2.get_path(), robot2.name, 2)
@@ -68,14 +68,13 @@ def main():
     # V, E = prune_step(V, E, volunteer.get_path())
 
     #   Prune passed nodes
-    for i in range(1):
-        plot_tree(E, 'lightcoral')
+
+    plt.style.use('dark_background')
+    for i in range(10):
         cycle(ws)
         volunteer.plot_pdf()
         ws.plot()
         plt.show()
-
-
 
 
 def cycle(ws):

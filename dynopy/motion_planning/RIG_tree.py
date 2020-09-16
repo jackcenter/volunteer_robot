@@ -13,28 +13,35 @@ from tree_analysis import plot_tree
 cfg = config.get_parameters()
 
 
-def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, input_samples, t_limit=0.1):
+def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, parameters):
     """
 
+    :param V: node list for a prebuilt tree
+    :param E: edge list for a prebuilt tree
     :param d: single dynamic step
     :param B: budget
     :param X_all: workspace
     :param X_free: free space
     :param epsilon: environment
     :param x_0: initial state
-    :param R: nearest neighbor radius
-    :param t_limit: time expansion can run for
-    :param input_samples: how many samples to take for the control input at each expansion
+    :param parameters: dictionary of neccessary values: step size, budget, nearest neighbor radius, input samples, and
+    time limit for expansion
     :return: a list of nodes and edges
     """
     # Initialize cost C, information I, starting node x_0, node list V, edge list E, and tree T
+    d = parameters["step_size"]
+    B = parameters["budget"]
+    R = parameters["radius"]
+    input_samples = parameters["samples"]
+    t_limit = parameters["t_limit"]
 
-    I_init = initial_information(x_0, epsilon)      # Initial node information
-    C_init = 0                                      # Initial node cost
-    n_0 = Node(x_0, C_init, I_init, 0)              # Initial node
-    V = [n_0]                                       # Node list
-    V_closed = []                                   # Closed node list
-    E = []                                          # Edge list
+    if not V:
+        I_init = initial_information(x_0, epsilon)      # Initial node information
+        C_init = 0                                      # Initial node cost
+        n_0 = Node(x_0, C_init, I_init, 0)              # Initial node
+        V = [n_0]                                       # Node list
+        V_closed = []                                   # Closed node list
+        E = []                                          # Edge list
 
     # Sample configuration space of vehicle and find nearest node
     t_0 = process_time()
@@ -73,7 +80,7 @@ def RIG_tree(d,  B, X_all, X_free, epsilon, x_0, R, input_samples, t_limit=0.1):
                 plot_tree(E)
                 plot_expansion(x_sample, x_feasible, node.get_position(), x_new)
 
-    return V, E
+    return V, E, V_closed
 
 
 def initial_information(x_0, epsilon):

@@ -176,6 +176,7 @@ def prune_step(V, E, path):
 
     V = delete_nodes(V, cl)
     E = delete_edges_by_leaf(E, cl)
+
     return V, E
 
 

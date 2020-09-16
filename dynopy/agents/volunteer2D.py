@@ -15,8 +15,12 @@ class Volunteer2D(Robot2D):
 
         self.V = []
         self.E = []
+        self.V_closed = []
         self.B = None
         self.channel_list = {}      # name : path
+
+    def get_tree(self):
+        return self.V, self.E
 
     def step(self):
         """
@@ -24,8 +28,14 @@ class Volunteer2D(Robot2D):
         :param
         :return:
         """
-        action = self.trajectory.pop()
+        self.execute_planning_cycle()
+        plot_tree(self.E, "lightcoral")
+        root = self.path.pop()
+        self.path_log.append(root)
+        self.V = [x for x in self.V if x != root]
+        self.E = [x for x in self.E if x[0] != root]
 
+        action = self.trajectory.pop()
         x0, y0 = self.state.get_position()
         theta, r = action
         x1 = x0 + r*cos(theta)
@@ -35,7 +45,7 @@ class Volunteer2D(Robot2D):
         self.state = state
         self.trajectory_log.append(action)
         self.update_information()
-        self.path_log.append(self.path.pop())
+
 
     def generate_trajectory(self):
         traj = []
@@ -59,30 +69,30 @@ class Volunteer2D(Robot2D):
         direction = atan2(y2-y1, x2-x1)
         return direction, distance
 
+    def execute_planning_cycle(self):
+        self.expand_tree()
+        self.select_path()
+        plot_tree(self.E, 'blue')
+        self.prune_passed_nodes()
+        self.generate_trajectory()
+
     def fuse(self):
         pass
 
     def expand_tree(self):
-        V, E = RIG_tree(self.cfg["step_size"], self.cfg["budget"], self.get_X_free(), self.get_X_free(),
-                        self.get_pdf(), self.get_position(), self.cfg["radius"], self.cfg["samples"],
-                        self.cfg["t_limit"])
+        # TODO: handle this closed node business
+        self.V, self.E, self.V_closed = RIG_tree(self.V, self.E, self.V_closed, self.get_X_free(), self.get_X_free(),
+                                                 self.get_pdf(), self.get_position(), self.cfg)
 
-        return V, E
-
-    def select_path(self, V, E):
-        update_information(V, E, self.pdf, self.cfg["gamma"])
+    def select_path(self):
+        update_information(self.V, self.E, self.pdf, self.cfg["gamma"])
         for agent, path in self.channel_list.items():
-            identify_fusion_nodes(V, path, agent, 2)
+            identify_fusion_nodes(self.V, path, agent, 2)
         # TODO: pick path based on reward function
-        self.path = pick_path(V, E)
+        self.path = pick_path(self.V, self.E)
 
-    def prune_passed_nodes(self, V, E):
-        prune_step(V, E, self.path)
+    def prune_passed_nodes(self):
+        self.V, self.E = prune_step(self.V, self.E, self.path)
+        # TODO: prune the closed list
 
-    def execute_planning_cycle(self):
-        V, E = self.expand_tree()
-        self.select_path(V, E)
-        plot_tree(E, 'blue')
-        V, E = prune_step(V, E, self.path)
-        self.generate_trajectory()
-        return V, E
+
