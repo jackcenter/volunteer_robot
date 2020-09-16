@@ -22,6 +22,7 @@ def update_information(V, E, epsilon_0, gamma, I_shared):
 
     # TODO: check out those negative rewards, not sure why that would happen
     # TODO: agent is jumping path locations, need to figure out why
+    # TODO: see if fused list is working right, seems like rewards are not tracking fusion events
     ol = [V[0]]     # open list
     bl = []         # branch list for visited nodes
     cl = []         # closed list
@@ -42,8 +43,8 @@ def update_information(V, E, epsilon_0, gamma, I_shared):
             reward_gained = 0
             if node.get_fusion():
                 reward_gained, fused = set_reward(node.get_fusion(), fused, node.get_information())
-            reward_parent = bl[-1].get_reward() if bl else 0
-            node.set_reward(reward_gained + reward_parent)
+            # reward_parent = bl[-1].get_reward() if bl else 0
+            node.set_reward(reward_gained)
 
         neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
