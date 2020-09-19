@@ -118,6 +118,11 @@ class Workspace:
         x_uniform = stats.uniform(loc=self.x_bounds[0], scale=self.x_bounds[1] - self.x_bounds[0])
         y_uniform = stats.uniform(loc=self.y_bounds[0], scale=self.y_bounds[1] - self.y_bounds[0])
 
-        pX = x_uniform.pdf(X)
-        pY = y_uniform.pdf(Y)
+        x_norm = stats.norm(loc=2, scale=2)
+        y_norm = stats.norm(loc=2, scale=2)
+
+        # pX = x_uniform.pdf(X)
+        # pY = y_uniform.pdf(Y)
+        pX = x_norm.pdf(X)
+        pY = y_norm.pdf(Y)
         self.pdf = pX*pY
