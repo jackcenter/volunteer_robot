@@ -92,7 +92,7 @@ class Volunteer2D(Robot2D):
 
     def select_path(self):
         for agent, path in self.channel_list.items():
-            identify_fusion_nodes(self.V, path, agent, 2)
+            identify_fusion_nodes(self.V, path, agent, 1)
         update_information(self.V, self.E, self.pdf, self.cfg["gamma"], self.channel_list)
         # update_reward()
 

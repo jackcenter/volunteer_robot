@@ -131,8 +131,13 @@ def set_information_available(epsilon, node, value):
     x, y = node.get_position()
     x = trunc(x)
     y = trunc(y)
-    epsilon[x][y] = value
-    epsilon = normalize_pdf(epsilon)
+
+    try:
+        epsilon[x][y] = value
+        epsilon = normalize_pdf(epsilon)
+    except IndexError:
+        pass
+
     return epsilon
 
 

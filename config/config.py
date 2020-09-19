@@ -17,7 +17,7 @@ def load_agent_parameters(name):
             "budget": 20,  # distance volunteer can travel
             "step_size": 1,  # distance traveled each time step
             "radius": 1.2,  # radius to search for node expansion in
-            "t_limit": 0.05,  # expansion time limit
+            "t_limit": .5,  # expansion time limit
             "samples": 16,  # number of control inputs to sample
             "gamma": 0.85  # chance of detection if target is in cell
         }

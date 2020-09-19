@@ -37,7 +37,7 @@ def main():
     wp1 = [
         (1.5, 0.5),
         (1.5, 9.5),
-        (2.5, 9.5),
+        (3.5, 9.5),
 
     ]
 
@@ -65,7 +65,7 @@ def main():
     print(volunteer.pdf)
 
     plt.style.use('dark_background')
-    for i in range(10):
+    for i in range(11):
         cycle(ws)
         volunteer.plot_pdf()
         ws.plot()
