@@ -31,33 +31,33 @@ def main():
     ws.generate_initial_distribution()
 
     # ROBOT 1 =====================================================
-    robot1 = LineFollower2D("Inky", State_2D(5.5, 0.5))
+    robot1 = LineFollower2D("Inky", State_2D(5.5, 7.5))
     robot1.start(ws)
 
     wp1 = [
-        (5.5, 0.5),
-        (5.5, 19.5),
-        (7.5, 19.5),
-        (7.5, 0.5)
+        (5.5, 7.5),
+        (5.5, 12.5),
+        (6.5, 12.5),
+        (6.5, 7.5)
     ]
 
     robot1.load_waypoints(wp1)
     ws.add_agent(robot1)
 
     # ROBOT 2 =====================================================
-    robot2 = LineFollower2D("Clyde", State_2D(10.5, 19.5))
+    robot2 = LineFollower2D("Clyde", State_2D(10.5, 12.5))
     robot2.start(ws)
     wp2 = [
-        (10.5, 19.5),
-        (10.5, 0.5),
-        (12.5, 0.5),
-        (12.5, 19.5)
+        (10.5, 12.5),
+        (10.5, 7.5),
+        (11.5, 7.5),
+        (11.5, 12.5)
     ]
     robot2.load_waypoints(wp2)
     ws.add_agent(robot2)
 
     # VOLUNTEER ===================================================
-    volunteer = Volunteer2D("Blinky", State_2D(0.5, 5.5))
+    volunteer = Volunteer2D("Blinky", State_2D(10.5, 10.5))
     volunteer.start(ws)
     ws.add_agent(volunteer)
     volunteer.set_c_space()

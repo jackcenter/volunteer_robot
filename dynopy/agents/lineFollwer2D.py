@@ -22,16 +22,16 @@ class LineFollower2D(Robot2D):
 
         if action == 'north':
             # self.state[1] += 1
-            state.set_y_position(self.state.get_y_position() + 1)
+            state.set_y_position(self.state.get_y_position() + self.cfg["step_size"])
         elif action == 'east':
             # self.state[0] += 1
-            state.set_x_position(self.state.get_x_position() + 1)
+            state.set_x_position(self.state.get_x_position() + self.cfg["step_size"])
         elif action == 'south':
             # self.state[1] -= 1
-            state.set_y_position(self.state.get_y_position() - 1)
+            state.set_y_position(self.state.get_y_position() - self.cfg["step_size"])
         elif action == 'west':
             # self.state[0] -= 1
-            state.set_x_position(self.state.get_x_position() - 1)
+            state.set_x_position(self.state.get_x_position() - self.cfg["step_size"])
         else:
             print("ERROR: robot action not understood. Needs to be north, east, south, or west")
             return
@@ -86,7 +86,7 @@ class LineFollower2D(Robot2D):
         # North
         if y < goal[1]:
             while not goal_found:
-                y += 1
+                y += self.cfg["step_size"]
                 k += 1
                 i = self.get_information_available((x, y))
                 path.append(Node.init_without_cost((x, y), i, k))
@@ -96,7 +96,7 @@ class LineFollower2D(Robot2D):
         # East
         elif x < goal[0]:
             while not goal_found:
-                x += 1
+                x += self.cfg["step_size"]
                 k += 1
                 i = self.get_information_available((x, y))
                 path.append(Node.init_without_cost((x, y), i, k))
@@ -106,7 +106,7 @@ class LineFollower2D(Robot2D):
         # South
         elif y > goal[1]:
             while not goal_found:
-                y -= 1
+                y -= self.cfg["step_size"]
                 k += 1
                 i = self.get_information_available((x, y))
                 path.append(Node.init_without_cost((x, y), i, k))
@@ -116,7 +116,7 @@ class LineFollower2D(Robot2D):
         # West
         elif x > goal[0]:
             while not goal_found:
-                x -= 1
+                x -= self.cfg["step_size"]
                 k += 1
                 i = self.get_information_available((x, y))
                 path.append(Node.init_without_cost((x, y), i, k))

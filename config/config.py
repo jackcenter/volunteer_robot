@@ -5,7 +5,7 @@
 def get_parameters():
     cfg = {
         "plot_full": False,     # plot troubleshooting information
-        "lambda": .5            # reward preference coefficient (how important is fusion)
+        "lambda": .8            # reward preference coefficient (how important is fusion)
     }
 
     return cfg
@@ -21,20 +21,20 @@ def load_agent_parameters(name):
             "t_limit": .3,  # expansion time limit
             "samples": 16,  # number of control inputs to sample
             "gamma": 0.85,  # chance of detection if target is in cell
-            "home": (0.5, 5.5)  # charging station position
+            "home": (10.5, 10.5)  # charging station position
         }
 
     elif name == "Inky":
         cfg = {
             "color": "cyan",
-            "step_size": 1,  # distance traveled each time step
+            "step_size": .25,  # distance traveled each time step
             "gamma": 0.85  # chance of detection if target is in cell
         }
 
     elif name == "Clyde":
         cfg = {
             "color": "orange",
-            "step_size": 1,  # distance traveled each time step
+            "step_size": .25,  # distance traveled each time step
             "gamma": 0.85  # chance of detection if target is in cell
         }
 
