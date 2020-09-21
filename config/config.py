@@ -4,7 +4,8 @@
 
 def get_parameters():
     cfg = {
-        "plot_full": False    # plot troubleshooting information
+        "plot_full": False,     # plot troubleshooting information
+        "lambda": .5            # reward preference coefficient
     }
 
     return cfg
@@ -14,7 +15,7 @@ def load_agent_parameters(name):
     if name == "Blinky":
         cfg = {
             "color": "red",
-            "budget": 20,  # distance volunteer can travel
+            "budget": 30,  # distance volunteer can travel
             "step_size": 1,  # distance traveled each time step
             "radius": 1.2,  # radius to search for node expansion in
             "t_limit": .3,  # expansion time limit

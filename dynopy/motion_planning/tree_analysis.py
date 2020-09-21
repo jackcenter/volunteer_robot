@@ -20,9 +20,6 @@ def update_information(V, E, epsilon_0, gamma, channels=None):
     :return: List of nodes with updated information values
     """
 
-    # TODO: check out those negative rewards, not sure why that would happen
-    # TODO: agent is jumping path locations, need to figure out why
-    # TODO: see if fused list is working right, seems like rewards are not tracking fusion events
     ol = [V[0]]     # open list
     bl = []         # branch list for visited nodes
     cl = []         # closed list
@@ -40,11 +37,11 @@ def update_information(V, E, epsilon_0, gamma, channels=None):
             I_parent = bl[-1].get_information() if bl else 0
             node.set_information(I_gained + I_parent)
 
-            reward_gained = 0
+            I_novel = 0
             if node.get_fusion():
-                reward_gained = set_reward(node.get_fusion(), fused, node.get_information())
+                I_novel = get_I_novel(node.get_fusion(), fused)
             reward_parent = bl[-1].get_reward() if bl else 0
-            node.set_reward(reward_gained + reward_parent)
+            node.set_reward(node.get_information() + I_novel + reward_parent)
 
         neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
@@ -141,13 +138,13 @@ def set_information_available(epsilon, node, value):
     return epsilon
 
 
-def set_reward(channels, fused, I_node):
-    reward = 0
+def get_I_novel(channels, fused):
+    I_novel = 0
     for channel in channels:
-        I_shared = fused[channel]
-        reward += I_node - I_shared
+        I_novel += fused[channel]
+        # reward += I_node - cfg["lambda"]*I_novel
 
-    return reward
+    return I_novel
 
 
 def normalize_pdf(pdf):
