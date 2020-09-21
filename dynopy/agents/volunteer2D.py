@@ -53,6 +53,10 @@ class Volunteer2D(Robot2D):
         self.trajectory_log.append(action)
         self.update_information()
 
+        if root.get_fusion():
+            for channel in root.get_fusion():
+                self.fuse(channel)
+
     def generate_trajectory(self):
         traj = []
         path = self.path.copy()
@@ -82,7 +86,7 @@ class Volunteer2D(Robot2D):
         self.prune_passed_nodes()
         self.generate_trajectory()
 
-    def fuse(self):
+    def fuse(self, channel):
         pass
 
     def expand_tree(self):
