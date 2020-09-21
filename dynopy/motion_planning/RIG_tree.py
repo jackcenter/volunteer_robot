@@ -59,10 +59,17 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, parameters):
         for node in n_near:
             # extend towards new point
             x_new = steer(node.get_position(), x_feasible, d, input_samples)
-            if no_collision(node.get_position(), x_new, X_free):
+
+            if collision(node.get_position(), x_new, X_free):
+                continue
+
+            C_x_new = evaluate_cost(node.get_position(), x_new)
+            C_new = node.get_cost() + C_x_new
+
+            if in_range_of_home(parameters["home"], x_new, C_new, parameters["budget"]):
                 I_new = information(node.get_information(), x_new, epsilon)
-                C_x_new = evaluate_cost(node.get_position(), x_new)
-                C_new = node.get_cost() + C_x_new
+                # C_x_new = evaluate_cost(node.get_position(), x_new)
+                # C_new = node.get_cost() + C_x_new
                 k_new = node.get_time() + 1             # represents one time step, could be actual time
                 n_new = Node(x_new, C_new, I_new, k_new)
 
@@ -205,7 +212,7 @@ def near(x_feasible, V_open, R):
     return nodes_near
 
 
-def no_collision(x_n_near, x_new, X_free):
+def collision(x_n_near, x_new, X_free):
     """
     No collision checking is done at the moment, assuming no obstacles
     :param x_n_near:
@@ -214,7 +221,19 @@ def no_collision(x_n_near, x_new, X_free):
     :return:
     """
     # TODO: actually check for obstacles
-    return True
+    return False
+
+
+def in_range_of_home(x_home, x_new, cost, budget):
+
+    range_current = get_distance(x_home, x_new)
+    range_max = budget - cost - range_current
+
+    if range_current <= range_max:
+        return True
+
+    else:
+        return False
 
 
 def information(I_n_near, x_new, epsilon):
