@@ -22,35 +22,36 @@ cfg = config.get_parameters()
 def main():
     boundary = [
         (0, 0),
-        (10, 0),
-        (10, 10),
-        (0, 10)
+        (20, 0),
+        (20, 20),
+        (0, 20)
     ]
 
     ws = Workspace(boundary)
     ws.generate_initial_distribution()
 
     # ROBOT 1 =====================================================
-    robot1 = LineFollower2D("Inky", State_2D(1.5, 0.5))
+    robot1 = LineFollower2D("Inky", State_2D(5.5, 0.5))
     robot1.start(ws)
 
     wp1 = [
-        (1.5, 0.5),
-        (1.5, 9.5),
-        (3.5, 9.5),
-
+        (5.5, 0.5),
+        (5.5, 19.5),
+        (7.5, 19.5),
+        (7.5, 0.5)
     ]
 
     robot1.load_waypoints(wp1)
     ws.add_agent(robot1)
 
     # ROBOT 2 =====================================================
-    robot2 = LineFollower2D("Clyde", State_2D(6.5, 9.5))
+    robot2 = LineFollower2D("Clyde", State_2D(10.5, 19.5))
     robot2.start(ws)
     wp2 = [
-        (6.5, 9.5),
-        (4.5, 9.5),
-        (4.5, 0.5)
+        (10.5, 19.5),
+        (10.5, 0.5),
+        (12.5, 0.5),
+        (12.5, 19.5)
     ]
     robot2.load_waypoints(wp2)
     ws.add_agent(robot2)
@@ -65,7 +66,7 @@ def main():
     print(volunteer.pdf)
 
     plt.style.use('dark_background')
-    for i in range(11):
+    for i in range(config.load_agent_parameters("Blinky")["budget"]):
         cycle(ws)
         volunteer.plot_pdf()
         ws.plot()
