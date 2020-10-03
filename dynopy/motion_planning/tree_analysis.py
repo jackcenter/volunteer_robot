@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from config import config
 
-cfg = config.get_parameters()
+
 
 
 def update_information(V, E, epsilon_0, gamma, channels=None):
@@ -19,7 +19,7 @@ def update_information(V, E, epsilon_0, gamma, channels=None):
     :param channels: list of open channels
     :return: List of nodes with updated information values
     """
-
+    cfg = config.get_parameters()
     ol = [V[0]]     # open list
     bl = []         # branch list for visited nodes
     cl = []         # closed list
@@ -39,11 +39,11 @@ def update_information(V, E, epsilon_0, gamma, channels=None):
             node.set_information(I_gained + I_parent)
 
             # Set reward at the node
-            I_novel = 0
-            if node.get_fusion():
-                I_novel = get_I_novel(node.get_fusion(), fused)
-            reward_parent = bl[-1].get_reward() if bl else 0
-            node.set_reward(node.get_information() + I_novel + reward_parent)
+            # I_novel = 0
+            # if node.get_fusion():
+            I_novel = get_I_novel(channels, node, fused)
+            # reward_parent = bl[-1].get_reward() if bl else 0
+            node.set_reward(node.get_information() - cfg.get("lambda")*I_novel)
 
         neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
@@ -140,13 +140,26 @@ def set_information_available(epsilon, node, value):
     return epsilon
 
 
-def get_I_novel(channels, fused):
+def get_I_novel(channels, node, fused):
+    """
+    gets the amount sum of information in the node that hasn't been shared with other agents
+    :param channels:
+    :param node:
+    :param fused:
+    :return:
+    """
+    fusion_events = node.get_fusion()       # list of channels that fused this time
+    n_channels = len(channels)
     I_novel = 0
     for channel in channels:
-        I_novel += fused[channel]
-        # reward += I_node - cfg["lambda"]*I_novel
+        if channel in fusion_events:
+            I_novel_channel = 0
+        else:
+            I_novel_channel = node.get_information() - fused.get(channel)
 
-    return I_novel
+        I_novel += I_novel_channel
+
+    return I_novel/n_channels
 
 
 def normalize_pdf(pdf):
