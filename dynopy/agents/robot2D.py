@@ -33,6 +33,7 @@ class Robot2D:
         self.path_log = []
         self.trajectory_log = []    # stores actions taken in order, ie [0] is the first action
         self.state_log = []
+        self.i_gained = 0
 
     def plot(self):
         x, y = self.get_position()
@@ -87,6 +88,9 @@ class Robot2D:
 
     def get_X_free(self):
         return self.c_space
+
+    def get_information_gained(self):
+        return self.i_gained
 
     def start(self, workspace):
         """
@@ -151,3 +155,4 @@ class Robot2D:
 
         i_gained = i_available - i_remaining
         self.state.set_information(i_gained)
+        self.i_gained += i_gained

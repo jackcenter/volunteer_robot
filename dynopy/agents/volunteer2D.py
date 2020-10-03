@@ -61,8 +61,9 @@ class Volunteer2D(Robot2D):
                     print("({}, {})".format(x, y))
 
             pdf1 = pdf1 / np.sum(pdf1)
-
             self.set_pdf(pdf1)
+            self.information_shared.update({channel: self.get_information_gained()})
+
 
     def get_tree(self):
         return self.V, self.E
@@ -73,7 +74,7 @@ class Volunteer2D(Robot2D):
         :param
         :return:
         """
-        # TODO: keep track of information gained and information fused with other agents
+
         self.execute_planning_cycle()
         plot_tree(self.E, "lightcoral")
         root = self.path.pop()
@@ -137,7 +138,7 @@ class Volunteer2D(Robot2D):
             f = self.channel_range.get(agent)
             identify_fusion_nodes(self.V, path, agent, f)
 
-        update_information(self.V, self.E, self.pdf, self.cfg["gamma"], self.channel_list)
+        update_information(self.V, self.E, self.pdf, self.cfg["gamma"], self.channel_list, self.information_shared)
 
         # self.path = pick_path_max_I(self.V, self.E)
         self.path = pick_path_max_R(self.V, self.E)

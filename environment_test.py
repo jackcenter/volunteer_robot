@@ -12,10 +12,6 @@ from dynopy.motion_planning.tree_analysis import print_nodes_with_reward
 cfg = config.get_parameters()
 
 # TODO: check that the path_log and state_log are updating correctly
-# TODO: use a more interesting pdf
-# TODO: look at volunteer start up
-# TODO: check out those negative rewards, not sure why that would happen
-# TODO: agent is jumping path locations, need to figure out why
 # TODO: set seed for samples and try to get side by side of pure RIG vs Fusion aware RIG
 
 

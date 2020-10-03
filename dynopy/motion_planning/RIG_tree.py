@@ -18,8 +18,7 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, parameters):
 
     :param V: node list for a prebuilt tree
     :param E: edge list for a prebuilt tree
-    :param d: single dynamic step
-    :param B: budget
+    :param V_closed: list of nodes that can't be expanded
     :param X_all: workspace
     :param X_free: free space
     :param epsilon: environment
@@ -251,7 +250,7 @@ def information(I_n_near, x_new, epsilon):
     try:
         I_new = epsilon[x][y]
     except IndexError:
-        I_new = 0
+        I_new = 0       # outside the workspace bounds, no information to be gained
 
     I_total = I_n_near + I_new
     return I_total

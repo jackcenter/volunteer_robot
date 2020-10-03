@@ -41,7 +41,6 @@ def load_agent_parameters(name):
             "fusion_range": 1  # max distance agent can communicate
         }
 
-
     else:
         cfg = {
             "color": "k",
