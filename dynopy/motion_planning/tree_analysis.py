@@ -32,7 +32,7 @@ def update_information(V, E, epsilon_0, gamma, channels=None):
         epsilon = epsilon_list[-1]
         fused = fused_list[-1]
 
-        if node not in bl:
+        if node not in bl:      # Node not in branch list means this is the first time it's been visited
             I_gained = get_information_gained(epsilon, node, gamma)
             I_parent = bl[-1].get_information() if bl else 0
             node.set_information(I_gained + I_parent)
@@ -46,7 +46,7 @@ def update_information(V, E, epsilon_0, gamma, channels=None):
         neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
 
-        if neighbors_open:
+        if neighbors_open:      # There are nodes to expand to
             ol.extend(neighbors_open)
             bl.append(node)
 
@@ -62,14 +62,14 @@ def update_information(V, E, epsilon_0, gamma, channels=None):
             else:
                 fused_list.append(fused)
 
-        elif node in bl:
+        elif node in bl:        # Returned to a  branch that has been fully explored
             ol.pop()
             bl.pop()
             cl.append(node)
             epsilon_list.pop()
             fused_list.pop()
 
-        else:
+        else:                   # This was the leaf of the branch
             ol.pop()
             cl.append(node)
 

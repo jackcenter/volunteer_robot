@@ -18,6 +18,7 @@ class Volunteer2D(Robot2D):
         self.V_closed = []
         self.B = None
         self.channel_list = {}      # name : path
+        self.channel_range = {}     # name : range
         self.information_shared = {}
 
     def initialize_channels(self, agents):
@@ -25,6 +26,13 @@ class Volunteer2D(Robot2D):
             if agent.get_name != self.name:
                 self.channel_list.update({agent.get_name(): agent.get_path()})
                 self.information_shared.update({agent.get_name(): 0.0})
+
+                if agent.cfg.get("fusion_range") < self.cfg.get("fusion_range"):
+                    f = agent.cfg.get("fusion_range")
+                else:
+                    f = self.cfg.get("fusion_range")
+
+                self.channel_range.update({agent.get_name(): f})
 
     def get_tree(self):
         return self.V, self.E
@@ -45,6 +53,7 @@ class Volunteer2D(Robot2D):
         action = self.trajectory.pop()
         x0, y0 = self.state.get_position()
         theta, r = action
+
         x1 = x0 + r*cos(theta)
         y1 = y0 + r*sin(theta)
         state = State_2D(x1, y1)
@@ -53,6 +62,7 @@ class Volunteer2D(Robot2D):
         self.trajectory_log.append(action)
         self.update_information()
 
+        # TODO: check all agents in workspace to see if they are within a certain range
         if root.get_fusion():
             for channel in root.get_fusion():
                 self.fuse(channel)
@@ -96,11 +106,11 @@ class Volunteer2D(Robot2D):
 
     def select_path(self):
         for agent, path in self.channel_list.items():
-            identify_fusion_nodes(self.V, path, agent, 1)
-        update_information(self.V, self.E, self.pdf, self.cfg["gamma"], self.channel_list)
-        # update_reward()
 
-        # TODO: pick path based on reward function
+            f = self.channel_range.get(agent)
+            identify_fusion_nodes(self.V, path, agent, f)
+
+        update_information(self.V, self.E, self.pdf, self.cfg["gamma"], self.channel_list)
 
         # self.path = pick_path_max_I(self.V, self.E)
         self.path = pick_path_max_R(self.V, self.E)
