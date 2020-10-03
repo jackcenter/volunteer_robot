@@ -62,8 +62,8 @@ def main():
     ws.add_agent(volunteer)
     volunteer.set_c_space()
     volunteer.initialize_channels(ws.get_agents())
-    print(volunteer.channel_list)
-    print(volunteer.pdf)
+    # print(volunteer.channel_list)
+    # print(volunteer.pdf)
 
     plt.style.use('dark_background')
     for i in range(config.load_agent_parameters("Blinky")["budget"]):
@@ -71,7 +71,7 @@ def main():
         volunteer.plot_pdf()
         ws.plot()
 
-        print_nodes_with_reward(volunteer.get_tree()[0])
+        # print_nodes_with_reward(volunteer.get_tree()[0])
         plt.show()
 
 

@@ -35,8 +35,7 @@ class Robot2D:
         self.state_log = []
 
     def plot(self):
-        x = self.state.get_x_position()
-        y = self.state.get_y_position()
+        x, y = self.get_position()
         plt.plot(x, y, 'x', color=self.cfg["color"])
 
     def plot_visited_cells(self):

@@ -38,7 +38,7 @@ def load_agent_parameters(name):
             "color": "orange",
             "step_size": .25,  # distance traveled each time step
             "gamma": 0.85,  # chance of detection if target is in cell
-            "fusion_range": 2  # max distance agent can communicate
+            "fusion_range": 1  # max distance agent can communicate
         }
 
 

@@ -23,7 +23,7 @@ class Volunteer2D(Robot2D):
 
     def initialize_channels(self, agents):
         for agent in agents:
-            if agent.get_name != self.name:
+            if agent.get_name() != self.get_name():
                 self.channel_list.update({agent.get_name(): agent.get_path()})
                 self.information_shared.update({agent.get_name(): 0.0})
 
@@ -56,16 +56,18 @@ class Volunteer2D(Robot2D):
 
         x1 = x0 + r*cos(theta)
         y1 = y0 + r*sin(theta)
-        state = State_2D(x1, y1)
+        k1 = root.get_time()            # TODO: simply takes node time, could update based on current time instead
+        state = State_2D(x1, y1, time=k1)
 
         self.state = state
         self.trajectory_log.append(action)
         self.update_information()
 
         # TODO: check all agents in workspace to see if they are within a certain range
-        if root.get_fusion():
-            for channel in root.get_fusion():
-                self.fuse(channel)
+        for channel in self.channel_list.keys():
+            self.fuse(channel)
+
+        pass
 
     def generate_trajectory(self):
         traj = []
@@ -97,7 +99,21 @@ class Volunteer2D(Robot2D):
         self.generate_trajectory()
 
     def fuse(self, channel):
-        pass
+        """
+        this function replaces real world comm range. In actual implementation agents should fuse whenever possible, or
+        when simulating on hardware, whenever within some predefined distance like this.
+        :param channel:
+        :return:
+        """
+        pos1 = self.get_position()
+        agent = next(x for x in self.workspace.get_agents() if x.get_name() == channel)
+
+        _, distance = self.get_direction_and_distance(pos1, agent.get_position())
+        if abs(distance) < self.channel_range.get(agent.get_name()):
+            print("{} and {} can fuse!".format(self.get_name(), agent.get_name()))
+            print("Positions: {}, {}".format(self.get_position(), agent.get_position()))
+            print("Distance: {}\n".format(distance))
+            # TODO: actually fuse
 
     def expand_tree(self):
         # TODO: handle this closed node business
@@ -106,7 +122,6 @@ class Volunteer2D(Robot2D):
 
     def select_path(self):
         for agent, path in self.channel_list.items():
-
             f = self.channel_range.get(agent)
             identify_fusion_nodes(self.V, path, agent, f)
 

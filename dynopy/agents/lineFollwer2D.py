@@ -19,26 +19,24 @@ class LineFollower2D(Robot2D):
         """
         action = self.trajectory.pop()
         state = self.state.copy()
+        root = self.path.pop()
 
         if action == 'north':
-            # self.state[1] += 1
             state.set_y_position(self.state.get_y_position() + self.cfg["step_size"])
         elif action == 'east':
-            # self.state[0] += 1
             state.set_x_position(self.state.get_x_position() + self.cfg["step_size"])
         elif action == 'south':
-            # self.state[1] -= 1
             state.set_y_position(self.state.get_y_position() - self.cfg["step_size"])
         elif action == 'west':
-            # self.state[0] -= 1
             state.set_x_position(self.state.get_x_position() - self.cfg["step_size"])
         else:
             print("ERROR: robot action not understood. Needs to be north, east, south, or west")
             return
 
+        state.set_time(root.get_time())     # TODO: simply takes node time, could update based on current time instead
         self.set_state(state)
         self.trajectory_log.append(action)
-        self.path_log.append(self.path.pop())
+        self.path_log.append(root)
         self.state_log.append(self.state)
 
     def generate_full_path(self):
