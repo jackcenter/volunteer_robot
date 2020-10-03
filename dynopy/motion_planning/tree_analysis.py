@@ -7,9 +7,7 @@ import numpy as np
 from config import config
 
 
-
-
-def update_information(V, E, epsilon_0, gamma, channels=None):
+def update_information(V, E, epsilon_0, gamma, channels=None, fused=None):
     """
     Walk through the path and update information at each node.
     :param V: list of nodes
@@ -17,15 +15,21 @@ def update_information(V, E, epsilon_0, gamma, channels=None):
     :param epsilon_0: information in the environment
     :param gamma: probability of detection
     :param channels: list of open channels
+    :param fused: dictionary of amount of information fused so far {channel: information fused}
     :return: List of nodes with updated information values
     """
+    # TODO: need to keep track of information fused outside of this update loop
     cfg = config.get_parameters()
     ol = [V[0]]     # open list
     bl = []         # branch list for visited nodes
     cl = []         # closed list
 
     epsilon_list = [epsilon_0]
-    fused_list = [create_zero_dict_from_list(channels)]
+
+    if not fused:
+        fused = create_zero_dict_from_list(channels)
+
+    fused_list = [fused]
 
     while ol:
         node = ol[-1]
@@ -58,11 +62,12 @@ def update_information(V, E, epsilon_0, gamma, channels=None):
             epsilon_new = update_epsilon(epsilon, node, I_gained)
             epsilon_list.append(epsilon_new)
 
-            if node.get_fusion():
-                fused_new = update_fused(node.get_fusion(), fused, node.get_information())
-                fused_list.append(fused_new)
-            else:
-                fused_list.append(fused)
+            # if node.get_fusion():
+            #     # fused_new = update_fused(node.get_fusion(), fused, node.get_information())
+            fused_new = update_fused(channels, node, fused)
+            fused_list.append(fused_new)
+            # else:
+            #     fused_list.append(fused)
 
         elif node in bl:        # Returned to a  branch that has been fully explored
             ol.pop()
@@ -105,12 +110,44 @@ def update_epsilon(epsilon_k0, node, I_gained):
     return epsilon_k1
 
 
-def update_fused(channels_fused, F_0, I_node):
-    F_new = F_0.copy()
-    for channel in channels_fused:
-        F_new.update({channel: I_node})
+def update_fused(channels, node, fused):
+    """
+    Any channel that had fusion at this node gets update with the current nodes information so that it is not
+    counted as novel information in the future. Otherwise channel is left alone
+    :param channels: list of open channels
+    :param node: current node being expanded
+    :param fused: dictionary of previous information fused at a node. {channel: information}
+    :return:
+    """
+    fusion_events = node.get_fusion()
+    fused_new = fused.copy()
+    for channel in channels:
+        if channel in fusion_events:
+            fused_new.update({channel: node.get_information()})
 
-    return F_new
+    return fused_new
+
+
+def get_I_novel(channels, node, fused):
+    """
+    gets the amount sum of information in the node that hasn't been shared with other agents
+    :param channels: list of open channels
+    :param node: current node being expanded
+    :param fused: dictionary of previous information fused at a node. {channel: information}
+    :return:
+    """
+    fusion_events = node.get_fusion()       # list of channels that fused this time
+    n_channels = len(channels)
+    I_novel = 0
+    for channel in channels:
+        if channel in fusion_events:
+            I_novel_channel = 0
+        else:
+            I_novel_channel = node.get_information() - fused.get(channel)
+
+        I_novel += I_novel_channel
+
+    return I_novel/n_channels
 
 
 def get_information_available(epsilon, node):
@@ -138,28 +175,6 @@ def set_information_available(epsilon, node, value):
         pass
 
     return epsilon
-
-
-def get_I_novel(channels, node, fused):
-    """
-    gets the amount sum of information in the node that hasn't been shared with other agents
-    :param channels:
-    :param node:
-    :param fused:
-    :return:
-    """
-    fusion_events = node.get_fusion()       # list of channels that fused this time
-    n_channels = len(channels)
-    I_novel = 0
-    for channel in channels:
-        if channel in fusion_events:
-            I_novel_channel = 0
-        else:
-            I_novel_channel = node.get_information() - fused.get(channel)
-
-        I_novel += I_novel_channel
-
-    return I_novel/n_channels
 
 
 def normalize_pdf(pdf):

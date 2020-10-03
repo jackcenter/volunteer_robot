@@ -5,7 +5,7 @@
 def get_parameters():
     cfg = {
         "plot_full": False,     # plot troubleshooting information
-        "lambda": 1            # reward preference coefficient (how important is fusion)
+        "lambda": .99         # reward preference coefficient (how important is fusion)
     }
 
     return cfg
@@ -18,7 +18,7 @@ def load_agent_parameters(name):
             "budget": 30,  # distance volunteer can travel
             "step_size": 1,  # distance traveled each time step
             "radius": 1.2,  # radius to search for node expansion in
-            "t_limit": .3,  # expansion time limit
+            "t_limit": .2,  # expansion time limit
             "samples": 16,  # number of control inputs to sample
             "gamma": 0.85,  # chance of detection if target is in cell
             "home": (10.5, 10.5),  # charging station position

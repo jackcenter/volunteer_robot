@@ -73,6 +73,7 @@ class Volunteer2D(Robot2D):
         :param
         :return:
         """
+        # TODO: keep track of information gained and information fused with other agents
         self.execute_planning_cycle()
         plot_tree(self.E, "lightcoral")
         root = self.path.pop()
@@ -94,7 +95,6 @@ class Volunteer2D(Robot2D):
         self.state_log.append(self.state)
         self.update_information()
 
-        # TODO: check all agents in workspace to see if they are within a certain range
         for channel in self.channel_list.keys():
             self.fuse(channel)
 
