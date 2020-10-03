@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from math import sqrt, cos, sin, atan2
+import numpy as np
 from dynopy.agents.robot2D import Robot2D
 from dynopy.data_objects.state import State_2D
 from dynopy.motion_planning.RIG_tree import RIG_tree
@@ -21,6 +22,7 @@ class Volunteer2D(Robot2D):
         self.channel_range = {}     # name : range
         self.information_shared = {}
 
+    # TODO: move this fusion stuff so all robots can do it
     def initialize_channels(self, agents):
         for agent in agents:
             if agent.get_name() != self.get_name():
@@ -33,6 +35,34 @@ class Volunteer2D(Robot2D):
                     f = self.cfg.get("fusion_range")
 
                 self.channel_range.update({agent.get_name(): f})
+
+    def fuse(self, channel):
+        """
+        this function replaces real world comm range. In actual implementation agents should fuse whenever possible, or
+        when simulating on hardware, whenever within some predefined distance like this.
+        :param channel:
+        :return:
+        """
+        pos1 = self.get_position()
+        agent = next(x for x in self.workspace.get_agents() if x.get_name() == channel)
+
+        _, distance = self.get_direction_and_distance(pos1, agent.get_position())
+        if abs(distance) < self.channel_range.get(agent.get_name()):
+            print("{} and {} can fuse!".format(self.get_name(), agent.get_name()))
+            print("Positions: {}, {}".format(self.get_position(), agent.get_position()))
+            print("Distance: {}\n".format(distance))
+            pdf1 = self.get_pdf()
+            pdf2 = self.get_pdf()
+
+            for x, y in np.ndindex(pdf1.shape):
+
+                if pdf2[x][y] < pdf1[x][y]:
+                    pdf1[x][y] = pdf2[x][y]
+                    print("({}, {})".format(x, y))
+
+            pdf1 = pdf1 / np.sum(pdf1)
+
+            self.set_pdf(pdf1)
 
     def get_tree(self):
         return self.V, self.E
@@ -59,15 +89,14 @@ class Volunteer2D(Robot2D):
         k1 = root.get_time()            # TODO: simply takes node time, could update based on current time instead
         state = State_2D(x1, y1, time=k1)
 
-        self.state = state
         self.trajectory_log.append(action)
+        self.state = state
+        self.state_log.append(self.state)
         self.update_information()
 
         # TODO: check all agents in workspace to see if they are within a certain range
         for channel in self.channel_list.keys():
             self.fuse(channel)
-
-        pass
 
     def generate_trajectory(self):
         traj = []
@@ -98,23 +127,6 @@ class Volunteer2D(Robot2D):
         self.prune_passed_nodes()
         self.generate_trajectory()
 
-    def fuse(self, channel):
-        """
-        this function replaces real world comm range. In actual implementation agents should fuse whenever possible, or
-        when simulating on hardware, whenever within some predefined distance like this.
-        :param channel:
-        :return:
-        """
-        pos1 = self.get_position()
-        agent = next(x for x in self.workspace.get_agents() if x.get_name() == channel)
-
-        _, distance = self.get_direction_and_distance(pos1, agent.get_position())
-        if abs(distance) < self.channel_range.get(agent.get_name()):
-            print("{} and {} can fuse!".format(self.get_name(), agent.get_name()))
-            print("Positions: {}, {}".format(self.get_position(), agent.get_position()))
-            print("Distance: {}\n".format(distance))
-            # TODO: actually fuse
-
     def expand_tree(self):
         # TODO: handle this closed node business
         self.V, self.E, self.V_closed = RIG_tree(self.V, self.E, self.V_closed, self.get_X_free(), self.get_X_free(),
@@ -133,5 +145,3 @@ class Volunteer2D(Robot2D):
     def prune_passed_nodes(self):
         self.V, self.E = prune_step(self.V, self.E, self.path)
         # TODO: prune the closed list
-
-

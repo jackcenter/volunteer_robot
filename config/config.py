@@ -5,7 +5,7 @@
 def get_parameters():
     cfg = {
         "plot_full": False,     # plot troubleshooting information
-        "lambda": .8            # reward preference coefficient (how important is fusion)
+        "lambda": 1            # reward preference coefficient (how important is fusion)
     }
 
     return cfg

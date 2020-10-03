@@ -33,10 +33,12 @@ def update_information(V, E, epsilon_0, gamma, channels=None):
         fused = fused_list[-1]
 
         if node not in bl:      # Node not in branch list means this is the first time it's been visited
+            # Set information at the node
             I_gained = get_information_gained(epsilon, node, gamma)
             I_parent = bl[-1].get_information() if bl else 0
             node.set_information(I_gained + I_parent)
 
+            # Set reward at the node
             I_novel = 0
             if node.get_fusion():
                 I_novel = get_I_novel(node.get_fusion(), fused)

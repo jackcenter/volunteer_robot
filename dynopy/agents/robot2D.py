@@ -76,6 +76,9 @@ class Robot2D:
     def get_pdf(self):
         return self.pdf
 
+    def set_pdf(self, pdf):
+        self.pdf = pdf
+
     def set_c_space(self):
         c1 = self.workspace.get_x_bounds()
         c2 = self.workspace.get_y_bounds()

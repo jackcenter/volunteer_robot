@@ -17,10 +17,11 @@ class LineFollower2D(Robot2D):
         :param
         :return:
         """
+        root = self.path.pop()
+        self.path_log.append(root)
+
         action = self.trajectory.pop()
         state = self.state.copy()
-        root = self.path.pop()
-
         if action == 'north':
             state.set_y_position(self.state.get_y_position() + self.cfg["step_size"])
         elif action == 'east':
@@ -34,10 +35,11 @@ class LineFollower2D(Robot2D):
             return
 
         state.set_time(root.get_time())     # TODO: simply takes node time, could update based on current time instead
-        self.set_state(state)
+
         self.trajectory_log.append(action)
-        self.path_log.append(root)
+        self.set_state(state)
         self.state_log.append(self.state)
+        self.update_information()
 
     def generate_full_path(self):
         """
