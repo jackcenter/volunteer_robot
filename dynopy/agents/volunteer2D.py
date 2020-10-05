@@ -52,18 +52,16 @@ class Volunteer2D(Robot2D):
             print("Positions: {}, {}".format(self.get_position(), agent.get_position()))
             print("Distance: {}\n".format(distance))
             pdf1 = self.get_pdf()
-            pdf2 = self.get_pdf()
+            pdf2 = agent.get_pdf()
 
             for x, y in np.ndindex(pdf1.shape):
 
                 if pdf2[x][y] < pdf1[x][y]:
                     pdf1[x][y] = pdf2[x][y]
-                    print("({}, {})".format(x, y))
 
             pdf1 = pdf1 / np.sum(pdf1)
             self.set_pdf(pdf1)
             self.information_shared.update({channel: self.get_information_gained()})
-
 
     def get_tree(self):
         return self.V, self.E
