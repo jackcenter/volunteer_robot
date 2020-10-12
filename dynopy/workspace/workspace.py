@@ -4,6 +4,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as stats
+from dynopy.agents.volunteer2D import Volunteer2D
 
 
 class Workspace:
@@ -57,6 +58,9 @@ class Workspace:
         for robot in self.agents:
             robot.plot()
             robot.plot_visited_cells()
+            print(type(robot))
+            if isinstance(robot, Volunteer2D):
+                robot.plot_visited_cells_edges()
             robot.plot_path()
 
     def get_agents(self):

@@ -11,8 +11,8 @@ from dynopy.motion_planning.tree_analysis import update_information, identify_fu
 
 
 class Volunteer2D(Robot2D):
-    def __init__(self, name: str, state):
-        super().__init__(name, state)
+    def __init__(self, name: str, state, plot_full=False):
+        super().__init__(name, state, plot_full)
 
         self.V = []
         self.E = []
@@ -74,7 +74,8 @@ class Volunteer2D(Robot2D):
         """
 
         self.execute_planning_cycle()
-        plot_tree(self.E, "lightcoral")
+        if self.plot_full:
+            plot_tree(self.E, "lightcoral")
         root = self.path.pop()
         self.path_log.append(root)
         self.V = [x for x in self.V if x != root]
@@ -122,7 +123,8 @@ class Volunteer2D(Robot2D):
     def execute_planning_cycle(self):
         self.expand_tree()
         self.select_path()
-        plot_tree(self.E, 'blue')
+        if self.plot_full:
+            plot_tree(self.E, 'blue')
         self.prune_passed_nodes()
         self.generate_trajectory()
 

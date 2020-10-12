@@ -10,11 +10,10 @@ from dynopy.data_objects.state import State_2D
 
 
 class Robot2D:
-    def __init__(self, name: str, state):
+    def __init__(self, name: str, state, plot_full=False):
         """
 
         :param name:
-        :param color:
         :param state: [x position, y_position]
         """
         self.name = name
@@ -35,6 +34,8 @@ class Robot2D:
         self.state_log = []
         self.i_gained = 0
 
+        self.plot_full = plot_full
+
     def plot(self):
         x, y = self.get_position()
         plt.plot(x, y, 'x', color=self.cfg["color"])
@@ -43,6 +44,17 @@ class Robot2D:
         for node in self.path_log:
             x, y = node.get_position()
             plt.plot(x, y, 'o', color=self.cfg["color"], mfc='none')
+
+    def plot_visited_cells_edges(self):
+        x_ords = []
+        y_ords = []
+
+        for node in self.path_log:
+            x, y = node.get_position()
+            x_ords.append(x)
+            y_ords.append(y)
+
+        plt.plot(x_ords, y_ords, '--', color=self.cfg["color"])
 
     def plot_path(self):
         for node in self.path:

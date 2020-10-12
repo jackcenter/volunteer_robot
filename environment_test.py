@@ -53,7 +53,7 @@ def main():
     ws.add_agent(robot2)
 
     # VOLUNTEER ===================================================
-    volunteer = Volunteer2D("Blinky", State_2D(10.5, 10.5))
+    volunteer = Volunteer2D("Blinky", State_2D(10.5, 10.5), False)
     volunteer.start(ws)
     ws.add_agent(volunteer)
     volunteer.set_c_space()
@@ -64,11 +64,15 @@ def main():
     plt.style.use('dark_background')
     for i in range(config.load_agent_parameters("Blinky")["budget"]):
         cycle(ws)
-        volunteer.plot_pdf()
-        ws.plot()
+        # volunteer.plot_pdf()
+        # ws.plot()
 
         # print_nodes_with_reward(volunteer.get_tree()[0])
-        plt.show()
+        # plt.show()
+
+    volunteer.plot_pdf()
+    ws.plot()
+    plt.show()
 
 
 def cycle(ws):
