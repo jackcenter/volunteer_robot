@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from math import sqrt, cos, sin, atan2
+import time
 import numpy as np
 from dynopy.agents.robot2D import Robot2D
 from dynopy.data_objects.state import State_2D
@@ -121,12 +122,26 @@ class Volunteer2D(Robot2D):
         return direction, distance
 
     def execute_planning_cycle(self):
+        t_0 = time.process_time()
         self.expand_tree()
+
+        t_1 = time.process_time() - t_0
         self.select_path()
+
+        t_2 = time.process_time() - t_1 - t_0
         if self.plot_full:
             plot_tree(self.E, 'blue')
+
+        t_3 = time.process_time() - t_2 - t_1 - t_0
         self.prune_passed_nodes()
+
+        t_4 = time.process_time() - t_3 - t_2 - t_1 - t_0
         self.generate_trajectory()
+
+        t_5 = time.process_time() - t_4 - t_3 - t_2 - t_1 - t_0
+
+        print("Time Step:  {}\nExpanion:   {}\nSelection:  {}\nPruning:    {}\nGeneration: {}\n\n".format(
+            self.state.get_time(), t_1, t_2, t_4, t_5))
 
     def expand_tree(self):
         # TODO: handle this closed node business
@@ -138,7 +153,7 @@ class Volunteer2D(Robot2D):
             f = self.channel_range.get(agent)
             identify_fusion_nodes(self.V, path, agent, f)
 
-        update_information(self.V, self.E, self.pdf, self.cfg["gamma"], self.channel_list, self.information_shared)
+        update_information(self.V, self.E, self.pdf, self.cfg, self.channel_list, self.information_shared)
 
         # self.path = pick_path_max_I(self.V, self.E)
         self.path = pick_path_max_R(self.V, self.E)

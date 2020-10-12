@@ -7,19 +7,19 @@ import numpy as np
 from config import config
 
 
-def update_information(V, E, epsilon_0, gamma, channels=None, fused=None):
+def update_information(V, E, epsilon_0, cfg, channels=None, fused=None):
     """
     Walk through the path and update information at each node.
     :param V: list of nodes
     :param E: list of edges
     :param epsilon_0: information in the environment
-    :param gamma: probability of detection
+    :param cfg: configuration of agent, uses parameters "gamma" and "lambda" for probability of detection and preference
+    for fusion vs information gain
     :param channels: list of open channels
     :param fused: dictionary of amount of information fused so far {channel: information fused}
     :return: List of nodes with updated information values
     """
     # TODO: need to keep track of information fused outside of this update loop
-    cfg = config.get_parameters()
     ol = [V[0]]     # open list
     bl = []         # branch list for visited nodes
     cl = []         # closed list
@@ -38,7 +38,7 @@ def update_information(V, E, epsilon_0, gamma, channels=None, fused=None):
 
         if node not in bl:      # Node not in branch list means this is the first time it's been visited
             # Set information at the node
-            I_gained = get_information_gained(epsilon, node, gamma)
+            I_gained = get_information_gained(epsilon, node, cfg.get("gamma"))
             I_parent = bl[-1].get_information() if bl else 0
             node.set_information(I_gained + I_parent)
 

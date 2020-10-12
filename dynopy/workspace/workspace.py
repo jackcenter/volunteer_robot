@@ -8,13 +8,15 @@ from dynopy.agents.volunteer2D import Volunteer2D
 
 
 class Workspace:
-    def __init__(self, boundary_coordinates):
+    def __init__(self, boundary_coordinates, cfg):
         """
         Contains information associated with an environment the agents can work in.
         TODO: add obstacle functionality
         :param boundary_coordinates: list of tuples
+        :param cfg: configuration parameters
         """
         self.boundary_coordinates = boundary_coordinates
+        self.cfg = cfg
         self.agents = []
         self.time_step = 0
 
@@ -58,7 +60,6 @@ class Workspace:
         for robot in self.agents:
             robot.plot()
             robot.plot_visited_cells()
-            print(type(robot))
             if isinstance(robot, Volunteer2D):
                 robot.plot_visited_cells_edges()
             robot.plot_path()
@@ -122,8 +123,8 @@ class Workspace:
         x_uniform = stats.uniform(loc=self.x_bounds[0], scale=self.x_bounds[1] - self.x_bounds[0])
         y_uniform = stats.uniform(loc=self.y_bounds[0], scale=self.y_bounds[1] - self.y_bounds[0])
 
-        x_norm = stats.norm(loc=10, scale=4)
-        y_norm = stats.norm(loc=10, scale=4)
+        x_norm = stats.norm(loc=self.cfg.get("x_mean"), scale=self.cfg.get("x_var"))
+        y_norm = stats.norm(loc=self.cfg.get("y_mean"), scale=self.cfg.get("y_var"))
 
         # pX = x_uniform.pdf(X)
         # pY = y_uniform.pdf(Y)

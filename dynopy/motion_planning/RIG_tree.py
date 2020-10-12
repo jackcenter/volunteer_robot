@@ -28,7 +28,7 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, parameters):
     :return: a list of nodes and edges
     """
     # Initialize cost C, information I, starting node x_0, node list V, edge list E, and tree T
-    np.random.seed(999)
+    #np.random.seed(50)      # 50 with lambda = 0 shows a weird error where agents decides to ignore a good path
     d = parameters["step_size"]
     B = parameters["budget"]
     R = parameters["radius"]
@@ -57,6 +57,9 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, parameters):
         n_near = near(x_feasible, list(set(V).difference(V_closed)), R)
 
         for node in n_near:
+            if node.get_time() >= parameters.get("budget"):
+                continue
+
             # extend towards new point
             x_new = steer(node.get_position(), x_feasible, d, input_samples)
 
