@@ -17,10 +17,14 @@ class LineFollower2D(Robot2D):
         :param
         :return:
         """
-        root = self.path.pop()
-        self.path_log.append(root)
+        if self.path:
+            root = self.path.pop()
+            action = self.trajectory.pop()
+        else:
+            root = self.path_log[-1]
+            action = 'stay'
 
-        action = self.trajectory.pop()
+        self.path_log.append(root)
         state = self.state.copy()
         if action == 'north':
             state.set_y_position(self.state.get_y_position() + self.cfg["step_size"])
@@ -30,6 +34,8 @@ class LineFollower2D(Robot2D):
             state.set_y_position(self.state.get_y_position() - self.cfg["step_size"])
         elif action == 'west':
             state.set_x_position(self.state.get_x_position() - self.cfg["step_size"])
+        elif action == 'stay':
+            pass
         else:
             print("ERROR: robot action not understood. Needs to be north, east, south, or west")
             return
@@ -50,8 +56,19 @@ class LineFollower2D(Robot2D):
         path = []         # place holder, value will be removed
         current_step = self.path_log[-1].get_time()
 
-        for i in range(0, len(self.waypoints) - 1):
-            temp_path = self.generate_straight_line_path(i, current_step)
+        if not self.waypoints:
+            # No waypoints provided, robot will just sit still
+            self.waypoints.append(self.state.get_position())
+            print(self.name)
+
+        elif self.state.get_position() != self.waypoints[0]:
+            # The first state is the first waypoint, don't need it.
+            self.waypoints.insert(0, self.state.get_position())
+            print(self.name)
+            print([x for x in self.waypoints])
+
+        for point in range(0, len(self.waypoints) - 1):
+            temp_path = self.generate_straight_line_path(point, current_step)
             temp_path.reverse()
             temp_path.pop()
             temp_path.extend(path)

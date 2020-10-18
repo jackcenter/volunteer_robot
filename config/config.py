@@ -25,10 +25,10 @@ def load_agent_parameters(name):
     if name == "Blinky":
         cfg = {
             "color": "red",
-            "budget": 45,  # distance volunteer can travel
+            "budget": 5,  # distance volunteer can travel
             "step_size": 1,  # distance traveled each time step
             "radius": 1.2,  # radius to search for node expansion in
-            "t_limit": .5,  # expansion time limit
+            "t_limit": .1,  # expansion time limit
             "samples": 16,  # number of control inputs to sample
             "gamma": 0.85,  # chance of detection if target is in cell
             "lambda": 0.99,        # reward preference coefficient (how important is fusion)

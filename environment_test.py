@@ -28,25 +28,27 @@ def main():
 
     # ROBOT 1 =====================================================
     wp1 = [
-        (5.5, 7.5),
-        (5.5, 12.5),
-        (7.5, 12.5),
-        (7.5, 7.5)
+        # (5.5, 7.5),
+        # (5.5, 12.5),
+        # (7.5, 12.5),
+        # (7.5, 7.5)
     ]
 
-    robot1 = LineFollower2D("Inky", State_2D(wp1[0][0], wp1[0][1]))
+    # robot1 = LineFollower2D("Inky", State_2D(wp1[0][0], wp1[0][1]))
+    robot1 = LineFollower2D("Inky", State_2D(5.5, 7.5))
     robot1.start(ws)
     robot1.load_waypoints(wp1)
     ws.add_agent(robot1)
 
     # ROBOT 2 =====================================================
     wp2 = [
-        (13.5, 7.5),
+        # (13.5, 7.5),
         (13.5, 12.5),
         (15.5, 12.5),
         (15.5, 7.5)
     ]
-    robot2 = LineFollower2D("Clyde", State_2D(wp2[0][0], wp2[0][1]))
+    # robot2 = LineFollower2D("Clyde", State_2D(wp2[0][0], wp2[0][1]))
+    robot2 = LineFollower2D("Clyde", State_2D(13.5, 7.5))
     robot2.start(ws)
     robot2.load_waypoints(wp2)
     ws.add_agent(robot2)
