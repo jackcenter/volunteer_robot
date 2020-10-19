@@ -6,9 +6,9 @@ from dynopy.data_objects.node import Node
 
 
 class LineFollower2D(Robot2D):
-    def load_waypoints(self, waypoints):
+    def load_waypoints(self, waypoints, steps=None):
         self.waypoints = waypoints
-        self.generate_full_path()
+        self.generate_full_path(steps)
         self.generate_trajectory()
 
     def step(self):
@@ -47,7 +47,7 @@ class LineFollower2D(Robot2D):
         self.state_log.append(self.state)
         self.update_information()
 
-    def generate_full_path(self):
+    def generate_full_path(self, steps):
         """
         Creates a list of nodes associated with each time step
         :return:

@@ -156,7 +156,7 @@ def get_information_available(epsilon, node):
     y = trunc(y)
 
     try:
-        I_available = epsilon[x][y]
+        I_available = epsilon[y][x]
     except IndexError:
         I_available = 0
 
@@ -321,8 +321,9 @@ def print_nodes_with_reward(V):
     print()
     print("Nodes with reward values:")
     print()
-    for node in V:
+    V_sorted = sorted(V, key=lambda x: x.r)
+    for node in V_sorted:
         if node.get_reward():
             print("Time step: {}, Pos: {}, Reward: {} \n".format(node.get_time(), node.get_pretty_position(),
-                                                               node.get_reward()))
+                                                                 node.get_reward()))
 

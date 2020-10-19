@@ -28,7 +28,7 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, parameters):
     :return: a list of nodes and edges
     """
     # Initialize cost C, information I, starting node x_0, node list V, edge list E, and tree T
-    #np.random.seed(50)      # 50 with lambda = 0 shows a weird error where agents decides to ignore a good path
+    # np.random.seed(50)      # 50 with lambda = 0 shows a weird error where agents decides to ignore a good path
     d = parameters["step_size"]
     B = parameters["budget"]
     R = parameters["radius"]
@@ -230,7 +230,7 @@ def collision(x_n_near, x_new, X_free):
 def in_range_of_home(x_home, x_new, cost, budget):
 
     range_current = get_distance(x_home, x_new)
-    range_max = budget - cost - range_current
+    range_max = budget - cost       # - range_current
 
     if range_current <= range_max:
         return True
