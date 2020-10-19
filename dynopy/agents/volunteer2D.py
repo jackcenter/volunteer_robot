@@ -143,8 +143,8 @@ class Volunteer2D(Robot2D):
         t_2 = time.process_time() - t_1 - t_0
         if self.plot_full:
             plot_tree(self.E, 'blue')
-            print_nodes_with_reward(self.get_tree()[0])
-            print(self.pdf)
+            # print_nodes_with_reward(self.get_tree()[0])
+            # print(self.pdf)
 
         t_3 = time.process_time() - t_2 - t_1 - t_0
         self.prune_passed_nodes()
@@ -158,9 +158,13 @@ class Volunteer2D(Robot2D):
             self.state.get_time(), t_1, t_2, t_4, t_5))
 
         print(" I Gained:   {}".format(self.get_information_gained()))
+        I_added = 0
         for channel, info in self.information_novel.items():
-            print(" " + channel + ": {}".format(info))
-        print()
+            print(" " + channel + ":      {}".format(info))
+            I_added += self.get_information_gained() - info
+
+        print(" Added I:    {}\n Net I:      {}\n".format(I_added, I_added + self.get_information_gained()))
+
 
     def expand_tree(self):
         # TODO: handle this closed node business

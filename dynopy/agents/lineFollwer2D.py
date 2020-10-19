@@ -62,10 +62,8 @@ class LineFollower2D(Robot2D):
             print(self.name)
 
         elif self.state.get_position() != self.waypoints[0]:
-            # The first state is the first waypoint, don't need it.
+            # The first state is not the first waypoint, add it in
             self.waypoints.insert(0, self.state.get_position())
-            print(self.name)
-            print([x for x in self.waypoints])
 
         for point in range(0, len(self.waypoints) - 1):
             temp_path = self.generate_straight_line_path(point, current_step)
@@ -78,6 +76,10 @@ class LineFollower2D(Robot2D):
 
         # temp_path.reverse()
         # self.path_log.append(temp_path.pop())
+        if steps and len(path) < steps:
+            add_n = steps - len(path)
+            pass
+
         self.path = path
 
     def generate_straight_line_path(self, w_0, k=0):
