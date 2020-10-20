@@ -13,9 +13,17 @@ def get_parameters():
 def get_workspace_parameters():
     cfg = {
         "x_mean": 10,
-        "x_var": 4,
+        "x_var": 2,
         "y_mean": 15,
-        "y_var": 4
+        "y_var": 2,
+        "x_mean1": 5,
+        "x_var1": 2,
+        "y_mean1": 5,
+        "y_var1": 2,
+        "x_mean2": 15,
+        "x_var2": 2,
+        "y_mean2": 5,
+        "y_var2": 2
     }
 
     return cfg
@@ -31,7 +39,7 @@ def load_agent_parameters(name):
             "t_limit": 1,  # expansion time limit
             "samples": 16,  # number of control inputs to sample
             "gamma": 0.80,  # chance of detection if target is in cell
-            "lambda": 0.99,        # reward preference coefficient (how important is fusion)
+            "lambda": 0.50,        # reward preference coefficient (how important is fusion)
             "home": (10.5, 10.5),  # charging station position
             "fusion_range": 2   # max distance agent can communicate
         }

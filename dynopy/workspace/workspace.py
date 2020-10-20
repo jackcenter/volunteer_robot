@@ -108,11 +108,12 @@ class Workspace:
     #
     #     self.map = coordinates
 
-    def generate_initial_distribution(self, dx=1, dy=1):
+    def generate_initial_distribution(self, dx=1, dy=1, multi=False):
         """
         Creates the initial distribution across the grid world.
         :param dx: grid size in the x direction
         :param dy: grid size in the y direction
+        :param multi: generate from multiple gaussian distributions
         :return:
         """
         x_range = np.arange(self.x_bounds[0], self.x_bounds[1], dx)
@@ -131,3 +132,18 @@ class Workspace:
         pX = x_norm.pdf(X)
         pY = y_norm.pdf(Y)
         self.pdf = pX*pY
+
+        if multi:
+            x_norm = stats.norm(loc=self.cfg.get("x_mean1"), scale=self.cfg.get("x_var1"))
+            y_norm = stats.norm(loc=self.cfg.get("y_mean1"), scale=self.cfg.get("y_var1"))
+            pX = x_norm.pdf(X)
+            pY = y_norm.pdf(Y)
+            self.pdf += pX * pY
+
+            x_norm = stats.norm(loc=self.cfg.get("x_mean2"), scale=self.cfg.get("x_var2"))
+            y_norm = stats.norm(loc=self.cfg.get("y_mean2"), scale=self.cfg.get("y_var2"))
+            pX = x_norm.pdf(X)
+            pY = y_norm.pdf(Y)
+            self.pdf += pX * pY
+
+            self.pdf = self.pdf / sum(self.pdf)

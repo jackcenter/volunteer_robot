@@ -24,7 +24,7 @@ def main():
     ]
 
     ws = Workspace(boundary, config.get_workspace_parameters())
-    ws.generate_initial_distribution()
+    ws.generate_initial_distribution(multi=True)
 
     # ROBOT 1 =====================================================
     wp1 = [
