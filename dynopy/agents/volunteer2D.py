@@ -163,7 +163,7 @@ class Volunteer2D(Robot2D):
             print(" " + channel + ":      {}".format(info))
             I_added += self.get_information_gained() - info
 
-        print(" Added I:    {}\n Net I:      {}\n".format(I_added, I_added + self.get_information_gained()))
+        print(" Added I:    {}\n".format(I_added))
 
 
     def expand_tree(self):

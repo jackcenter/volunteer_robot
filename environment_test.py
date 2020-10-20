@@ -54,9 +54,19 @@ def main():
     ws.add_agent(robot2)
 
     # ROBOT 3 =====================================================
+    wp3 = [
+        (10.5, 19.5)
+        # (13.5, 12.5),
+        # (15.5, 12.5),
+        # (15.5, 7.5)
+    ]
+    robot3 = LineFollower2D("Pinky", State_2D(10.5, 0.5))
+    robot3.start(ws)
+    robot3.load_waypoints(wp3)
+    ws.add_agent(robot3)
 
     # VOLUNTEER ===================================================
-    volunteer = Volunteer2D("Blinky", State_2D(10.5, 10.5), True)
+    volunteer = Volunteer2D("Blinky", State_2D(10.5, 10.5), False)
     volunteer.start(ws)
     ws.add_agent(volunteer)
     volunteer.set_c_space()
