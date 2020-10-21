@@ -26,43 +26,47 @@ def main():
     ws = Workspace(boundary, config.get_workspace_parameters())
     ws.generate_initial_distribution(multi=True)
 
+    cfg_volunteer = config.load_agent_parameters("Blinky")
     # ROBOT 1 =====================================================
     wp1 = [
-        (7.5, 19.5)
+        # (7.5, 19.5)
+
         # (7.5, 12.5),
         # (5.5, 12.5),
         # (5.5, 7.5)
     ]
 
     # robot1 = LineFollower2D("Inky", State_2D(wp1[0][0], wp1[0][1]))
-    robot1 = LineFollower2D("Inky", State_2D(7.5, 0.5))
+    # robot1 = LineFollower2D("Inky", State_2D(7.5, 0.5))
+    robot1 = LineFollower2D("Inky", State_2D(10.5, 15.5))
     robot1.start(ws)
-    robot1.load_waypoints(wp1)
+    robot1.load_waypoints(wp1, cfg.get("budget"))
     ws.add_agent(robot1)
 
     # ROBOT 2 =====================================================
     wp2 = [
-        (13.5, 19.5)
+        # (13.5, 19.5)
+
         # (13.5, 12.5),
         # (15.5, 12.5),
         # (15.5, 7.5)
     ]
     # robot2 = LineFollower2D("Clyde", State_2D(wp2[0][0], wp2[0][1]))
-    robot2 = LineFollower2D("Clyde", State_2D(13.5, 0.5))
+    robot2 = LineFollower2D("Clyde", State_2D(5.5, 5.5))
     robot2.start(ws)
-    robot2.load_waypoints(wp2)
+    robot2.load_waypoints(wp2, cfg.get("budget"))
     ws.add_agent(robot2)
 
     # ROBOT 3 =====================================================
     wp3 = [
-        (10.5, 19.5)
+        # (10.5, 19.5)
         # (13.5, 12.5),
         # (15.5, 12.5),
         # (15.5, 7.5)
     ]
-    robot3 = LineFollower2D("Pinky", State_2D(10.5, 0.5))
+    robot3 = LineFollower2D("Pinky", State_2D(15.5, 5.5))
     robot3.start(ws)
-    robot3.load_waypoints(wp3)
+    robot3.load_waypoints(wp3, cfg.get("budget"))
     ws.add_agent(robot3)
 
     # VOLUNTEER ===================================================

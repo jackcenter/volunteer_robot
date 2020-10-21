@@ -55,6 +55,9 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, parameters):
         # print("Closed list: {}".format(V_closed))
         # print("Open list: {}".format(list(set(V).difference(V_closed))))
         n_near = near(x_feasible, list(set(V).difference(V_closed)), R)
+        I_best = 0
+        node_best = None
+        n_best = None
 
         for node in n_near:
             if node.get_time() >= parameters.get("budget"):
@@ -63,32 +66,40 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, parameters):
             # extend towards new point
             x_new = steer(node.get_position(), x_feasible, d, input_samples)
 
+            if cfg["plot_full"]:
+                plot_tree(E)
+                plot_expansion(x_sample, x_feasible, node.get_position(), x_new)
+
+            # node is in collision
             if collision(node.get_position(), x_new, X_free):
                 continue
 
             C_x_new = evaluate_cost(node.get_position(), x_new)
             C_new = node.get_cost() + C_x_new
 
-            if in_range_of_home(parameters["home"], x_new, C_new, parameters["budget"]):
-                I_new = information(node.get_information(), x_new, epsilon)
-                # C_x_new = evaluate_cost(node.get_position(), x_new)
-                # C_new = node.get_cost() + C_x_new
-                k_new = node.get_time() + 1             # represents one time step, could be actual time
-                n_new = Node(x_new, C_new, I_new, k_new)
+            # node is not in range of home
+            if not in_range_of_home(parameters["home"], x_new, C_new, parameters["budget"]):
+                continue
 
-                if prune(n_new):
-                    pass
+            I_new = information(node.get_information(), x_new, epsilon)
+            # C_x_new = evaluate_cost(node.get_position(), x_new)
+            # C_new = node.get_cost() + C_x_new
+            k_new = node.get_time() + 1             # represents one time step, could be actual time
+            n_new = Node(x_new, C_new, I_new, k_new)
 
-                else:
-                    # add edge and node
-                    E.append((node, n_new))
-                    V.append(n_new)
-                    if n_new.get_cost() > B:
-                        V_closed.append(n_new)
+            # node is not as good as another option
+            if n_new.get_information() < I_best:
+                continue
 
-            if cfg["plot_full"]:
-                plot_tree(E)
-                plot_expansion(x_sample, x_feasible, node.get_position(), x_new)
+            node_best = node
+            n_best = n_new
+
+        if node_best and n_best:
+            E.append((node_best, n_best))
+            V.append(n_best)
+
+            if n_best.get_cost() > B:
+                V_closed.append(n_best)
 
     return V, E, V_closed
 
