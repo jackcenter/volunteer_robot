@@ -136,7 +136,12 @@ class Robot2D:
         x = trunc(x)
         y = trunc(y)
 
-        return self.pdf[y][x]
+        try:
+            info = self.pdf[y][x]
+        except IndexError:
+            info = 0
+
+        return info
 
     def set_information_available(self, pos, value):
         if isinstance(pos, tuple):

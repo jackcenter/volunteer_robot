@@ -78,7 +78,9 @@ class LineFollower2D(Robot2D):
         # self.path_log.append(temp_path.pop())
         if steps and len(path) < steps:
             add_n = steps - len(path)
-            pass
+            temp_path = self.generate_stationary_path(path[0], add_n)
+            temp_path.extend(path)
+            path = temp_path
 
         self.path = path
 
@@ -148,6 +150,18 @@ class LineFollower2D(Robot2D):
 
         return path
 
+    def generate_stationary_path(self, node, steps):
+
+        k = node.get_time()
+        pos = node.get_position()
+        temp_path = []
+        for _ in range(0, steps):
+            k += 1
+            i = self.get_information_available(pos)
+            temp_path.append(Node.init_without_cost(pos, i, k))
+
+        return temp_path
+
     def generate_trajectory(self):
 
         traj = []
@@ -172,5 +186,7 @@ class LineFollower2D(Robot2D):
             return "south"
         elif a[0] > b[0] and a[1] == b[1]:
             return "west"
+        elif a[0] == b[0] and a[1] == b[1]:
+            return "stay"
         else:
             print("ERROR: couldn't determine the orientation of these two cells: {}, {}".format(a, b))
