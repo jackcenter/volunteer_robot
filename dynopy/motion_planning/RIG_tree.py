@@ -28,7 +28,7 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, parameters):
     :return: a list of nodes and edges
     """
     # Initialize cost C, information I, starting node x_0, node list V, edge list E, and tree T
-    np.random.seed(769)      # 50 with lambda = 0 shows a weird error where agents decides to ignore a good path
+    # np.random.seed(769)      # 50 with lambda = 0 shows a weird error where agents decides to ignore a good path
     d = parameters["step_size"]
     B = parameters["budget"]
     R = parameters["radius"]

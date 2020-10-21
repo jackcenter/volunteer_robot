@@ -158,8 +158,11 @@ class Robot2D:
         x = trunc(x)
         y = trunc(y)
 
-        self.pdf[y][x] = value
-        self.pdf = self.pdf / np.sum(self.pdf)  # normalize
+        try:
+            self.pdf[y][x] = value
+            self.pdf = self.pdf / np.sum(self.pdf)  # normalize
+        except IndexError:
+            pass
 
     def update_information(self):
         """
