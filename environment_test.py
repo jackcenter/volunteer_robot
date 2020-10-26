@@ -80,6 +80,7 @@ def main():
     for i in range(config.load_agent_parameters("Blinky").get("budget")):
         cycle(ws)
         if volunteer.plot_full:
+            print("Cost: {}\n".format(volunteer.path[0].get_cost()))
             volunteer.plot_pdf()
             ws.plot()
             # print_nodes_with_reward(volunteer.get_tree()[0])

@@ -33,7 +33,7 @@ def load_agent_parameters(name):
     if name == "Blinky":
         cfg = {
             "color": "red",
-            "budget": 100,  # distance volunteer can travel
+            "budget": 10,  # distance volunteer can travel
             "step_size": 1,  # distance traveled each time step
             "radius": 1.2,  # radius to search for node expansion in
             "t_limit": 1,  # expansion time limit
