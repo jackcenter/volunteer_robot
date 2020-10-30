@@ -46,7 +46,7 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, parameters):
     # Sample configuration space of vehicle and find nearest node
     t_0 = process_time()
     while process_time() - t_0 < t_limit:
-        x_sample = sample(X_all)
+        x_sample = sample(X_all, parameters)
         n_nearest = nearest(x_sample, list(set(V).difference(V_closed)))
         x_feasible = steer(n_nearest.get_position(), x_sample, d, input_samples, 'y.')
 
@@ -115,19 +115,35 @@ def initial_information(x_0, epsilon):
     return epsilon[x][y]
 
 
-def sample(X_all):
+def sample(X_all, parmeters):
     """
     samples the configuration space for a random node position
+    # TODO: need access to current node (pos and cost) and agent positions
     :param X_all:
+    :param parmeters:
     :return:
     """
-    x_min, x_max = X_all.get_x_position()
-    y_min, y_max = X_all.get_y_position()
+    v_sample = np.random.rand()
+    if v_sample < 0.05:
+        # home based on current budget and distance from home
+        # TODO: make this based on distance from home instead of just 5%
+        x_sample = parmeters.get("home")
+        print(x_sample)
 
-    x = random_sample(x_min, x_max)
-    y = random_sample(y_min, y_max)
+    # TODO: with some probability sample randomly, the pdf, agent positions, and home
+    # randomly is implemented
+    # the pdf based on the initial pdf, maybe update after fusion
+    # agent positions based on information disparity
 
-    return x, y
+    else:
+        x_min, x_max = X_all.get_x_position()
+        y_min, y_max = X_all.get_y_position()
+
+        x = random_sample(x_min, x_max)
+        y = random_sample(y_min, y_max)
+        x_sample = (x, y)
+
+    return x_sample
 
 
 def random_sample(a, b):
