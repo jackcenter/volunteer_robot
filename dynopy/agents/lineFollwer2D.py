@@ -58,8 +58,10 @@ class LineFollower2D(Robot2D):
 
         if not self.waypoints:
             # No waypoints provided, robot will just sit still
-            self.waypoints.append(self.state.get_position())
-            print(self.name)
+            pos = self.state.get_position()
+            i = self.get_information_available(pos)
+            self.waypoints.append(pos)
+            path.append(Node.init_without_cost(pos, i, current_step))
 
         elif self.state.get_position() != self.waypoints[0]:
             # The first state is not the first waypoint, add it in
