@@ -23,8 +23,10 @@ def update_information(V, E, epsilon_0, cfg, channels=None, fused=None):
     cl = []         # closed list
 
     epsilon_list = [epsilon_0]
+    reward_list = [V[0].get_reward()]
+
     time_0 = V[0].get_time()
-    print(time_0)
+    print("Node Time: {}".format(time_0))
 
     if not fused:
         fused = create_zero_dict_from_list(channels)
@@ -34,6 +36,7 @@ def update_information(V, E, epsilon_0, cfg, channels=None, fused=None):
     while ol:
         node = ol[-1]
         epsilon = epsilon_list[-1]
+        r_0 = reward_list[-1]
         fused = fused_list[-1]
 
         if node not in bl:      # Node not in branch list means this is the first time it's been visited
@@ -46,7 +49,7 @@ def update_information(V, E, epsilon_0, cfg, channels=None, fused=None):
             I_novel = get_I_novel(channels, node, fused)
             time_k = node.get_time() - time_0
             reward = cfg.get("k_discount")**time_k*(node.get_information() - cfg.get("lambda")*I_novel)
-            node.set_reward(reward)
+            node.set_reward(r_0 + reward)
 
         neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
@@ -61,6 +64,8 @@ def update_information(V, E, epsilon_0, cfg, channels=None, fused=None):
             epsilon_new = update_epsilon(epsilon, node, I_gained)
             epsilon_list.append(epsilon_new)
 
+            reward_list.append(node.get_reward())
+
             # if node.get_fusion():
             #     # fused_new = update_fused(node.get_fusion(), fused, node.get_information())
             fused_new = update_fused(channels, node, fused)
@@ -73,6 +78,7 @@ def update_information(V, E, epsilon_0, cfg, channels=None, fused=None):
             bl.pop()
             cl.append(node)
             epsilon_list.pop()
+            reward_list.pop()
             fused_list.pop()
 
         else:                   # This was the leaf of the branch
@@ -206,7 +212,10 @@ def identify_fusion_nodes(V_a, V_b, channel, fusion_range):
     """
     for node_b in V_b:
         for node_a in V_a:
-            if node_a.get_distance_from(node_b) < fusion_range and node_a.compare_time(node_b):
+            if node_a.check_fused(channel):
+                continue
+
+            elif node_a.get_distance_from(node_b) < fusion_range and node_a.compare_time(node_b):
                 node_a.add_fusion(channel)
                 # print("fusion with {} found at: {}, k = {}".format(channel, node_a.get_position(), node_a.get_time()))
 
@@ -257,11 +266,18 @@ def prune_step(V, E, path):
     ol = []
     cl = []
 
+    # for root, leaf in E:
+    #
+    #         if root == path[-1] and leaf != path[-2]:
+    #             ol.append(leaf)
+    #     except IndexError:
+    #         break
     for root, leaf in E:
         try:
-            if root == path[-1] and leaf != path[-2]:
+            if root == V[0] and leaf != path[-2]:
                 ol.append(leaf)
         except IndexError:
+            print("ERROR: path only has one node")
             break
 
     while ol:
@@ -280,6 +296,29 @@ def prune_step(V, E, path):
     E = delete_edges_by_leaf(E, cl)
 
     return V, E
+
+
+def update_root(root_pos, V):
+    """
+    This function updates the first element of a node list to have the root node be in index 0.
+    :param root_pos: node for the new root
+    :param V: list of node objects
+    :return: list of node objects with the new root in index 0.
+    """
+
+    if V[0].get_position() == root_pos.get_position():
+        # correct node is already in the root position, don't search the tree
+        return V
+
+    else:
+        for node in V:
+            if node.get_position() == root_pos.get_position():
+                V.remove(node)
+                V.insert(0, node)
+                return V
+
+        print("ERROR: couldn't find the root node in the node list")
+        return None
 
 
 def delete_nodes(V, nodes):
