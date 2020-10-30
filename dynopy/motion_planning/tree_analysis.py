@@ -4,7 +4,6 @@
 from math import trunc
 import matplotlib.pyplot as plt
 import numpy as np
-from config import config
 
 
 def update_information(V, E, epsilon_0, cfg, channels=None, fused=None):
@@ -19,12 +18,13 @@ def update_information(V, E, epsilon_0, cfg, channels=None, fused=None):
     :param fused: dictionary of amount of information fused so far {channel: information fused}
     :return: List of nodes with updated information values
     """
-    # TODO: need to keep track of information fused outside of this update loop
     ol = [V[0]]     # open list
     bl = []         # branch list for visited nodes
     cl = []         # closed list
 
     epsilon_list = [epsilon_0]
+    time_0 = V[0].get_time()
+    print(time_0)
 
     if not fused:
         fused = create_zero_dict_from_list(channels)
@@ -43,11 +43,10 @@ def update_information(V, E, epsilon_0, cfg, channels=None, fused=None):
             node.set_information(I_gained + I_parent)
 
             # Set reward at the node
-            # I_novel = 0
-            # if node.get_fusion():
             I_novel = get_I_novel(channels, node, fused)
-            # reward_parent = bl[-1].get_reward() if bl else 0
-            node.set_reward(node.get_information() - cfg.get("lambda")*I_novel)
+            time_k = node.get_time() - time_0
+            reward = cfg.get("k_discount")**time_k*(node.get_information() - cfg.get("lambda")*I_novel)
+            node.set_reward(reward)
 
         neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
@@ -104,6 +103,7 @@ def create_zero_dict_from_list(channels):
 
 def update_epsilon(epsilon_k0, node, I_gained):
 
+    # TODO: have this update for all of this agent
     I_available = get_information_available(epsilon_k0, node)
     I_remaining = I_available - I_gained
     epsilon_k1 = set_information_available(epsilon_k0.copy(), node, I_remaining)
