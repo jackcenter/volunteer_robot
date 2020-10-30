@@ -266,12 +266,6 @@ def prune_step(V, E, path):
     ol = []
     cl = []
 
-    # for root, leaf in E:
-    #
-    #         if root == path[-1] and leaf != path[-2]:
-    #             ol.append(leaf)
-    #     except IndexError:
-    #         break
     for root, leaf in E:
         try:
             if root == V[0] and leaf != path[-2]:
@@ -296,29 +290,6 @@ def prune_step(V, E, path):
     E = delete_edges_by_leaf(E, cl)
 
     return V, E
-
-
-def update_root(root_pos, V):
-    """
-    This function updates the first element of a node list to have the root node be in index 0.
-    :param root_pos: node for the new root
-    :param V: list of node objects
-    :return: list of node objects with the new root in index 0.
-    """
-
-    if V[0].get_position() == root_pos.get_position():
-        # correct node is already in the root position, don't search the tree
-        return V
-
-    else:
-        for node in V:
-            if node.get_position() == root_pos.get_position():
-                V.remove(node)
-                V.insert(0, node)
-                return V
-
-        print("ERROR: couldn't find the root node in the node list")
-        return None
 
 
 def delete_nodes(V, nodes):
