@@ -64,6 +64,10 @@ class Node:
     def add_fusion(self, channel):
         self.f.append(channel)
 
+    def check_fused(self, channel):
+        if channel in self.f:
+            return True
+
     @staticmethod
     def init_without_cost(position, information, time):
         return Node(position, information=information, time=time)
