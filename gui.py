@@ -1,5 +1,6 @@
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QToolBar, QAction, QStatusBar, QCheckBox
+from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QToolBar, QAction, QStatusBar, QCheckBox, QVBoxLayout, \
+    QWidget, QGridLayout
 from PyQt5.QtCore import Qt, QSize
 
 
@@ -15,11 +16,19 @@ class MainWindow(QMainWindow):
         # self.windowTitleChanged.connect((lambda x: self.my_custom_fn(x, 25)))
 
         self.setWindowTitle("Volunteer Robot")
+        layout = QGridLayout()
 
         label = QLabel("This is a label")
-        label.setAlignment(Qt.AlignCenter)
+        label2 = QLabel("This is a label2")
+        label3 = QLabel("This is a label3")
 
-        self.setCentralWidget(label)
+        layout.addWidget(label, 0, 0)
+        layout.addWidget(label2, 1, 1)
+        layout.addWidget(label3, 2, 2)
+
+        widget = QWidget()
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
 
         toolbar = QToolBar("My main toolbar")
         toolbar.setIconSize(QSize(16,16))
@@ -39,7 +48,12 @@ class MainWindow(QMainWindow):
         button_action2.setCheckable(True)
         toolbar.addAction(button_action2)
 
+        toolbar.addSeparator()
+
         toolbar.addWidget(QLabel("Hello"))
+
+        toolbar.addSeparator()
+
         toolbar.addWidget(QCheckBox())
 
         self.setStatusBar(QStatusBar(self))
