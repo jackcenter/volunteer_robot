@@ -5,7 +5,7 @@ from math import sqrt
 
 
 class Node:
-    def __init__(self, position, cost=0, information=0, time=0, reward=0):
+    def __init__(self, position, cost=0, information=0.0, time=0, reward=0.0):
         """
         Data object that holds information for nodes used in motion planning.
         :param position: tuple with x and y locations

@@ -12,16 +12,21 @@ def get_parameters():
 
 def get_workspace_parameters():
     cfg = {
-        "x_mean": 10,
-        "x_var": 4,
-        "y_mean": 15,
+        "x_mean": 15,
+        "x_var": 2,
+
+        "y_mean": 10,
         "y_var": 4,
+
         "x_mean1": 5,
         "x_var1": 2,
+
         "y_mean1": 5,
         "y_var1": 2,
+
         "x_mean2": 15,
         "x_var2": 2,
+
         "y_mean2": 5,
         "y_var2": 2
     }
@@ -33,11 +38,11 @@ def load_agent_parameters(name):
     if name == "Blinky":
         cfg = {
             "color": "red",
-            "budget": 10,           # distance volunteer can travel
+            "budget": 60,           # distance volunteer can travel
             "step_size": 1,         # distance traveled each time step
             "radius": 1.2,          # radius to search for node expansion in
-            "t_limit": 1,           # expansion time limit
-            "k_discount": 1,        # reward discount factor
+            "t_limit": .5,           # expansion time limit
+            "k_discount": .95,        # reward discount factor
             "samples": 16,          # number of control inputs to sample
             "gamma": 0.80,          # chance of detection if target is in cell
             "lambda": 0.99,         # reward preference coefficient (how important is fusion)

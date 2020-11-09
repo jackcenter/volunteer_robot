@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def update_information(V, E, epsilon_0, cfg, channels=None, fused=None):
+def update_information(V, E, epsilon_0, cfg, I_0, channels=None, fused=None):
     """
     Walk through the path and update information at each node.
     :param V: list of nodes
@@ -14,6 +14,7 @@ def update_information(V, E, epsilon_0, cfg, channels=None, fused=None):
     :param epsilon_0: information in the environment
     :param cfg: configuration of agent, uses parameters "gamma" and "lambda" for probability of detection and preference
     for fusion vs information gain
+    :param I_0: information gained prior to this time step
     :param channels: list of open channels
     :param fused: dictionary of amount of information fused so far {channel: information fused}
     :return: List of nodes with updated information values
@@ -42,14 +43,14 @@ def update_information(V, E, epsilon_0, cfg, channels=None, fused=None):
         if node not in bl:      # Node not in branch list means this is the first time it's been visited
             # Set information at the node
             I_gained = get_information_gained(epsilon, node, cfg.get("gamma"))
-            I_parent = bl[-1].get_information() if bl else 0
+            I_parent = bl[-1].get_information() if bl else I_0
             node.set_information(I_gained + I_parent)
 
             # Set reward at the node
             I_novel = get_I_novel(channels, node, fused)
             time_k = node.get_time() - time_0
             reward = cfg.get("k_discount")**time_k*(node.get_information() - cfg.get("lambda")*I_novel)
-            node.set_reward(r_0 + reward)
+            node.set_reward(reward)
 
         neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
@@ -337,3 +338,20 @@ def print_nodes_with_reward(V):
             print("Time step: {}, Pos: {}, Reward: {} \n".format(node.get_time(), node.get_pretty_position(),
                                                                  node.get_reward()))
 
+
+def print_leafs_with_reward(V, E):
+    print()
+    print("Leafs with reward values:")
+    print()
+    V_sorted = sorted(V, key=lambda x: x.r)
+    for node in V_sorted:
+        leaf = True
+
+        for parent, leaf in E:
+            if parent == node:
+                leaf = False
+                break
+
+        if leaf:
+            print("Time step: {}, Pos: {}, Reward: {} \n".format(node.get_time(), node.get_pretty_position(),
+                                                                 node.get_reward()))

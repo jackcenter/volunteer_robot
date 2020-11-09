@@ -128,7 +128,6 @@ def sample(X_all, parmeters):
         # home based on current budget and distance from home
         # TODO: make this based on distance from home instead of just 5%
         x_sample = parmeters.get("home")
-        print(x_sample)
 
     # TODO: with some probability sample randomly, the pdf, agent positions, and home
     # randomly is implemented

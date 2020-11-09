@@ -79,6 +79,12 @@ class Volunteer2D(Robot2D):
     def get_tree(self):
         return self.V, self.E
 
+    def get_nodes(self):
+        return self.V
+
+    def get_edges(self):
+        return self.E
+
     def step(self):
         """
         moves the agent in the commanded direction
@@ -165,7 +171,6 @@ class Volunteer2D(Robot2D):
 
         print(" Added I:    {}\n".format(I_added))
 
-
     def expand_tree(self):
         # TODO: handle this closed node business
         self.V, self.E, self.V_closed = RIG_tree(self.V, self.E, self.V_closed, self.get_X_free(), self.get_X_free(),
@@ -176,7 +181,7 @@ class Volunteer2D(Robot2D):
             f = self.channel_range.get(agent)
             identify_fusion_nodes(self.V, path, agent, f)
 
-        update_information(self.V, self.E, self.pdf, self.cfg, self.channel_list, self.information_shared)
+        update_information(self.V, self.E, self.pdf, self.cfg, self.i_gained, self.channel_list, self.information_shared)
 
         # self.path = pick_path_max_I(self.V, self.E)
         self.path = pick_path_max_R(self.V, self.E)
