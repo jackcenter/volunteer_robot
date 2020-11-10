@@ -71,7 +71,7 @@ def main():
     # ws.add_agent(robot3)
 
     # VOLUNTEER ===================================================
-    volunteer = Volunteer2D("Blinky", State_2D(10.5, 10.5), True)
+    volunteer = Volunteer2D("Blinky", State_2D(10.5, 10.5), cfg_volunteer, False)
     volunteer.start(ws)
     ws.add_agent(volunteer)
     volunteer.set_c_space()
@@ -87,7 +87,7 @@ def main():
             volunteer.plot_pdf()
             ws.plot()
             # print_nodes_with_reward(volunteer.get_tree()[0])
-            # print_leafs_with_reward(volunteer.get_nodes(), volunteer.get_edges())
+            print_leafs_with_reward(volunteer.get_nodes(), volunteer.get_edges())
             circle = volunteer.get_budget_radius_object()
             axes = plt.gca()
             axes.add_artist(circle)

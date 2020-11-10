@@ -13,9 +13,10 @@ from dynopy.motion_planning.tree_analysis import update_information, identify_fu
 
 
 class Volunteer2D(Robot2D):
-    def __init__(self, name: str, state, plot_full=False):
+    def __init__(self, name: str, state, cfg, plot_full=False):
         super().__init__(name, state, plot_full)
 
+        self.cfg = cfg
         self.V = []
         self.E = []
         self.V_closed = []
