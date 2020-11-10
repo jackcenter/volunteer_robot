@@ -50,7 +50,7 @@ def update_information(V, E, epsilon_0, cfg, I_0, channels=None, fused=None):
             I_novel = get_I_novel(channels, node, fused)
             time_k = node.get_time() - time_0
             reward = cfg.get("k_discount")**time_k*(node.get_information() - cfg.get("lambda")*I_novel)
-            node.set_reward(reward)
+            node.set_reward(reward + r_0)
 
         neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
@@ -229,7 +229,7 @@ def pick_path_max_I(V, E):
     :return: list of nodes that represent a path
     """
 
-    max_node = max(V, key=lambda item: item.get_information())  # finds node with most information
+    max_node = max(V, key=lambda x: x.r)  # finds node with most information
     path = [max_node]
 
     searching = True
@@ -247,9 +247,12 @@ def pick_path_max_I(V, E):
 
 def pick_path_max_R(V, E):
     # TODO: make descending tree (find _root) a separate function
-    max_node = max(V, key=lambda item: item.get_reward())  # finds node with most information
+    max_node = max(V, key=lambda x: x.r)  # finds node with most information
+    print("Max node in pick_path_max_R = {}".format(max_node.get_position()))
     path = [max_node]
 
+    v_sorted = sorted(V, key=lambda x: x.r)
+    v_other_max = v_sorted[-1]
     searching = True
 
     while searching:
@@ -344,6 +347,7 @@ def print_leafs_with_reward(V, E):
     print("Leafs with reward values:")
     print()
     V_sorted = sorted(V, key=lambda x: x.r)
+
     for node in V_sorted:
         leaf = True
 
