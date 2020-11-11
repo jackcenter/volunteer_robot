@@ -16,10 +16,22 @@ def main():
     # run("test.txt", 0.99, 5, 0.1, 1)
 
 
-def run(file_ws, lamb, budget, t_limit, gamma, plot=True, plot_full=False):
+def run(file_ws, lamb, budget, t_limit, gamma, n_agents, plot=True, plot_full=False):
+    """
+
+    :param file_ws: string for the workspace parameters filename
+    :param lamb: float [0, 1) for fusion preference - 0 is none, 0.99 is heavy fusion preference
+    :param budget: int > 0 for number of steps the volunteer can take
+    :param t_limit: float > 0.1 for volunteers planning time between steps
+    :param gamma: float [0, 1] for time discount on rewards
+    :param n_agents: int [1, 3] for number of dedicated agents in the simulation
+    :param plot: boolean for whether or not to show the plot at the end
+    :param plot_full: boolean for whether or not to show each step
+    :return: dictionary of final results
+    """
     ws = init.load_workspace(file_ws, os.path.dirname(__file__))
     volunteer = init.load_volunteer(config, lamb, budget, t_limit, gamma, plot_full)
-    agents_dedicated = init.load_agents(3, config)
+    agents_dedicated = init.load_agents(n_agents, config)
 
     agents_all = agents_dedicated.copy()
     agents_all.append(volunteer)
@@ -45,7 +57,7 @@ def run(file_ws, lamb, budget, t_limit, gamma, plot=True, plot_full=False):
     for _ in range(0, budget):
         ws.step()
 
-        if not plot_full:
+        if plot and not plot_full:
             print(" Current time step: {}\tof {}".format(ws.get_time_step(), budget), end='\r')
         #     print(" Current time step: {}\tof {}\n".format(ws.get_time_step(), budget))
         # else:
@@ -55,7 +67,8 @@ def run(file_ws, lamb, budget, t_limit, gamma, plot=True, plot_full=False):
             ws.plot()
             plt.show()
 
-    print('\n')
+    if plot and not plot_full:      # keeps simulation from overwriting benchmarking output
+        print()
 
     volunteer.plot_pdf()
     ws.plot()

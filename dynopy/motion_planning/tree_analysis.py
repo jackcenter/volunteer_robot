@@ -12,7 +12,7 @@ def update_information(V, E, epsilon_0, cfg, I_0, channels=None, fused=None):
     :param V: list of nodes
     :param E: list of edges
     :param epsilon_0: information in the environment
-    :param cfg: configuration of agent, uses parameters "gamma" and "lambda" for probability of detection and preference
+    :param cfg: configuration of agent, uses parameters "p_d" and "lambda" for probability of detection and preference
     for fusion vs information gain
     :param I_0: information gained prior to this time step
     :param channels: list of open channels
@@ -42,7 +42,7 @@ def update_information(V, E, epsilon_0, cfg, I_0, channels=None, fused=None):
 
         if node not in bl:      # Node not in branch list means this is the first time it's been visited
             # Set information at the node
-            I_gained = get_information_gained(epsilon, node, cfg.get("gamma"))
+            I_gained = get_information_gained(epsilon, node, cfg.get("p_d"))
             I_parent = bl[-1].get_information() if bl else I_0
             node.set_information(I_gained + I_parent)
 
@@ -52,7 +52,7 @@ def update_information(V, E, epsilon_0, cfg, I_0, channels=None, fused=None):
             # TODO: does this even check if they are in range to fuse?
             # TODO: FIX THIS!!!
             time_k = node.get_time() - time_0
-            reward = cfg.get("k_discount")**time_k*(node.get_information() - cfg.get("lambda")*I_novel)
+            reward = cfg.get("gamma")**time_k*(node.get_information() - cfg.get("lambda")*I_novel)
             node.set_reward(reward + r_0)
 
         neighbors_all = find_neighbors(E, node)
@@ -90,16 +90,16 @@ def update_information(V, E, epsilon_0, cfg, I_0, channels=None, fused=None):
             cl.append(node)
 
 
-def get_information_gained(epsilon, node, gamma):
+def get_information_gained(epsilon, node, p_d):
     """
     returns the information gained
     :param epsilon:
     :param node:
-    :param gamma: coefficient for the rate at which information is gained compared to information available
+    :param p_d: coefficient for the rate at which information is gained compared to information available
     :return:
     """
     I_available = get_information_available(epsilon, node)
-    I_gained = gamma*I_available
+    I_gained = p_d*I_available
     return I_gained
 
 

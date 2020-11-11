@@ -1,0 +1,2 @@
+lambda, budget, t_limit, gamma, n_agents, n_runs
+0.99, 80, 0.5, 1.0, 2, 1

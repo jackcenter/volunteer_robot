@@ -120,13 +120,12 @@ def load_agents(n, cfg, agent_names=None):
     :return:
     """
     robots = []
+    possible_names = cfg.get_cfg_names(False)
 
     if not agent_names:
-        agent_names = cfg.get_cfg_names(False)
+        agent_names = possible_names[0:n]
 
     else:
-        possible_names = cfg.get_cfg_names(False)
-
         for name in agent_names:
             if name not in possible_names:
                 print("Warning: provided configuration name: '{}' not available, removing from simulation".format(name))
@@ -137,3 +136,26 @@ def load_agents(n, cfg, agent_names=None):
         robots.append(LineFollower2D(name))
 
     return robots
+
+
+def load_parameter_file(filename, base_folder):
+    file = os.path.join(base_folder, 'settings', filename)
+    parameters = read_parameter_file(file)
+    return parameters
+
+
+def read_parameter_file(file):
+    params_list = []
+    with open(file, 'r', encoding='utf8') as fin:
+        reader = csv.DictReader(fin, skipinitialspace=True)
+
+        for row in reader:
+            row.update({"lambda": float(row.get("lambda"))})
+            row.update({"budget": int(row.get("budget"))})
+            row.update({"t_limit": float(row.get("t_limit"))})
+            row.update({"gamma": float(row.get("gamma"))})
+            row.update({"n_agents": int(row.get("n_agents"))})
+            row.update({"n_runs": int(row.get("n_runs"))})
+            params_list.append(row)
+
+    return params_list

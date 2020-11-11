@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-import matplotlib.pyplot as plt
-import single_simulation
+
 
 
 def main():
@@ -27,11 +26,12 @@ def print_header():
 def get_user_input():
     print('Select from the following programs:')
     print(' [1]: Single Simulation - Holonomic')
-    print(' [2]: Test Environment')
+    print(' [2]: Benchmarking      - Holonomic')
+    print(' [3]: Test Environment')
     # print(' [3]: Nonlinear Dynamics Simulation')
     print(' [q]: Quit')
     print()
-    print(' NOTE: parameters for the workspace and number of agents can be changed in the settings file.')
+    print(' NOTE: parameters for the workspace and agents can be changed in the settings files.')
     print()
 
     cmd = input(' Select an exercise would you like to run: ')
@@ -44,15 +44,12 @@ def get_user_input():
 
 def interpret_command(cmd):
     if cmd == '1':
-        results = single_simulation.run('test.txt', 0.5, 80, 0.5, .95, True, False)
-
-        for key, val in results.items():
-            print("{}:\t{}".format(key, val))
-
-        print("\n")
-        plt.show()
+        os.system("python simulation_options_menu.py single")
 
     elif cmd == '2':
+        os.system("python simulation_options_menu.py benchmark")
+
+    elif cmd == '3':
         status = os.system("python environment_test.py")
 
     elif cmd == '3':

@@ -173,7 +173,7 @@ class Robot2D:
         :return:
         """
         i_available = self.get_information_available(self.state)
-        i_remaining = i_available * (1 - self.cfg["gamma"])
+        i_remaining = i_available * (1 - self.cfg["p_d"])
         self.set_information_available(self.state, i_remaining)
 
         i_gained = i_available - i_remaining

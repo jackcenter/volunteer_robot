@@ -66,7 +66,7 @@ class Workspace:
         lamb = cfg_volunteer.get("lambda")
         steps = cfg_volunteer.get("budget")
         t_planning = cfg_volunteer.get("t_limit")
-        gamma = cfg_volunteer.get("k_discount")
+        gamma = cfg_volunteer.get("gamma")
         plt.suptitle("Volunteer Robot")
         plt.title(r"$\lambda$: {}, B: {}, t: {}, $\gamma$: {}".format(lamb, steps, t_planning, gamma))
 
