@@ -47,7 +47,10 @@ def update_information(V, E, epsilon_0, cfg, I_0, channels=None, fused=None):
             node.set_information(I_gained + I_parent)
 
             # Set reward at the node
-            I_novel = get_I_novel(channels, node, fused)
+            fused_new = update_fused(channels, node, fused)
+            I_novel = get_I_novel(channels, node, fused_new)
+            # TODO: does this even check if they are in range to fuse?
+            # TODO: FIX THIS!!!
             time_k = node.get_time() - time_0
             reward = cfg.get("k_discount")**time_k*(node.get_information() - cfg.get("lambda")*I_novel)
             node.set_reward(reward + r_0)
@@ -68,7 +71,7 @@ def update_information(V, E, epsilon_0, cfg, I_0, channels=None, fused=None):
             reward_list.append(node.get_reward())
 
             # if node.get_fusion():
-            #     # fused_new = update_fused(node.get_fusion(), fused, node.get_information())
+            # TODO: this fused new is now calculated twice
             fused_new = update_fused(channels, node, fused)
             fused_list.append(fused_new)
             # else:

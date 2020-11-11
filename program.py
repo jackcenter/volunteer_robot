@@ -31,7 +31,7 @@ def get_user_input():
     # print(' [3]: Nonlinear Dynamics Simulation')
     print(' [q]: Quit')
     print()
-    print(' NOTE: parameters for landmarks and dynamics models can be changed the configuration file.')
+    print(' NOTE: parameters for the workspace and number of agents can be changed in the settings file.')
     print()
 
     cmd = input(' Select an exercise would you like to run: ')
@@ -44,7 +44,7 @@ def get_user_input():
 
 def interpret_command(cmd):
     if cmd == '1':
-        results = single_simulation.run('test.txt', 0.99, 75, 0.5, 1, True, True)
+        results = single_simulation.run('test.txt', 0.5, 80, 0.5, .95, True, False)
 
         for key, val in results.items():
             print("{}:\t{}".format(key, val))
@@ -54,7 +54,6 @@ def interpret_command(cmd):
 
     elif cmd == '2':
         status = os.system("python environment_test.py")
-
 
     elif cmd == '3':
         print(" Sorry, this section is not functional at this time")

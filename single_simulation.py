@@ -50,7 +50,6 @@ def run(file_ws, lamb, budget, t_limit, gamma, plot=True, plot_full=False):
         #     print(" Current time step: {}\tof {}\n".format(ws.get_time_step(), budget))
         # else:
 
-
         if plot and plot_full:
             volunteer.plot_pdf()
             ws.plot()
@@ -63,14 +62,15 @@ def run(file_ws, lamb, budget, t_limit, gamma, plot=True, plot_full=False):
 
     # TODO: could put this in volunteer and keep track of every step
     I_Data = {"I_Gained": volunteer.get_information_gained()}
-    novel_total = 0
+    fused_total = 0
     for channel, novel in volunteer.information_novel.items():
-        novel_total += novel
-
         I_Data.update({channel + "_Novel": novel})
-
         fused = I_Data.get("I_Gained") - novel
         I_Data.update({channel + "_Fused": fused})
+
+        fused_total += fused
+
+    I_Data.update({"I_fused": fused_total})
 
     return I_Data
 

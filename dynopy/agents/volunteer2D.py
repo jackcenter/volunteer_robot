@@ -166,16 +166,16 @@ class Volunteer2D(Robot2D):
         t_5 = time.process_time() - t_4 - t_3 - t_2 - t_1 - t_0
 
         if self.plot_full:
-            print("Time Step:   {}\n Expanion:   {}\n Selection:  {}\n Pruning:    {}\n Generation: {}\n".format(
+            print("Time Step:\t{}\n Expanion:\t{}\n Selection:\t{}\n Pruning:\t{}\n Generation:\t{}\n".format(
                 self.state.get_time(), t_1, t_2, t_4, t_5))
 
-            print(" I Gained:   {}".format(self.get_information_gained()))
+            print(" I Gained:\t{}".format(self.get_information_gained()))
             I_added = 0
             for channel, info in self.information_novel.items():
-                print(" " + channel + ":      {}".format(info))
+                print(" " + channel + ":\t\t{}".format(self.get_information_gained() - info))
                 I_added += self.get_information_gained() - info
 
-            print(" Added I:    {}\n".format(I_added))
+            print(" Reward:\t{}\n".format(I_added/len(self.channel_list)))
 
     def expand_tree(self):
         # TODO: handle this closed node business
