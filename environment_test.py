@@ -24,7 +24,8 @@ def main():
     ]
 
     ws = Workspace(boundary, config.get_workspace_parameters())
-    ws.generate_initial_distribution(multi=False)
+    # ws.generate_initial_distribution(multi=False)
+    ws.generate_initial_distribution()
 
     cfg_volunteer = config.load_agent_parameters("Blinky")
     # ROBOT 1 =====================================================
@@ -71,7 +72,7 @@ def main():
     # ws.add_agent(robot3)
 
     # VOLUNTEER ===================================================
-    volunteer = Volunteer2D("Blinky", State_2D(10.5, 10.5), cfg_volunteer, False)
+    volunteer = Volunteer2D("Blinky", cfg_volunteer, State_2D(10.5, 10.5), False)
     volunteer.start(ws)
     ws.add_agent(volunteer)
     volunteer.set_c_space()
@@ -106,8 +107,8 @@ def cycle(ws):
     """
     ws.step()
 
-    for robot in ws.agents:
-        robot.step()
+    # for robot in ws.agents:
+    #     robot.step()
         # print([x.get_position() for x in robot.path_log])
         # print(robot.i_gained)
 

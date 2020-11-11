@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import matplotlib.pyplot as plt
+import single_simulation
 
 
 def main():
@@ -24,8 +26,8 @@ def print_header():
 
 def get_user_input():
     print('Select from the following programs:')
-    print(' [1]: Test Environment')
-    # print(' [2]: Linear Dynamics Simulation')
+    print(' [1]: Single Simulation - Holonomic')
+    print(' [2]: Test Environment')
     # print(' [3]: Nonlinear Dynamics Simulation')
     print(' [q]: Quit')
     print()
@@ -41,12 +43,18 @@ def get_user_input():
 
 
 def interpret_command(cmd):
-    if cmd == '1':      # test
-        status = os.system("python environment_test.py")
+    if cmd == '1':
+        results = single_simulation.run('test.txt', 0.99, 75, 0.5, 1, True, True)
+
+        for key, val in results.items():
+            print("{}:\t{}".format(key, val))
+
+        print("\n")
+        plt.show()
 
     elif cmd == '2':
-        print(" Sorry, this section is not functional at this time")
-        # status = os.system("python benchmarking/UI_static_simulation.py")
+        status = os.system("python environment_test.py")
+
 
     elif cmd == '3':
         print(" Sorry, this section is not functional at this time")

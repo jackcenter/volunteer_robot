@@ -13,7 +13,7 @@ from dynopy.motion_planning.tree_analysis import update_information, identify_fu
 
 
 class Volunteer2D(Robot2D):
-    def __init__(self, name: str, state, cfg, plot_full=False):
+    def __init__(self, name: str, cfg, state=None, plot_full=False):
         super().__init__(name, state, plot_full)
 
         self.cfg = cfg
@@ -25,6 +25,9 @@ class Volunteer2D(Robot2D):
         self.channel_range = {}     # name : range
         self.information_shared = {}
         self.information_novel = {}
+
+    def load_waypoints(self, waypoints, budget):
+        self.cfg.update({"home": waypoints[0]})
 
     def get_budget_radius_object(self):
         x, y = self.cfg.get('home')
@@ -73,9 +76,10 @@ class Volunteer2D(Robot2D):
             novel_information = self.get_information_gained() - self.information_shared.get(channel)
             self.information_novel.update({channel: novel_information})
 
-            print("{} and {} can fuse!".format(self.get_name(), agent.get_name()))
-            print("Positions: {}, {}".format(self.get_position(), agent.get_position()))
-            print("Distance: {}\n".format(distance))
+            if self.plot_full:
+                print("{} and {} can fuse!".format(self.get_name(), agent.get_name()))
+                print("Positions: {}, {}".format(self.get_position(), agent.get_position()))
+                print("Distance: {}\n".format(distance))
 
     def get_tree(self):
         return self.V, self.E
@@ -161,16 +165,17 @@ class Volunteer2D(Robot2D):
 
         t_5 = time.process_time() - t_4 - t_3 - t_2 - t_1 - t_0
 
-        print("Time Step:   {}\n Expanion:   {}\n Selection:  {}\n Pruning:    {}\n Generation: {}\n".format(
-            self.state.get_time(), t_1, t_2, t_4, t_5))
+        if self.plot_full:
+            print("Time Step:   {}\n Expanion:   {}\n Selection:  {}\n Pruning:    {}\n Generation: {}\n".format(
+                self.state.get_time(), t_1, t_2, t_4, t_5))
 
-        print(" I Gained:   {}".format(self.get_information_gained()))
-        I_added = 0
-        for channel, info in self.information_novel.items():
-            print(" " + channel + ":      {}".format(info))
-            I_added += self.get_information_gained() - info
+            print(" I Gained:   {}".format(self.get_information_gained()))
+            I_added = 0
+            for channel, info in self.information_novel.items():
+                print(" " + channel + ":      {}".format(info))
+                I_added += self.get_information_gained() - info
 
-        print(" Added I:    {}\n".format(I_added))
+            print(" Added I:    {}\n".format(I_added))
 
     def expand_tree(self):
         # TODO: handle this closed node business

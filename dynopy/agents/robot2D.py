@@ -10,7 +10,7 @@ from dynopy.data_objects.state import State_2D
 
 
 class Robot2D:
-    def __init__(self, name: str, state, plot_full=False):
+    def __init__(self, name: str, state=None, plot_full=False):
         """
 
         :param name:
@@ -72,7 +72,10 @@ class Robot2D:
         return self.name
 
     def set_state(self, state):
-        self.state = state
+        if type(state) == tuple:
+            self.state = State_2D.create_from_tuple(state)
+        else:
+            self.state = state
 
     def get_position(self):
         return self.state.get_position()

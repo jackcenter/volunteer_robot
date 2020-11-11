@@ -3,9 +3,11 @@
 
 from dynopy.agents.robot2D import Robot2D
 from dynopy.data_objects.node import Node
+from dynopy.data_objects.state import State_2D
 
 
 class LineFollower2D(Robot2D):
+
     def load_waypoints(self, waypoints, steps=None):
         self.waypoints = waypoints
         self.generate_full_path(steps)
@@ -66,6 +68,11 @@ class LineFollower2D(Robot2D):
         elif self.state.get_position() != self.waypoints[0]:
             # The first state is not the first waypoint, add it in
             self.waypoints.insert(0, self.state.get_position())
+
+        elif len(self.waypoints) == 1:
+            pos = self.waypoints[0]
+            i = self.get_information_available(pos)
+            path.append(Node.init_without_cost(pos, i, current_step))
 
         for point in range(0, len(self.waypoints) - 1):
             temp_path = self.generate_straight_line_path(point, current_step)

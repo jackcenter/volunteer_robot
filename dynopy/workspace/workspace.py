@@ -8,15 +8,17 @@ from dynopy.agents.volunteer2D import Volunteer2D
 
 
 class Workspace:
-    def __init__(self, boundary_coordinates, cfg):
+    def __init__(self, boundary_coordinates, cfg, waypoints=None):
         """
         Contains information associated with an environment the agents can work in.
         TODO: add obstacle functionality
         :param boundary_coordinates: list of tuples
-        :param cfg: configuration parameters
+        :param cfg: list of dicts for gaussian parameters
+        :param wp: list of lists of x, y tuples for default waypoints
         """
         self.boundary_coordinates = boundary_coordinates
         self.cfg = cfg
+        self.default_waypoints = waypoints
         self.agents = []
         self.time_step = 0
 
@@ -28,8 +30,6 @@ class Workspace:
 
         # self.map = None         # list of map coordinates
         self.pdf = None
-
-        self.agents = []
 
     def plot(self):
         """
@@ -54,8 +54,21 @@ class Workspace:
         # plt.grid(b=None, which='major', axis='both')
         plt.xticks(range(x_min, x_max, 1))
         plt.yticks(range(y_min, y_max, 1))
-        plt.xlabel(r"Easting, $\xi$ [inches]")
-        plt.ylabel(r"Northing, $\eta$ [inches]")
+        plt.xlabel(r"Easting, $\xi$ [kilometers]")
+        plt.ylabel(r"Northing, $\eta$ [kilometers]")
+
+        for agent in self.agents:
+
+            if isinstance(agent, Volunteer2D):
+                cfg_volunteer = agent.cfg
+                break
+
+        lamb = cfg_volunteer.get("lambda")
+        steps = cfg_volunteer.get("budget")
+        t_planning = cfg_volunteer.get("t_limit")
+        gamma = cfg_volunteer.get("k_discount")
+        plt.suptitle("Volunteer Robot")
+        plt.title(r"$\lambda$: {}, B: {}, t: {}, $\gamma$: {}".format(lamb, steps, t_planning, gamma))
 
         for robot in self.agents:
             robot.plot()
@@ -63,6 +76,9 @@ class Workspace:
             if isinstance(robot, Volunteer2D):
                 robot.plot_visited_cells_edges()
             robot.plot_path()
+
+    def get_default_waypoints(self, n):
+        return self.default_waypoints[n]
 
     def get_agents(self):
         return self.agents
@@ -89,6 +105,9 @@ class Workspace:
         Moves the workspace forward one time step
         :return:
         """
+        for agent in self.agents:
+            agent.step()
+
         self.time_step += 1
 
     def add_agent(self, agent):
@@ -108,7 +127,7 @@ class Workspace:
     #
     #     self.map = coordinates
 
-    def generate_initial_distribution(self, dx=1, dy=1, multi=False):
+    def generate_initial_distribution(self, dx=1, dy=1):
         """
         Creates the initial distribution across the grid world.
         :param dx: grid size in the x direction
@@ -119,31 +138,28 @@ class Workspace:
         x_range = np.arange(self.x_bounds[0], self.x_bounds[1], dx)
         y_range = np.arange(self.y_bounds[0], self.y_bounds[1], dy)
         X, Y = np.meshgrid(x_range, y_range)
+        pdf = np.zeros(X.shape)
 
-        # Initial probability - uniform across the grid
-        x_uniform = stats.uniform(loc=self.x_bounds[0], scale=self.x_bounds[1] - self.x_bounds[0])
-        y_uniform = stats.uniform(loc=self.y_bounds[0], scale=self.y_bounds[1] - self.y_bounds[0])
+        for gaussian in self.cfg:
+            # guassian is a dict with 2D mean and variance
+            x_norm = stats.norm(loc=gaussian.get("x_mean"), scale=gaussian.get("x_var"))
+            y_norm = stats.norm(loc=gaussian.get("y_mean"), scale=gaussian.get("y_var"))
 
-        x_norm = stats.norm(loc=self.cfg.get("x_mean"), scale=self.cfg.get("x_var"))
-        y_norm = stats.norm(loc=self.cfg.get("y_mean"), scale=self.cfg.get("y_var"))
-
-        # pX = x_uniform.pdf(X)
-        # pY = y_uniform.pdf(Y)
-        pX = x_norm.pdf(X)
-        pY = y_norm.pdf(Y)
-        self.pdf = pX*pY
-
-        if multi:
-            x_norm = stats.norm(loc=self.cfg.get("x_mean1"), scale=self.cfg.get("x_var1"))
-            y_norm = stats.norm(loc=self.cfg.get("y_mean1"), scale=self.cfg.get("y_var1"))
             pX = x_norm.pdf(X)
             pY = y_norm.pdf(Y)
-            self.pdf += pX * pY
+            pdf += pX*pY
 
-            x_norm = stats.norm(loc=self.cfg.get("x_mean2"), scale=self.cfg.get("x_var2"))
-            y_norm = stats.norm(loc=self.cfg.get("y_mean2"), scale=self.cfg.get("y_var2"))
-            pX = x_norm.pdf(X)
-            pY = y_norm.pdf(Y)
-            self.pdf += pX * pY
+        # if multi:
+        #     x_norm = stats.norm(loc=self.cfg.get("x_mean1"), scale=self.cfg.get("x_var1"))
+        #     y_norm = stats.norm(loc=self.cfg.get("y_mean1"), scale=self.cfg.get("y_var1"))
+        #     pX = x_norm.pdf(X)
+        #     pY = y_norm.pdf(Y)
+        #     self.pdf += pX * pY
+        #
+        #     x_norm = stats.norm(loc=self.cfg.get("x_mean2"), scale=self.cfg.get("x_var2"))
+        #     y_norm = stats.norm(loc=self.cfg.get("y_mean2"), scale=self.cfg.get("y_var2"))
+        #     pX = x_norm.pdf(X)
+        #     pY = y_norm.pdf(Y)
+        #     self.pdf += pX * pY
 
-            self.pdf = self.pdf / sum(self.pdf)
+        self.pdf = pdf / np.sum(pdf)

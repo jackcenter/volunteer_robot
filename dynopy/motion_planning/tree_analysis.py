@@ -27,7 +27,7 @@ def update_information(V, E, epsilon_0, cfg, I_0, channels=None, fused=None):
     reward_list = [V[0].get_reward()]
 
     time_0 = V[0].get_time()
-    print("Node Time: {}".format(time_0))
+    # print("Node Time: {}".format(time_0))
 
     if not fused:
         fused = create_zero_dict_from_list(channels)
@@ -248,7 +248,7 @@ def pick_path_max_I(V, E):
 def pick_path_max_R(V, E):
     # TODO: make descending tree (find _root) a separate function
     max_node = max(V, key=lambda x: x.r)  # finds node with most information
-    print("Max node in pick_path_max_R = {}".format(max_node.get_position()))
+    # print("Max node in pick_path_max_R = {}".format(max_node.get_position()))
     path = [max_node]
 
     v_sorted = sorted(V, key=lambda x: x.r)

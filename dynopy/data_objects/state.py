@@ -43,3 +43,7 @@ class State_2D:
 
     def copy(self):
         return State_2D(self.x1, self.x2, self.x3)
+
+    @staticmethod
+    def create_from_tuple(pos, info=0, time=0):
+        return State_2D(pos[0], pos[1], info, time)
