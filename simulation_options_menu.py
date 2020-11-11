@@ -1,10 +1,11 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import csv
 import os
 import sys
 import matplotlib.pyplot as plt
-from dynopy.tools.initialize import load_parameter_file
+from dynopy.tools.initialize import load_parameter_file, write_results_to_file
 import single_simulation
 
 
@@ -143,12 +144,15 @@ def interpret_benchmark_sim_cmd(cmd):
         results_list = []
         n_params = len(params_list)
         p = 0
+
         for params in params_list:
             p += 1
+            # TODO: have params list add in p value in dict instead of it being like it is
+            params.update({"param_set": p})
             runs = params.get("n_runs")
-            for i in range(0, runs):
+            for r in range(0, runs):
 
-                print(" Parameter Set: {} of {}\t\tRun: {} of {}".format(p, n_params, i + 1, runs), end='\r')
+                print(" Parameter Set: {} of {}\t\tRun: {} of {}".format(p, n_params, r + 1, runs), end='\r')
                 results = single_simulation.run(filename_ws,
                                                 params.get("lambda"),
                                                 params.get("budget"),
@@ -158,9 +162,18 @@ def interpret_benchmark_sim_cmd(cmd):
                                                 False,
                                                 False)
 
-                results_list.append([params, i, results])
+                results.update({"param_set": p, "run": r})
+                # TODO: write to these after every run, in case of an error, data won't all be lost
+                results_list.append(results)
 
         print()
+        print(results_list)
+
+        # TODO: copy data to archive folder with date/time name
+        results_filename = 'results.txt'
+        params_filename = 'parameter_sets.txt'
+        write_results_to_file(results_filename, os.path.dirname(__file__), results_list)
+        write_results_to_file(params_filename, os.path.dirname(__file__), params_list)
 
     return working
 

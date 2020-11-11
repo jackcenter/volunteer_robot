@@ -150,12 +150,24 @@ def read_parameter_file(file):
         reader = csv.DictReader(fin, skipinitialspace=True)
 
         for row in reader:
-            row.update({"lambda": float(row.get("lambda"))})
-            row.update({"budget": int(row.get("budget"))})
-            row.update({"t_limit": float(row.get("t_limit"))})
-            row.update({"gamma": float(row.get("gamma"))})
-            row.update({"n_agents": int(row.get("n_agents"))})
-            row.update({"n_runs": int(row.get("n_runs"))})
+            row.update({"lambda": float(row.get("lambda")),
+                        "budget": int(row.get("budget")),
+                        "t_limit": float(row.get("t_limit")),
+                        "gamma": float(row.get("gamma")),
+                        "n_agents": int(row.get("n_agents")),
+                        "n_runs": int(row.get("n_runs"))})
+
             params_list.append(row)
 
     return params_list
+
+
+def write_results_to_file(filename, base_folder, data_list):
+    file = os.path.join(base_folder, 'results', filename)
+
+    with open(file, 'w', newline='') as fout:
+        fieldnames = data_list[0].keys()
+        writer = csv.DictWriter(fout, fieldnames=fieldnames, delimiter=',')
+        writer.writeheader()
+        for row in data_list:
+            writer.writerow(row)
