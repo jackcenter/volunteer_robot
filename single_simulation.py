@@ -83,7 +83,7 @@ def run(file_ws, lamb, budget, t_limit, gamma, n_agents, plot=True, plot_full=Fa
 
         fused_total += fused
 
-    I_Data.update({"I_fused": fused_total})
+    I_Data.update({"I_Fused": fused_total})
 
     return I_Data
 
