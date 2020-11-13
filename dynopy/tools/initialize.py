@@ -150,12 +150,14 @@ def read_parameter_file(file):
         reader = csv.DictReader(fin, skipinitialspace=True)
 
         for row in reader:
-            row.update({"lambda": float(row.get("lambda")),
-                        "budget": int(row.get("budget")),
-                        "t_limit": float(row.get("t_limit")),
-                        "gamma": float(row.get("gamma")),
-                        "n_agents": int(row.get("n_agents")),
-                        "n_runs": int(row.get("n_runs"))})
+            row.update({
+                "lambda": float(row.get("lambda")),
+                "budget": int(row.get("budget")),
+                "t_limit": float(row.get("t_limit")),
+                "gamma": float(row.get("gamma")),
+                "n_agents": int(row.get("n_agents")),
+                "n_runs": int(row.get("n_runs"))
+            })
 
             params_list.append(row)
 
@@ -171,3 +173,51 @@ def write_results_to_file(filename, base_folder, data_list):
         writer.writeheader()
         for row in data_list:
             writer.writerow(row)
+
+
+def read_results_file(filename, base_folder):
+    # TODO: this should also be able to read dynamic number of agents
+    results_list = []
+    file = os.path.join(base_folder, 'results', filename)
+
+    with open(file, 'r', encoding='utf8') as fin:
+        reader = csv.DictReader(fin, skipinitialspace=True)
+
+        for row in reader:
+            results = {}
+            results.update({
+                "I_Gained": float(row.get("I_Gained")),
+                "I_Fused": float(row.get("I_Fused")),
+                "param_set": int(row.get("param_set")),
+                "run": int(row.get("run"))
+            })
+
+            results_list.append(results)
+
+    return results_list
+
+
+def read_parameter_sets_file(filename, base_folder):
+    # TODO: this should also be able to read dynamic number of agents
+    results_list = []
+    file = os.path.join(base_folder, 'results', filename)
+
+    with open(file, 'r', encoding='utf8') as fin:
+        reader = csv.DictReader(fin, skipinitialspace=True)
+
+        for row in reader:
+            row.update({
+                "lambda": float(row.get("lambda")),
+                "budget": int(row.get("budget")),
+                "t_limit": float(row.get("t_limit")),
+                "gamma": float(row.get("gamma")),
+                "n_agents": int(row.get("n_agents")),
+                "n_runs": int(row.get("n_runs")),
+                "param_set": int(row.get("param_set")),
+            })
+
+            results_list.append(row)
+
+    return results_list
+
+
