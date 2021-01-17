@@ -164,15 +164,24 @@ def read_parameter_file(file):
     return params_list
 
 
-def write_results_to_file(filename, base_folder, data_list):
-    file = os.path.join(base_folder, 'results', filename)
+def write_results_to_file(file, data_list):
 
-    with open(file, 'w', newline='') as fout:
-        fieldnames = data_list[0].keys()
-        writer = csv.DictWriter(fout, fieldnames=fieldnames, delimiter=',')
-        writer.writeheader()
-        for row in data_list:
-            writer.writerow(row)
+    if not os.path.isfile(file):
+        with open(file, 'w', newline='') as fout:
+            fieldnames = data_list[0].keys()
+            writer = csv.DictWriter(fout, fieldnames=fieldnames, delimiter=',')
+            writer.writeheader()
+
+            for row in data_list:
+                writer.writerow(row)
+
+    else:
+        with open(file, 'a', newline='') as fout:
+            fieldnames = data_list[0].keys()
+            writer = csv.DictWriter(fout, fieldnames=fieldnames, delimiter=',')
+
+            for row in data_list:
+                writer.writerow(row)
 
 
 def read_results_file(filename, base_folder):
