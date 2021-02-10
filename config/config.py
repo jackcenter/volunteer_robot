@@ -22,25 +22,6 @@ def get_workspace_parameters():
         {"x_mean": 5, "x_var": 2, "y_mean": 5, "y_var": 2},
         {"x_mean": 5, "x_var": 2, "y_mean": 15, "y_var": 2}
     ]
-    # cfg = {
-    #     "x_mean": 15,
-    #     "x_var": 2,
-    #
-    #     "y_mean": 10,
-    #     "y_var": 4,
-    #
-    #     "x_mean1": 5,
-    #     "x_var1": 2,
-    #
-    #     "y_mean1": 5,
-    #     "y_var1": 2,
-    #
-    #     "x_mean2": 15,
-    #     "x_var2": 2,
-    #
-    #     "y_mean2": 5,
-    #     "y_var2": 2
-    # }
 
     return cfg
 
@@ -66,7 +47,7 @@ def load_agent_parameters(name):
             "color": "pink",
             "step_size": .25,  # distance traveled each time step
             "p_d": 0.8,  # chance of detection if target is in cell
-            "fusion_range": 3  # max distance agent can communicate
+            "fusion_range": 100  # max distance agent can communicate
         }
 
     elif name == "Inky":
@@ -74,7 +55,7 @@ def load_agent_parameters(name):
             "color": "cyan",
             "step_size": .25,  # distance traveled each time step
             "p_d": 0.8,  # chance of detection if target is in cell
-            "fusion_range": 3  # max distance agent can communicate
+            "fusion_range": 100  # max distance agent can communicate
         }
 
     elif name == "Clyde":
@@ -82,7 +63,7 @@ def load_agent_parameters(name):
             "color": "orange",
             "step_size": .25,  # distance traveled each time step
             "p_d": 0.85,  # chance of detection if target is in cell
-            "fusion_range": 3  # max distance agent can communicate
+            "fusion_range": 100  # max distance agent can communicate
         }
 
     else:
@@ -94,7 +75,7 @@ def load_agent_parameters(name):
             "t_limit": 0.1,  # expansion time limit
             "samples": 16,  # number of control inputs to sample
             "p_d": 0.85,  # chance of detection if target is in cell
-            "fusion_range": 2  # max distance agent can communicate
+            "fusion_range": 100  # max distance agent can communicate
         }
 
     return cfg

@@ -42,6 +42,9 @@ def update_information(V, E, epsilon_0, cfg, I_0, channels=None, fused=None):
 
         if node not in bl:      # Node not in branch list means this is the first time it's been visited
             # Set information at the node
+            # TODO: epsilon should be modified to account for other agents planned paths
+            # epsilon_adjustment = apply_planned_path_discount(epsilon)# TODO: will need other agent nodes)
+
             I_gained = get_information_gained(epsilon, node, cfg.get("p_d"))
             I_parent = bl[-1].get_information() if bl else I_0
             node.set_information(I_gained + I_parent)
@@ -49,8 +52,6 @@ def update_information(V, E, epsilon_0, cfg, I_0, channels=None, fused=None):
             # Set reward at the node
             fused_new = update_fused(channels, node, fused)
             I_novel = get_I_novel(channels, node, fused_new)
-            # TODO: does this even check if they are in range to fuse?
-            # TODO: FIX THIS!!!
             time_k = node.get_time() - time_0
             reward = cfg.get("gamma")**time_k*(node.get_information() - cfg.get("lambda")*I_novel)
             node.set_reward(reward + r_0)
@@ -113,7 +114,6 @@ def create_zero_dict_from_list(channels):
 
 def update_epsilon(epsilon_k0, node, I_gained):
 
-    # TODO: have this update for all of this agent
     I_available = get_information_available(epsilon_k0, node)
     I_remaining = I_available - I_gained
     epsilon_k1 = set_information_available(epsilon_k0.copy(), node, I_remaining)
@@ -185,6 +185,11 @@ def set_information_available(epsilon, node, value):
         pass
 
     return epsilon
+
+def apply_planned_path_discount(epsilon, agents):
+    for agent in agents:
+        return
+        # find there next x path points are and reduce reward at those points
 
 
 def normalize_pdf(pdf):

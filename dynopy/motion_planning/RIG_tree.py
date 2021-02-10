@@ -45,15 +45,12 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, parameters):
 
     # Sample configuration space of vehicle and find nearest node
     t_0 = process_time()
+
     while process_time() - t_0 < t_limit:
         x_sample = sample(X_all, parameters)
         n_nearest = nearest(x_sample, list(set(V).difference(V_closed)))
         x_feasible = steer(n_nearest.get_position(), x_sample, d, input_samples, 'y.')
 
-        # find near points to be extended
-        # print("Full list: {}".format(V))
-        # print("Closed list: {}".format(V_closed))
-        # print("Open list: {}".format(list(set(V).difference(V_closed))))
         n_near = near(x_feasible, list(set(V).difference(V_closed)), R)
         I_best = 0
         node_best = None
@@ -78,6 +75,7 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, parameters):
             C_new = node.get_cost() + C_x_new
 
             # node is not in range of home
+            # TODO: make this a cost instead of a cancel
             if not in_range_of_home(parameters["home"], x_new, C_new, parameters["budget"]):
                 continue
 

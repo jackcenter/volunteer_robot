@@ -25,6 +25,7 @@ class Volunteer2D(Robot2D):
         self.channel_range = {}     # name : range
         self.information_shared = {}
         self.information_novel = {}
+        # TODO: add other agents planned paths as dict of channel: path
 
     def load_waypoints(self, waypoints, budget):
         self.cfg.update({"home": waypoints[0]})
@@ -121,6 +122,8 @@ class Volunteer2D(Robot2D):
 
         for channel in self.channel_list.keys():
             self.fuse(channel)
+
+        # TODO: update all channel paths
 
     def generate_trajectory(self):
         traj = []
