@@ -3,10 +3,11 @@
 
 
 class State_2D:
-    def __init__(self, x_pos, y_pos, info=0, time=0):
+    def __init__(self, x_pos, y_pos, theta=0, info=0, time=0):
         self.x1 = x_pos
         self.x2 = y_pos
-        self.x3 = info
+        self.x3 = theta
+        self.x4 = info
         self.k = time
         self.state_names = {"x1": "x position", "x2": "y position", "x3": "information"}
 
@@ -30,10 +31,10 @@ class State_2D:
         self.x2 = y
 
     def get_information(self):
-        return self.x3
+        return self.x4
 
     def set_information(self, I):
-        self.x3 = I
+        self.x4 = I
 
     def get_time(self):
         return self.k

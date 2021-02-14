@@ -98,8 +98,9 @@ class Robot2D:
     def set_c_space(self):
         c1 = self.workspace.get_x_bounds()
         c2 = self.workspace.get_y_bounds()
+        c3 = (0, 6.2832)
 
-        self.c_space = State_2D(c1, c2)
+        self.c_space = State_2D(c1, c2, c3)
 
     def get_X_free(self):
         return self.c_space

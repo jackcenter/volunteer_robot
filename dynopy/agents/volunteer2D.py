@@ -125,6 +125,9 @@ class Volunteer2D(Robot2D):
 
         # TODO: update all channel paths
 
+    def dynamics_function(self):
+        pass
+
     def generate_trajectory(self):
         traj = []
         path = self.path.copy()
