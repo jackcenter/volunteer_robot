@@ -7,6 +7,7 @@ import matplotlib.patches as patch
 import numpy as np
 from dynopy.agents.robot2D import Robot2D
 from dynopy.data_objects.state import State_2D
+from dynopy.data_objects.input import Input_2D
 from dynopy.motion_planning.RIG_tree import RIG_tree
 from dynopy.motion_planning.tree_analysis import update_information, identify_fusion_nodes, pick_path_max_I, \
     pick_path_max_R, prune_step, plot_tree, print_nodes_with_reward
@@ -125,8 +126,33 @@ class Volunteer2D(Robot2D):
 
         # TODO: update all channel paths
 
-    def dynamics_function(self):
-        pass
+    def sample_dynamics(self, x_0):
+        u1_range, u2_range = self.cfg.get("dynamics_range")
+
+        r = np.random.rand(2)
+
+        u1 = u1_range[0] + r[0]*(u1_range[1] - u1_range[0])
+        u2 = u2_range[0] + r[0]*(u2_range[1] - u2_range[0])
+
+        u = Input_2D(u1, u2)
+
+        x_next = self.dynamics_function(x_0, u)
+
+        return x_next, u
+
+
+    @staticmethod
+    def dynamics_function(x_0, u):
+        theta = x_0.get_theta()
+        theta += u.get_direction()
+
+        x_new = x_0.get_x_position() + u.get_distance()*cos(theta)
+        y_new = x_0.get_y_position() + u.get_distance()*sin(theta)
+
+        k = x_0.get_time() + 1
+
+        x = State_2D(x_new, y_new, theta, 0, k)
+        return x
 
     def generate_trajectory(self):
         traj = []
