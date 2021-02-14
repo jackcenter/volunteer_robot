@@ -1,100 +1,56 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
+import os
 import matplotlib.pyplot as plt
 from config import config
-from dynopy.workspace.workspace import Workspace
-from dynopy.agents.lineFollwer2D import LineFollower2D
-from dynopy.agents.volunteer2D import Volunteer2D
-from dynopy.data_objects.state import State_2D
-from dynopy.motion_planning.tree_analysis import print_nodes_with_reward, print_leafs_with_reward
+from dynopy.motion_planning.RIG_tree_R_based import RIG_tree
+import dynopy.tools.initialize as init
 
 cfg = config.get_parameters()
 
-# TODO: check that the path_log and state_log are updating correctly
-# TODO: set seed for samples and try to get side by side of pure RIG vs Fusion aware RIG
-
 
 def main():
-    boundary = [
-        (0, 0),
-        (20, 0),
-        (20, 20),
-        (0, 20)
-    ]
-
-    ws = Workspace(boundary, config.get_workspace_parameters())
-    ws.generate_initial_distribution()
-    cfg_volunteer = config.load_agent_parameters("Blinky")
+    run("workspace_sandbox.txt", 0.99, 5, 0.1, 1, 1)
 
 
-    # ROBOT 1 =====================================================
-    wp1 = [
-        # (7.5, 19.5)
+def run(file_ws, lamb, budget, t_limit, gamma, n_agents, plot=True, plot_full=False):
+    ws = init.load_workspace(file_ws, os.path.dirname(__file__))
+    volunteer = init.load_volunteer(config, lamb, budget, t_limit, gamma, plot_full)
+    agents_dedicated = init.load_agents(n_agents, config)
 
-        # (7.5, 12.5),
-        # (5.5, 12.5),
-        # (5.5, 7.5)
-    ]
+    agents_all = agents_dedicated.copy()
+    agents_all.append(volunteer)
 
+    for agent in agents_all:
+        n = config.get_cfg_number(agent.get_name())
+        waypoints = ws.get_default_waypoints(n)
+        agent.set_state(waypoints[0])
+        agent.start(ws)
+        agent.load_waypoints(waypoints, budget)
+        ws.add_agent(agent)
 
-    robot1 = LineFollower2D("Inky", State_2D(2.5, 2.5))
-    robot1.start(ws)
-    robot1.load_waypoints(wp1, cfg_volunteer.get("budget"))
-    ws.add_agent(robot1)
-
-    # ROBOT 2 =====================================================
-    wp2 = [
-        # (13.5, 19.5)
-
-        # (13.5, 12.5),
-        # (15.5, 12.5),
-        # (15.5, 7.5)
-    ]
-    robot2 = LineFollower2D("Clyde", State_2D(2.5, 17.5))
-    robot2.start(ws)
-    robot2.load_waypoints(wp2, cfg_volunteer.get("budget"))
-    ws.add_agent(robot2)
-
-    # ROBOT 3 =====================================================
-    wp3 = [
-        # (10.5, 7.5)
-
-        # (13.5, 12.5),
-        # (15.5, 12.5),
-        # (15.5, 7.5)
-    ]
-    robot3 = LineFollower2D("Pinky", State_2D(10.5, 2.5))
-    robot3.start(ws)
-    robot3.load_waypoints(wp3, cfg_volunteer.get("budget"))
-    # ws.add_agent(robot3)
-
-    # VOLUNTEER ===================================================
-    volunteer = Volunteer2D("Blinky", cfg_volunteer, State_2D(10.5, 10.5), False)
-    volunteer.start(ws)
-    ws.add_agent(volunteer)
+    # set additional volunteer parameters
     volunteer.set_c_space()
     volunteer.initialize_channels(ws.get_agents())
 
-    # Simulation ===================================================
-    plt.style.use('dark_background')
-    for i in range(config.load_agent_parameters("Blinky").get("budget")):
-        ws.step()
-        if volunteer.plot_full:
-            print(len(volunteer.path))
-            # print("Cost: {}\n".format(volunteer.path[0].get_cost()))
-            volunteer.plot_pdf()
-            ws.plot()
-            # print_nodes_with_reward(volunteer.get_tree()[0])
-            print_leafs_with_reward(volunteer.get_nodes(), volunteer.get_edges())
-            circle = volunteer.get_budget_radius_object()
-            axes = plt.gca()
-            axes.add_artist(circle)
-            plt.show()
+    if plot:
+        plt.style.use('dark_background')
 
-    volunteer.plot_pdf()
-    ws.plot()
-    plt.show()
+        for agent in ws.agents:
+            if agent.name != "Blinky":
+                agent.step()
+            else:
+                V, E, V_closed = RIG_tree(agent.V, agent.E, agent.V_closed, agent.get_X_free(), agent.get_X_free(),
+                                          agent.get_pdf(), agent.get_state(), agent.cfg, agent.sample_dynamics)
+                agent.V = V
+                agent.E = E
+                agent.V_closed = V_closed
+
+                agent.plot_tree(agent.E, 'blue')
+
+        ws.time_step += 1
 
 
 if __name__ == "__main__":
