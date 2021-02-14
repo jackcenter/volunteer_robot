@@ -30,6 +30,12 @@ class State_2D:
     def set_y_position(self, y):
         self.x2 = y
 
+    def get_theta(self):
+        return self.x3
+
+    def set_theta(self, theta):
+        self.x3 = theta
+
     def get_information(self):
         return self.x4
 
