@@ -24,10 +24,10 @@ def main():
     ]
 
     ws = Workspace(boundary, config.get_workspace_parameters())
-    # ws.generate_initial_distribution(multi=False)
     ws.generate_initial_distribution()
-
     cfg_volunteer = config.load_agent_parameters("Blinky")
+
+
     # ROBOT 1 =====================================================
     wp1 = [
         # (7.5, 19.5)
@@ -37,9 +37,8 @@ def main():
         # (5.5, 7.5)
     ]
 
-    # robot1 = LineFollower2D("Inky", State_2D(wp1[0][0], wp1[0][1]))
+
     robot1 = LineFollower2D("Inky", State_2D(2.5, 2.5))
-    # robot1 = LineFollower2D("Inky", State_2D(10.5, 2.5))
     robot1.start(ws)
     robot1.load_waypoints(wp1, cfg_volunteer.get("budget"))
     ws.add_agent(robot1)
@@ -52,7 +51,6 @@ def main():
         # (15.5, 12.5),
         # (15.5, 7.5)
     ]
-    # robot2 = LineFollower2D("Clyde", State_2D(wp2[0][0], wp2[0][1]))
     robot2 = LineFollower2D("Clyde", State_2D(2.5, 17.5))
     robot2.start(ws)
     robot2.load_waypoints(wp2, cfg_volunteer.get("budget"))
@@ -81,7 +79,7 @@ def main():
     # Simulation ===================================================
     plt.style.use('dark_background')
     for i in range(config.load_agent_parameters("Blinky").get("budget")):
-        cycle(ws)
+        ws.step()
         if volunteer.plot_full:
             print(len(volunteer.path))
             # print("Cost: {}\n".format(volunteer.path[0].get_cost()))
@@ -97,20 +95,6 @@ def main():
     volunteer.plot_pdf()
     ws.plot()
     plt.show()
-
-
-def cycle(ws):
-    """
-    Cycles forward one time step
-    :param ws:
-    :return:
-    """
-    ws.step()
-
-    # for robot in ws.agents:
-    #     robot.step()
-        # print([x.get_position() for x in robot.path_log])
-        # print(robot.i_gained)
 
 
 if __name__ == "__main__":
