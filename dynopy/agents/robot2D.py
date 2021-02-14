@@ -71,6 +71,9 @@ class Robot2D:
     def get_name(self):
         return self.name
 
+    def get_state(self):
+        return self.state
+
     def set_state(self, state):
         if type(state) == tuple:
             self.state = State_2D.create_from_tuple(state)
