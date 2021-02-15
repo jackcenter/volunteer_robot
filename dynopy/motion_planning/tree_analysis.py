@@ -186,6 +186,7 @@ def set_information_available(epsilon, node, value):
 
     return epsilon
 
+
 def apply_planned_path_discount(epsilon, agents):
     for agent in agents:
         return
