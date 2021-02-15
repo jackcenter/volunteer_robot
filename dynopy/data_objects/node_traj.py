@@ -30,20 +30,52 @@ class Node:
     def get_position(self):
         return self.x.get_position()
 
+    def set_position(self, pos):
+        self.x.set_position(pos)
+
+    def get_pretty_position(self, digits=2):
+        pretty_pos = []
+        for item in self.get_position():
+            pretty_pos.append(round(item, digits))
+
+        return tuple(pretty_pos)
+
     def get_state(self):
         return self.x
 
     def get_cost(self):
         return self.c
 
+    def set_cost(self, c):
+        self.c = c
+
     def get_information(self):
         return self.i
+
+    def set_information(self, i):
+        self.i = i
 
     def get_time(self):
         return self.k
 
+    def set_time(self, k):
+        self.k = k
+
+    def get_reward(self):
+        return self.r
+
+    def set_reward(self, r):
+        self.r = r
+
     def get_fusion(self):
         return self.f
+
+    def add_fusion(self, channel):
+        self.f.append(channel)
+
+    def check_fused(self, channel):
+        if channel in self.f:
+            return True
 
     def compare_time(self, node):
         """
@@ -55,3 +87,6 @@ class Node:
             return True
         else:
             return False
+
+    def copy(self):
+        return Node(self.x, self.u, self.c, self.i, self.k, self.r, self.f)
