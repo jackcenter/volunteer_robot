@@ -22,6 +22,7 @@ def RIG_tree(V, E, X_all, X_free, epsilon, x_0, cfg, f_dynamics, channel_list):
     :param cfg: dictionary of necessary values: step size, budget, nearest neighbor radius, input samples, and
     time limit for expansion
     :param f_dynamics: dynamics function
+    :param channel_list:
     :return: a list of nodes and edges
     """
 
@@ -32,20 +33,17 @@ def RIG_tree(V, E, X_all, X_free, epsilon, x_0, cfg, f_dynamics, channel_list):
     t_limit = cfg["t_limit"]
 
     if not V:
-        V, E, V_closed = initialize_graph(x_0, epsilon, channel_list)
+        V, E = initialize_graph(x_0, epsilon, channel_list)
 
     t_0 = process_time()
-
-    # while process_time() - t_0 < t_limit:
-
-    while 1:
+    while process_time() - t_0 < t_limit:
         # Expand the tree while time remains
         pos_sample = sample_position(X_all, cfg)
         n_nearest = find_nearest(pos_sample, V)
         x_feasible, _ = steer(n_nearest.get_state(), pos_sample, f_dynamics, cfg, 'y.')
         n_near = find_nearby(x_feasible, V, cfg)
 
-        r_best = 0
+        r_best = None
         parent_best = None
         child_best = None
 
@@ -58,31 +56,39 @@ def RIG_tree(V, E, X_all, X_free, epsilon, x_0, cfg, f_dynamics, channel_list):
             f_new = update_fusion(node, x_new, i_new, channel_list, cfg)
 
             penalty = evaluate_penalty(x_new, c_new, cfg)
-            r_new = evaluate_reward(i_new, f_new, k_new, cfg) - penalty
+            r_new = evaluate_reward(i_new, f_new, k_new, penalty, cfg)
 
-            if r_new > r_best:
+            if not r_best or r_new > r_best:
                 parent_best = node
                 child_best = Node(x_new, u_new, c_new, i_new, k_new, r_new, f_new)
                 r_best = r_new
+
+            if cfg_ws.get("plot_full"):
+                plot_tree(E)
+                plot_expansion(pos_sample, x_feasible.get_position(), node.get_position(), x_new.get_position())
 
         if parent_best and child_best:
             V.append(child_best)
             E.append((parent_best, child_best))
 
-        for _, wp in channel_list.items():
-            x, y = wp[0].get_position()
-            plt.plot(x, y, 'bx')
+        # for _, wp in channel_list.items():
+        #     x, y = wp[0].get_position()
+        #     plt.plot(x, y, 'bx')
+        #
+        # plot_tree(E)
+        # plt.axis("equal")
+        # plt.show()
 
-        plot_tree(E)
-        plt.axis("equal")
-        plt.show()
+    return V, E
 
 
 def initialize_graph(x_0, epsilon, channel_list):
     """
     creates the initial graph if none has been previously computed.
+
     :param x_0: initial state
     :param epsilon: initial distribution
+    :param channel_list:
     :return:
     """
     i_init = initial_information(x_0.get_position(), epsilon)  # Initial node information
@@ -97,8 +103,8 @@ def initialize_graph(x_0, epsilon, channel_list):
     n_0 = Node(x_0, None, c_init, i_init, k_init, r_init, f_init)
     v = [n_0]                                   # Node list
     e = []
-    v_closed = []
-    return v, e, v_closed
+
+    return v, e
 
 
 def initial_information(x_0, epsilon):
@@ -274,13 +280,12 @@ def check_for_fusion(state, channel_list, cfg):
         for node in path:
             if node.compare_time(state) and node.get_distance_from(state) < fusion_range:
                 fusion_list.append(agent)
-                print("FUSION!!!")
                 break
 
     return fusion_list
 
 
-def evaluate_reward(i_new, f_new, k, cfg):
+def evaluate_reward(i_new, f_new, k, penalty, cfg):
     lamb = cfg.get("lambda")
     gamma = cfg.get("gamma")
 
@@ -290,7 +295,16 @@ def evaluate_reward(i_new, f_new, k, cfg):
     for agent, fused in f_new.items():
         i_novel += i_new - fused
 
-    return gamma**k*(i_new - lamb / n * i_novel)
+    r = gamma**k*(i_new - lamb / n * i_novel)       # fusion reward
+    r -= penalty                                    # too far from home penalty
+
+    if r < -1:
+        r = -1
+
+    r += 1                                          # movement reward
+
+    return r
+
 
 
 def get_information_available(epsilon, pos):
@@ -305,14 +319,14 @@ def get_information_available(epsilon, pos):
     return i_available
 
 
-def plot_expansion(x_sample, x_feasible, node_pos, x_new):
+def plot_expansion(pos_sample, pos_feasible, node_pos, pos_new):
     """
     used to troubleshoot issues with the tree expansion
     :return:
     """
-    plt.plot(x_sample[0], x_sample[1], 'bx')
-    plt.plot(x_feasible[0], x_feasible[1], 'yo')
-    plt.plot(node_pos[0], node_pos[1], 'k.')
-    plt.plot(x_new[0], x_new[1], 'kx')
+    plt.plot(pos_sample[0], pos_sample[1], 'bx')
+    plt.plot(pos_feasible[0], pos_feasible[1], 'yo')
+    plt.plot(node_pos[0], node_pos[1], 'rx')
+    plt.plot(pos_new[0], pos_new[1], 'r.')
     plt.axis('equal')
     plt.show()
