@@ -60,7 +60,8 @@ def RIG_tree(V, E, X_all, X_free, epsilon, x_0, cfg, f_dynamics, channel_list):
 
             if not r_best or r_new > r_best:
                 parent_best = node
-                child_best = Node(x_new, u_new, c_new, i_new, k_new, r_new, f_new)
+                r_old = parent_best.get_reward()
+                child_best = Node(x_new, u_new, c_new, i_new, k_new, r_new + r_old, f_new)
                 r_best = r_new
 
             if cfg_ws.get("plot_full"):
