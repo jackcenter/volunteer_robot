@@ -9,6 +9,7 @@ from dynopy.agents.robot2D import Robot2D
 from dynopy.data_objects.state import State_2D
 from dynopy.data_objects.input import Input_2D
 from dynopy.motion_planning.RIG_tree import RIG_tree
+import dynopy.motion_planning.RIG_tree_R_based as RIG2
 from dynopy.motion_planning.tree_analysis import update_information, identify_fusion_nodes, pick_path_max_I, \
     pick_path_max_R, prune_step, plot_tree, print_nodes_with_reward
 
@@ -140,7 +141,6 @@ class Volunteer2D(Robot2D):
 
         return x_next, u
 
-
     @staticmethod
     def dynamics_function(x_0, u):
         theta = x_0.get_theta()
@@ -210,16 +210,20 @@ class Volunteer2D(Robot2D):
             print(" Reward:\t{}\n".format(I_added/len(self.channel_list)))
 
     def expand_tree(self):
-        # TODO: handle this closed node business
-        self.V, self.E, self.V_closed = RIG_tree(self.V, self.E, self.V_closed, self.get_X_free(), self.get_X_free(),
-                                                 self.get_pdf(), self.get_position(), self.cfg)
+        # self.V, self.E, self.V_closed = RIG_tree(self.V, self.E, self.V_closed, self.get_X_free(), self.get_X_free(),
+        #                                          self.get_pdf(), self.get_position(), self.cfg)
+
+        self.V, self.E = RIG2.RIG_tree(self.V, self.E, self.get_X_free(), self.get_X_free(), self.get_pdf(),
+                                       self.get_state(), self.cfg, self.sample_dynamics, self.channel_list)
+
+        # print_nodes_with_reward(self.V)
 
     def select_path(self):
-        for agent, path in self.channel_list.items():
-            f = self.channel_range.get(agent)
-            identify_fusion_nodes(self.V, path, agent, f)
+        # for agent, path in self.channel_list.items():
+        #     f = self.channel_range.get(agent)
+        #     identify_fusion_nodes(self.V, path, agent, f)
 
-        update_information(self.V, self.E, self.pdf, self.cfg, self.i_gained, self.channel_list, self.information_shared)
+        # update_information(self.V, self.E, self.pdf, self.cfg, self.i_gained, self.channel_list, self.information_shared)
 
         # self.path = pick_path_max_I(self.V, self.E)
         self.path = pick_path_max_R(self.V, self.E)
