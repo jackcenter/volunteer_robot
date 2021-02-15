@@ -10,12 +10,11 @@ from tree_analysis import plot_tree
 cfg_ws = get_parameters()
 
 
-def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, cfg, f_dynamics):
+def RIG_tree(V, E, X_all, X_free, epsilon, x_0, cfg, f_dynamics, channel_list):
     """
 
     :param V: node list for a prebuilt tree
     :param E: edge list for a prebuilt tree
-    :param V_closed: list of nodes that can't be expanded
     :param X_all: workspace
     :param X_free: free space
     :param epsilon: environment
@@ -33,7 +32,7 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, cfg, f_dynamics):
     t_limit = cfg["t_limit"]
 
     if not V:
-        V, E, V_closed = initialize_graph(x_0, epsilon)
+        V, E, V_closed = initialize_graph(x_0, epsilon, channel_list)
 
     t_0 = process_time()
 
@@ -41,58 +40,45 @@ def RIG_tree(V,  E, V_closed, X_all, X_free, epsilon, x_0, cfg, f_dynamics):
 
     while 1:
         # Expand the tree while time remains
-        V_open = list(set(V).difference(V_closed))
         pos_sample = sample_position(X_all, cfg)
-        n_nearest = find_nearest(pos_sample, V_open)
+        n_nearest = find_nearest(pos_sample, V)
         x_feasible, _ = steer(n_nearest.get_state(), pos_sample, f_dynamics, cfg, 'y.')
-        print(x_feasible.get_position())
-        n_near = find_nearby(x_feasible, V_open, cfg)
+        n_near = find_nearby(x_feasible, V, cfg)
 
-        R_best = 0
-        node_best = None
-        n_best = None
+        r_best = 0
+        parent_best = None
+        child_best = None
 
         for node in n_near:
-            print(node.get_position())
-
             x_new, u_new = steer(node.get_state(), pos_sample, f_dynamics, cfg)
-            print(x_new.get_position())
 
-            # TODO: compute cost
-            c_new = 0
-            # TODO: compute reward
-            i_new = 0
-            r_new = 0
-
+            c_new = evaluate_cost(node, cfg)
+            i_new = node.get_information() + get_information_available(epsilon, x_new.get_position())
             k_new = node.get_time() + 1
-            node_new = Node(x_new, u_new, c_new, i_new, k_new, r_new)
+            f_new = update_fusion(node, x_new, i_new, channel_list, cfg)
 
-        V.append(node_new)
-        E.append((node, node_new))
+            penalty = evaluate_penalty(x_new, c_new, cfg)
+            r_new = evaluate_reward(i_new, f_new, k_new, cfg) - penalty
+
+            if r_new > r_best:
+                parent_best = node
+                child_best = Node(x_new, u_new, c_new, i_new, k_new, r_new, f_new)
+                r_best = r_new
+
+        if parent_best and child_best:
+            V.append(child_best)
+            E.append((parent_best, child_best))
+
+        for _, wp in channel_list.items():
+            x, y = wp[0].get_position()
+            plt.plot(x, y, 'bx')
 
         plot_tree(E)
         plt.axis("equal")
         plt.show()
 
-        # if node.get_time() >= cfg.get("budget"):
-        #     # TODO: don't throw out, add to cost
-        #     continue
 
-        # extend towards new point
-        # x_new = steer(node.get_position(), x_feasible, d, input_samples)
-        #
-        # if cfg["plot_full"]:
-        #     plot_tree(E)
-        #     plot_expansion(x_sample, x_feasible, node.get_position(), x_new)
-        #
-        # # TODO: add in too far from home cost
-        # C_x_new = evaluate_cost(node.get_position(), x_new)
-        # C_new = node.get_cost() + C_x_new
-        #
-        # # TODO: find expected reward on static pdf and pick node based on that
-
-
-def initialize_graph(x_0, epsilon):
+def initialize_graph(x_0, epsilon, channel_list):
     """
     creates the initial graph if none has been previously computed.
     :param x_0: initial state
@@ -101,7 +87,14 @@ def initialize_graph(x_0, epsilon):
     """
     i_init = initial_information(x_0.get_position(), epsilon)  # Initial node information
     c_init = 0                                  # Initial node cost
-    n_0 = Node(x_0, None, c_init, i_init, 0)          # Initial node
+    r_init = 0
+    k_init = 0
+    f_init = {}
+
+    for agent in channel_list.keys():
+        f_init.update({agent: 0})
+
+    n_0 = Node(x_0, None, c_init, i_init, k_init, r_init, f_init)
     v = [n_0]                                   # Node list
     e = []
     v_closed = []
@@ -234,6 +227,82 @@ def find_nearby(x, v, cfg):
             nodes_near.append(node)
 
     return nodes_near
+
+
+def evaluate_cost(n_k0, cfg):
+
+    c = n_k0.get_cost() + cfg.get("step_size")
+    return c
+
+
+def evaluate_penalty(x_k1, cost, cfg):
+    # TODO: fix this
+    x_home = cfg.get("home")
+    budget = cfg.get("budget")
+
+    life = budget - cost
+
+    range_now = get_distance(x_k1.get_position(), x_home)
+    range_max = life
+
+    if range_max - range_now < cfg.get("step_size"):
+        # within a step of being out of range of home
+        p = (range_max - range_now)**2
+    else:
+        p = 0
+
+    return p
+
+
+def update_fusion(node, x_new, i_new, channel_list, cfg):
+
+    f_new = node.get_fusion().copy()
+    fusion_list = check_for_fusion(x_new, channel_list, cfg)
+
+    for agent in fusion_list:
+        f_new.update({agent: i_new})
+
+    return f_new
+
+
+def check_for_fusion(state, channel_list, cfg):
+
+    fusion_range = cfg.get("fusion_range")
+    fusion_list = []
+
+    for agent, path in channel_list.items():
+        for node in path:
+            if node.compare_time(state) and node.get_distance_from(state) < fusion_range:
+                fusion_list.append(agent)
+                print("FUSION!!!")
+                break
+
+    return fusion_list
+
+
+def evaluate_reward(i_new, f_new, k, cfg):
+    lamb = cfg.get("lambda")
+    gamma = cfg.get("gamma")
+
+    i_novel = 0
+    n = len(f_new)
+
+    for agent, fused in f_new.items():
+        i_novel += i_new - fused
+
+    return gamma**k*(i_new - lamb / n * i_novel)
+
+
+def get_information_available(epsilon, pos):
+    x = math.trunc(pos[0])
+    y = math.trunc(pos[1])
+
+    try:
+        i_available = epsilon[y][x]
+    except IndexError:
+        i_available = 0
+
+    return i_available
 
 
 def plot_expansion(x_sample, x_feasible, node_pos, x_new):
