@@ -8,11 +8,13 @@ from config import config
 from dynopy.motion_planning.RIG_tree_R_based import RIG_tree
 import dynopy.tools.initialize as init
 
-cfg = config.get_parameters()
+cfg_ws = config.get_parameters()
 
 
 def main():
-    run("workspace_sandbox.txt", 0.99, 5, 0.1, 1, 1)
+    cfg = config.load_agent_parameters("Blinky")
+
+    run("workspace_sandbox.txt", cfg.get("lambda"), cfg.get("budget"), cfg.get("t_limit"), cfg.get("gamma"), 1, 1)
 
 
 def run(file_ws, lamb, budget, t_limit, gamma, n_agents, plot=True, plot_full=False):
@@ -42,8 +44,9 @@ def run(file_ws, lamb, budget, t_limit, gamma, n_agents, plot=True, plot_full=Fa
             if agent.name != "Blinky":
                 agent.step()
             else:
-                V, E, V_closed = RIG_tree(agent.V, agent.E, agent.V_closed, agent.get_X_free(), agent.get_X_free(),
-                                          agent.get_pdf(), agent.get_state(), agent.cfg, agent.sample_dynamics)
+                V, E, V_closed = RIG_tree(agent.V, agent.E, agent.get_X_free(), agent.get_X_free(),
+                                          agent.get_pdf(), agent.get_state(), agent.cfg, agent.sample_dynamics,
+                                          agent.channel_list)
                 agent.V = V
                 agent.E = E
                 agent.V_closed = V_closed
