@@ -256,7 +256,7 @@ def pick_path_max_I(V, E):
 
 def pick_path_max_R(V, E):
     # TODO: make descending tree (find _root) a separate function
-    max_node = max(V, key=lambda x: x.r)  # finds node with most information
+    max_node = max(V, key=lambda x: x.r)  # finds node with most reward
     # print("Max node in pick_path_max_R = {}".format(max_node.get_position()))
     path = [max_node]
 
