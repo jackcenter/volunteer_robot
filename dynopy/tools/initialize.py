@@ -104,7 +104,7 @@ def load_volunteer(cfg, lamb=0.99, budget=60, t_limit=0.1, gamma=1, plot_full=Fa
     cfg_volunteer.update({"lambda": lamb})
     cfg_volunteer.update({"budget": budget})
     cfg_volunteer.update({"t_limit": t_limit})
-    cfg_volunteer.update({"k_discount": gamma})
+    cfg_volunteer.update({"gamma": gamma})
 
     robot = Volunteer2D(name, cfg_volunteer, plot_full=plot_full)
 
