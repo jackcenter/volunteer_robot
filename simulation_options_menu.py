@@ -81,7 +81,7 @@ def interpret_single_sim_cmd(cmd):
         params_list = load_parameter_file(file_params, os.path.dirname(__file__))
         params = params_list[0]
 
-    if cmd == '4':
+    elif cmd == '4':
         filename_ws = 'static_separated_collocated_single.txt'
         filename_params = "parameters_sandbox.txt"
         params_list = load_parameter_file(filename_params, os.path.dirname(__file__))
@@ -108,7 +108,7 @@ def interpret_single_sim_cmd(cmd):
                                         params.get("gamma"),
                                         params.get("n_agents"),
                                         True,
-                                        False)
+                                        True)
 
         for key, val in results.items():
             print(" {}:\t{}".format(key, val))
