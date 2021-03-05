@@ -10,6 +10,68 @@ from tree_analysis import plot_tree
 cfg_ws = get_parameters()
 
 
+def update_information(V, E, epsilon_0, cfg, I_0, fused):
+    """
+
+    :param V: list of nodes
+    :param E: list of edges
+    :param epsilon_0: current pdf
+    :param cfg: configuration of agent
+    :param I_0: information gained up to this point
+    :param fused: dict of information fused so far {channel: information}
+    :return: list of nodes with updated information values
+    """
+
+    # TODO: could probably save time here by not going through the full tree, just new nodes
+
+    ol = [V[0]]     # open list
+    # TODO: create empty branch list node
+    bl = []         # branch list for visited nodes
+    cl = []         # closed list
+
+    # Lists aligned with the branch element to update pdf as agent travels through it
+    epsilon_list = [epsilon_0]          # last element indicates current pdf
+    reward_list = [V[0].get_reward()]   # last element indicates current reward
+    fused_list = [fused]                # last element indicates current fusion
+
+    time_0 = V[0].get_time              # indicates the time step
+
+    while ol:
+        node = ol[-1]
+
+        epsilon = epsilon_list[-1]
+        r_0 = reward_list[-1]
+        fusion = fused_list[-1]
+
+        if node not in bl:      # first time this node has been visited
+
+            # update information
+            if bl:
+                I_gained = cfg.get("p_d")*get_information_available(epsilon, node)
+                I_parent = bl[-1].get_information()
+                node.set_information(I_gained + I_parent)
+
+                # update fusion
+
+        neighbors_all = find_neighbors(E, node)
+        neighbors_open = list(set(neighbors_all).difference(cl))
+
+        if neighbors_open:      # there are nodes to expand to
+            pass
+
+        elif node in bl:        # just returned to a node that has been fully explored
+            ol.pop()
+            bl.pop()
+            cl.append(node)
+            epsilon_list.pop()
+            reward_list.pop()
+            fused_list.pop()
+
+        else:                           # this is a leaf
+            ol.pop()
+            cl.append(node)
+
+
 def RIG_tree(V, E, X_all, X_free, epsilon, x_0, cfg, f_dynamics, channel_list):
     """
 
@@ -22,15 +84,11 @@ def RIG_tree(V, E, X_all, X_free, epsilon, x_0, cfg, f_dynamics, channel_list):
     :param cfg: dictionary of necessary values: step size, budget, nearest neighbor radius, input samples, and
     time limit for expansion
     :param f_dynamics: dynamics function
-    :param channel_list:
+    :param channel_list: starting fusion
     :return: a list of nodes and edges
     """
 
-    d = cfg["step_size"]
-    B = cfg["budget"]
-    R = cfg["radius"]
-    input_samples = cfg["samples"]
-    t_limit = cfg["t_limit"]
+    t_limit = cfg.get("t_limit")
 
     if not V:
         V, E = initialize_graph(x_0, epsilon, channel_list)
@@ -262,6 +320,15 @@ def evaluate_penalty(x_k1, cost, cfg):
 
 
 def update_fusion(node, x_new, i_new, channel_list, cfg):
+    """
+
+    :param node: parent node
+    :param x_new: fusion position
+    :param i_new: information fused and the fusion position
+    :param channel_list:
+    :param cfg:
+    :return:
+    """
 
     f_new = node.get_fusion().copy()
     fusion_list = check_for_fusion(x_new, channel_list, cfg)
@@ -307,7 +374,6 @@ def evaluate_reward(i_new, f_new, k, penalty, cfg):
     return r
 
 
-
 def get_information_available(epsilon, pos):
     x = math.trunc(pos[0])
     y = math.trunc(pos[1])
@@ -318,6 +384,20 @@ def get_information_available(epsilon, pos):
         i_available = 0
 
     return i_available
+
+
+def find_neighbors(E, node):
+    """
+
+    :param E: list of edges
+    :param node: base node
+    :return: list of neighbors
+    """
+    neighbors_list = []
+    for parent, child in E:
+        if node == parent:
+            neighbors_list.append(child)
+    return neighbors_list
 
 
 def plot_expansion(pos_sample, pos_feasible, node_pos, pos_new):
@@ -331,3 +411,6 @@ def plot_expansion(pos_sample, pos_feasible, node_pos, pos_new):
     plt.plot(pos_new[0], pos_new[1], 'r.')
     plt.axis('equal')
     plt.show()
+
+
+
