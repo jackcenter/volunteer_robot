@@ -223,7 +223,8 @@ class Volunteer2D(Robot2D):
         #     f = self.channel_range.get(agent)
         #     identify_fusion_nodes(self.V, path, agent, f)
 
-        # update_information(self.V, self.E, self.pdf, self.cfg, self.i_gained, self.channel_list, self.information_shared)
+        RIG2.update_information(self.V, self.E, self.pdf, self.i_gained, self.information_shared, self.channel_list,
+                                self.cfg)
 
         # self.path = pick_path_max_I(self.V, self.E)
         self.path = pick_path_max_R(self.V, self.E)

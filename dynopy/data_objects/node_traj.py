@@ -12,6 +12,7 @@ class Node:
         :param information: probability the target can be seen from the node position
         :param time: int for node time_step
         :param reward: the reward available in the selected node
+        :param fusion:
         """
         self.x = state
         self.u = u
@@ -70,8 +71,8 @@ class Node:
     def get_fusion(self):
         return self.f
 
-    def add_fusion(self, channel):
-        self.f.append(channel)
+    def set_fusion(self, f):
+        self.f = f
 
     def check_fused(self, channel):
         if channel in self.f:

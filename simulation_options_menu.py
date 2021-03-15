@@ -108,7 +108,7 @@ def interpret_single_sim_cmd(cmd):
                                         params.get("gamma"),
                                         params.get("n_agents"),
                                         True,
-                                        True)
+                                        False)
 
         for key, val in results.items():
             print(" {}:\t{}".format(key, val))

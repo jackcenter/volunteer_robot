@@ -193,8 +193,7 @@ def apply_planned_path_discount(epsilon, agents):
         # find there next x path points are and reduce reward at those points
 
 
-def normalize_pdf(pdf):
-    return pdf / np.sum(pdf)
+
 
 
 def find_neighbors(E, node):

@@ -13,7 +13,7 @@ def main():
 
     :return:
     """
-    # run("test.txt", 0.99, 5, 0.1, 1)
+    run('workspace_sandbox.txt', 0.99, 80, 0.1, .9, 3)
 
 
 def run(file_ws, lamb, budget, t_limit, gamma, n_agents, plot=True, plot_full=False):

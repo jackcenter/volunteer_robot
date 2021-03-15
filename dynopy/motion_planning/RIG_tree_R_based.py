@@ -10,62 +10,68 @@ from tree_analysis import plot_tree
 cfg_ws = get_parameters()
 
 
-def update_information(V, E, epsilon_0, cfg, I_0, fused):
+def update_information(V, E, epsilon_0, I_0, fused, channel_list, cfg):
     """
 
     :param V: list of nodes
     :param E: list of edges
     :param epsilon_0: current pdf
+    :param I_0: information gained so far
+    :param fused: dict of information fused on each channel
+    :param channel_list: dict of channels and their path
     :param cfg: configuration of agent
-    :param I_0: information gained up to this point
-    :param fused: dict of information fused so far {channel: information}
     :return: list of nodes with updated information values
     """
 
     # TODO: could probably save time here by not going through the full tree, just new nodes
 
-    ol = [V[0]]     # open list
-    # TODO: create empty branch list node
-    bl = []         # branch list for visited nodes
-    cl = []         # closed list
+    ol = [V[0]]                                 # open list
+    bl = [Node(None, None, 0, I_0, 0, 0, fused)]  # branch list for visited nodes
+    cl = []                                     # closed list
 
     # Lists aligned with the branch element to update pdf as agent travels through it
     epsilon_list = [epsilon_0]          # last element indicates current pdf
-    reward_list = [V[0].get_reward()]   # last element indicates current reward
-    fused_list = [fused]                # last element indicates current fusion
-
-    time_0 = V[0].get_time              # indicates the time step
 
     while ol:
         node = ol[-1]
 
         epsilon = epsilon_list[-1]
-        r_0 = reward_list[-1]
-        fusion = fused_list[-1]
 
         if node not in bl:      # first time this node has been visited
 
             # update information
-            if bl:
-                I_gained = cfg.get("p_d")*get_information_available(epsilon, node)
-                I_parent = bl[-1].get_information()
-                node.set_information(I_gained + I_parent)
+            I_gained = cfg.get("p_d")*get_information_available(epsilon, node.get_position())
+            I_parent = bl[-1].get_information()
+            node.set_information(I_gained + I_parent)
 
-                # update fusion
+            # update fusion
+            f_new = set_fusion(bl[-1], node.get_state(), node.get_information(), channel_list, cfg)
+            node.set_fusion(f_new.copy())
+
+            # update reward
+            penalty = evaluate_penalty(node.get_state(), node.get_cost(), cfg)
+            r_new = evaluate_reward(node.get_information(), node.get_fusion(), node.get_time(), penalty, cfg)
+            r_parent = bl[-1].get_reward()
+            node.set_reward(r_new + r_parent)
 
         neighbors_all = find_neighbors(E, node)
         neighbors_open = list(set(neighbors_all).difference(cl))
 
         if neighbors_open:      # there are nodes to expand to
-            pass
+            ol.extend(neighbors_open)
+            bl.append(node)
+
+            I_parent = bl[-1].get_information()
+            I_gained = node.get_information() - I_parent
+
+            epsilon_new = update_epsilon(epsilon, node, I_gained)
+            epsilon_list.append(epsilon_new)
 
         elif node in bl:        # just returned to a node that has been fully explored
             ol.pop()
             bl.pop()
             cl.append(node)
             epsilon_list.pop()
-            reward_list.pop()
-            fused_list.pop()
 
         else:                           # this is a leaf
             ol.pop()
@@ -94,6 +100,8 @@ def RIG_tree(V, E, X_all, X_free, epsilon, x_0, cfg, f_dynamics, channel_list):
         V, E = initialize_graph(x_0, epsilon, channel_list)
 
     t_0 = process_time()
+    # j = 100
+    # for _ in range(0, j):
     while process_time() - t_0 < t_limit:
         # Expand the tree while time remains
         pos_sample = sample_position(X_all, cfg)
@@ -111,7 +119,7 @@ def RIG_tree(V, E, X_all, X_free, epsilon, x_0, cfg, f_dynamics, channel_list):
             c_new = evaluate_cost(node, cfg)
             i_new = node.get_information() + get_information_available(epsilon, x_new.get_position())
             k_new = node.get_time() + 1
-            f_new = update_fusion(node, x_new, i_new, channel_list, cfg)
+            f_new = set_fusion(node, x_new, i_new, channel_list, cfg)
 
             penalty = evaluate_penalty(x_new, c_new, cfg)
             r_new = evaluate_reward(i_new, f_new, k_new, penalty, cfg)
@@ -126,18 +134,28 @@ def RIG_tree(V, E, X_all, X_free, epsilon, x_0, cfg, f_dynamics, channel_list):
                 plot_tree(E)
                 plot_expansion(pos_sample, x_feasible.get_position(), node.get_position(), x_new.get_position())
 
-        if parent_best and child_best:
-            V.append(child_best)
-            E.append((parent_best, child_best))
+        if parent_best and child_best and not twin_node(E, parent_best, child_best, cfg):
+                V.append(child_best)
+                E.append((parent_best, child_best))
 
         # for _, wp in channel_list.items():
         #     x, y = wp[0].get_position()
         #     plt.plot(x, y, 'bx')
         #
+        # plt.plot(pos_sample[0], pos_sample[1], 'yo')
+        # plt.plot(n_nearest.get_x_position(), n_nearest.get_y_position(), 'go')
+        # plt.plot(x_feasible.get_x_position(), x_feasible.get_y_position(), 'gx')
+        # plt.plot(child_best.get_x_position(), child_best.get_y_position(), 'rs', mfc=None)
         # plot_tree(E)
         # plt.axis("equal")
         # plt.show()
 
+    # for _, wp in channel_list.items():
+    #     x, y = wp[0].get_position()
+    #     plt.plot(x, y, 'bx')
+    #
+    # plot_tree(E)
+    # plt.show()
     return V, E
 
 
@@ -319,12 +337,13 @@ def evaluate_penalty(x_k1, cost, cfg):
     return p
 
 
-def update_fusion(node, x_new, i_new, channel_list, cfg):
+def set_fusion(node, x_new, i_new, channel_list, cfg):
     """
+    copies the previous node's fusion list, checks if there has been any new fusion, and update the appropriate channels
 
     :param node: parent node
     :param x_new: fusion position
-    :param i_new: information fused and the fusion position
+    :param i_new: information gained to this point
     :param channel_list:
     :param cfg:
     :return:
@@ -354,6 +373,15 @@ def check_for_fusion(state, channel_list, cfg):
 
 
 def evaluate_reward(i_new, f_new, k, penalty, cfg):
+    """
+
+    :param i_new: information gained to this point
+    :param f_new: dict of {channel: data fused}
+    :param k: time step
+    :param penalty:
+    :param cfg:
+    :return:
+    """
     lamb = cfg.get("lambda")
     gamma = cfg.get("gamma")
 
@@ -369,7 +397,7 @@ def evaluate_reward(i_new, f_new, k, penalty, cfg):
     if r < -1:
         r = -1
 
-    r += 1                                          # movement reward
+    # r += 1                                          # movement reward
 
     return r
 
@@ -398,6 +426,48 @@ def find_neighbors(E, node):
         if node == parent:
             neighbors_list.append(child)
     return neighbors_list
+
+
+def twin_node(E, n0, n1, cfg):
+
+    twin = False
+
+    for parent, child in E:
+
+        if n0 == parent:
+            dist = get_distance(child.get_position(), n1.get_position())
+
+            if dist < cfg.get("epsilon"):
+                twin = True
+                break
+
+    return twin
+
+
+def update_epsilon(epsilon_k0, node, I_gained):
+
+    I_available = get_information_available(epsilon_k0, node.get_position())
+    I_remaining = I_available - I_gained
+    epsilon_k1 = set_information_available(epsilon_k0.copy(), node, I_remaining)
+    return epsilon_k1
+
+
+def set_information_available(epsilon, node, value):
+    x, y = node.get_position()
+    x = math.trunc(x)
+    y = math.trunc(y)
+
+    try:
+        epsilon[x][y] = value
+        epsilon = normalize_pdf(epsilon)
+    except IndexError:
+        pass
+
+    return epsilon
+
+
+def normalize_pdf(pdf):
+    return pdf / np.sum(pdf)
 
 
 def plot_expansion(pos_sample, pos_feasible, node_pos, pos_new):

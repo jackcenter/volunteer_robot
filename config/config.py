@@ -10,7 +10,7 @@ configurations = {
 
 def get_parameters():
     cfg = {
-        "plot_full": True,     # plot troubleshooting information
+        "plot_full": False,     # plot troubleshooting information
     }
 
     return cfg
@@ -32,7 +32,7 @@ def load_agent_parameters(name):
             "color": "red",
             "budget": 50,           # distance volunteer can travel
             "step_size": 1,         # distance traveled each time step
-            "radius": 2,          # radius to search for node expansion in
+            "radius": 1.9,          # radius to search for node expansion in
             "t_limit": .1,           # expansion time limit
             "gamma": 1,        # reward discount factor
             "samples": 16,          # number of control inputs to sample
@@ -40,7 +40,8 @@ def load_agent_parameters(name):
             "lambda": 0.99,         # reward preference coefficient (how important is fusion)
             "home": (10.5, 10.5),   # charging station position
             "fusion_range": 2,       # max distance agent can communicate
-            "dynamics_range": ([-1, 1], [1, 1])
+            "dynamics_range": ([-1, 1], [1, 1],),
+            "epsilon": .25            # min distance between children
         }
 
     elif name == "Pinky":
