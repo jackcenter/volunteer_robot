@@ -16,7 +16,7 @@ def main():
     run('workspace_sandbox.txt', 0.99, 80, 0.1, .9, 3)
 
 
-def run(file_ws, lamb, budget, t_limit, gamma, n_agents, plot=True, plot_full=False):
+def run(file_ws, lamb, budget, t_limit, gamma, n_agents, irrt=False, plot=True, plot_full=False):
     """
 
     :param file_ws: string for the workspace parameters filename
@@ -25,12 +25,14 @@ def run(file_ws, lamb, budget, t_limit, gamma, n_agents, plot=True, plot_full=Fa
     :param t_limit: float > 0.1 for volunteers planning time between steps
     :param gamma: float [0, 1] for time discount on rewards
     :param n_agents: int [1, 3] for number of dedicated agents in the simulation
+    :param irrt: run volunteer with IRRT algorithm
     :param plot: boolean for whether or not to show the plot at the end
     :param plot_full: boolean for whether or not to show each step
     :return: dictionary of final results
     """
     ws = init.load_workspace(file_ws, os.path.dirname(__file__))
-    volunteer = init.load_volunteer(config, lamb, budget, t_limit, gamma, plot_full)
+    volunteer = init.load_volunteer(config, lamb, budget, t_limit, gamma, irrt, plot_full)
+
     agents_dedicated = init.load_agents(n_agents, config)
 
     agents_all = agents_dedicated.copy()

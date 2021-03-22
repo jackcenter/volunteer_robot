@@ -68,7 +68,7 @@ def read_workspace_file(filename):
     return boundary, e_params, positions
 
 
-def load_volunteer(cfg, lamb=0.99, budget=60, t_limit=0.1, gamma=1, plot_full=False, name="Blinky"):
+def load_volunteer(cfg, lamb=0.99, budget=60, t_limit=0.1, gamma=1, irrt=False, plot_full=False, name="Blinky"):
     """
     Creates a Volunteer2D object without a current position
     :param cfg: file with dictionary of default parameters
@@ -76,6 +76,7 @@ def load_volunteer(cfg, lamb=0.99, budget=60, t_limit=0.1, gamma=1, plot_full=Fa
     :param budget: int for maximum steps volunteer can take
     :param t_limit: float greater than or equal to 0.1 for time taken to expand tree
     :param gamma: float [0, 1] for discount on future rewards
+    :param irrt: run robot as irrt
     :param plot_full:
     :param name: default parameters to use
     :return:
@@ -106,7 +107,7 @@ def load_volunteer(cfg, lamb=0.99, budget=60, t_limit=0.1, gamma=1, plot_full=Fa
     cfg_volunteer.update({"t_limit": t_limit})
     cfg_volunteer.update({"gamma": gamma})
 
-    robot = Volunteer2D(name, cfg_volunteer, plot_full=plot_full)
+    robot = Volunteer2D(name, cfg_volunteer, irrt=irrt, plot_full=plot_full)
 
     return robot
 

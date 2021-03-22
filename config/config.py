@@ -8,6 +8,7 @@ configurations = {
     "Pinky": 3
 }
 
+
 def get_parameters():
     cfg = {
         "plot_full": False,     # plot troubleshooting information

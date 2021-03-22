@@ -25,10 +25,9 @@ def print_header():
 
 def get_user_input():
     print('Select from the following programs:')
-    print(' [1]: Single Simulation - Holonomic')
-    print(' [2]: Benchmarking      - Holonomic')
+    print(' [1]: Single Simulation')
+    print(' [2]: Benchmarking')
     print(' [3]: Test Environment')
-    # print(' [3]: Nonlinear Dynamics Simulation')
     print(' [q]: Quit')
     print()
     print(' NOTE: parameters for the workspace and agents can be changed in the settings files.')
@@ -51,14 +50,6 @@ def interpret_command(cmd):
 
     elif cmd == '3':
         status = os.system("python environment_test.py")
-
-    elif cmd == '3':
-        print(" Sorry, this section is not functional at this time")
-        # status = os.system("python decentralized_data_fusion/UI_static_simulation.py")
-
-    elif cmd == '4':
-        print(" Sorry, this section is not functional at this time")
-        # status = os.system("python target_search/UI_static_simulation.py")
 
     elif cmd == 'q':
         print(" closing program ... goodbye!")

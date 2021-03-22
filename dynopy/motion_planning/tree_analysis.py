@@ -283,7 +283,7 @@ def prune_step(V, E, path):
             if root == V[0] and leaf != path[-2]:
                 ol.append(leaf)
         except IndexError:
-            print("ERROR: path only has one node")
+            # print("ERROR: path only has one node")
             break
 
     while ol:

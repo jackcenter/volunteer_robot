@@ -21,6 +21,7 @@ class Node:
         self.k = time
         self.r = reward
         self.f = fusion
+        self.g = False
 
     def get_x_position(self):
         return self.x.get_x_position()
@@ -73,6 +74,12 @@ class Node:
 
     def set_fusion(self, f):
         self.f = f
+
+    def get_goal_status(self):
+        return self.g
+
+    def set_goal_status(self, g):
+        self.g = g
 
     def check_fused(self, channel):
         if channel in self.f:

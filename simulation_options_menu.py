@@ -4,6 +4,8 @@
 import csv
 import os
 import sys
+import matplotlib as mpl
+# mpl.use('agg')
 import matplotlib.pyplot as plt
 from dynopy.tools.initialize import load_parameter_file, write_results_to_file
 import single_simulation
@@ -34,10 +36,11 @@ def print_header(sim_type):
 
 def get_user_input():
     print('Select from the following programs:')
-    print(' [1]: Static Agents, Separated, In a Void, with a Single Mode')
-    print(' [2]: Sandbox')
-    print(' [3]: Display Previous Result')
-    print(' [4]: Static Agents, Separated, In the Info, with a single Mode')
+    print(' [1]: Sandbox')
+    print(' [2]: Static Agents, Separated, In a Void, with a Single Mode')
+    print(' [3]: Static Agents, Separated, In the Info, with a single Mode')
+    print(' [4]: Coastal Search Scenario')
+    print(' [5]: Display Previous Result')
     print(' [q]: Quit')
     print()
 
@@ -68,21 +71,28 @@ def interpret_single_sim_cmd(cmd):
     working = True
     filename_ws = None
     params = None
+    irrt = False
 
     if cmd == '1':
-        filename_ws = 'static_separated_void_single.txt'
-        filename_params = "parameters_sandbox.txt"
-        params_list = load_parameter_file(filename_params, os.path.dirname(__file__))
-        params = params_list[0]
-
-    elif cmd == '2':
         filename_ws = 'workspace_sandbox.txt'
         file_params = "parameters_sandbox.txt"
         params_list = load_parameter_file(file_params, os.path.dirname(__file__))
         params = params_list[0]
 
-    elif cmd == '4':
+    elif cmd == '2':
+        filename_ws = 'static_separated_void_single.txt'
+        filename_params = "parameters_sandbox.txt"
+        params_list = load_parameter_file(filename_params, os.path.dirname(__file__))
+        params = params_list[0]
+
+    elif cmd == '3':
         filename_ws = 'static_separated_collocated_single.txt'
+        filename_params = "parameters_sandbox.txt"
+        params_list = load_parameter_file(filename_params, os.path.dirname(__file__))
+        params = params_list[0]
+
+    elif cmd == '4':
+        filename_ws = 'coastal_search_scenario.txt'
         filename_params = "parameters_sandbox.txt"
         params_list = load_parameter_file(filename_params, os.path.dirname(__file__))
         params = params_list[0]
@@ -107,6 +117,7 @@ def interpret_single_sim_cmd(cmd):
                                         params.get("t_limit"),
                                         params.get("gamma"),
                                         params.get("n_agents"),
+                                        irrt,
                                         True,
                                         False)
 
@@ -123,56 +134,86 @@ def interpret_benchmark_sim_cmd(cmd):
     working = True
     filename_ws = None
     params_list = None
+    irrt = True
 
     if cmd == '1':
-        environment_name = 'static_single'
-        filename_ws = 'static_separated_void_single.txt'
-        filename_params = "parameters_benchmark.txt"
-        params_list = load_parameter_file(filename_params, os.path.dirname(__file__))
-
-    elif cmd == '2':
         environment_name = 'sandbox'
         filename_ws = 'workspace_sandbox.txt'
         file_params = "parameters_benchmark.txt"
         params_list = load_parameter_file(file_params, os.path.dirname(__file__))
 
+    elif cmd == '2':
+        environment_name = 'static_single'
+        filename_ws = 'static_separated_void_single.txt'
+        filename_params = "parameters_benchmark.txt"
+        params_list = load_parameter_file(filename_params, os.path.dirname(__file__))
+
     elif cmd == '3':
-        results_filename = "static_single_results.txt"
-        params_filename = "static_single_parameter_sets.txt"
-        plot_comparison(results_filename, params_filename, "gamma", ["I_Gained", "I_Fused"])
-        plt.show()
-
-        results_filename_2 = "archive/static_single_results_r2.txt"
-        params_filename_2 = "archive/static_single_parameter_sets_r2.txt"
-
-        plot_box(results_filename_2, params_filename, "gamma", "I_Fused")
-
-        plot_box(results_filename_2, params_filename, "gamma", "I_Gained")
-        plt.show()
-        plt.close()
-
-        plot_box(results_filename_2, params_filename_2, "lambda", "I_Fused")
-
-        plot_box(results_filename_2, params_filename_2, "lambda", "I_Gained")
-        plt.show()
-
-
-        # plot_comparison(results_filename_2, params_filename_2, "gamma", ["I_Gained", "I_Fused"])
-        # plt.show()
-
-        # plot_comparison(results_filename_2, params_filename_2, "lambda", ["I_Gained", "I_Fused", "Inky_Fused", "Clyde_Fused"])
-        # plt.show()
-
-        # plot_comparison_dual(results_filename, params_filename, results_filename_2, params_filename_2, "lambda", ["I_Gained"])
-        # plt.show()
-
-        return
-
-    elif cmd == '4':
         environment_name = 'static_collocated'
         filename_ws = 'static_separated_collocated_single.txt'
         file_params = "parameters_benchmark.txt"
         params_list = load_parameter_file(file_params, os.path.dirname(__file__))
+
+    elif cmd == '4':
+        environment_name = 'coastal_search'
+        filename_ws = 'coastal_search_scenario.txt'
+        filename_params = "parameters_benchmark.txt"
+        params_list = load_parameter_file(filename_params, os.path.dirname(__file__))
+
+    elif cmd == '5':
+
+        # results_filename = "sandbox_results.txt"
+        # params_filename = "sandbox_parameter_sets.txt"
+        #
+        # results_filename2 = "sandbox_irrt_results.txt"
+        # params_filename2 = "sandbox_irrt_parameter_sets.txt"
+
+        results_filename = "static_single_results.txt"
+        params_filename = "static_single_parameter_sets.txt"
+
+        results_filename2 = "static_single_irrt_results.txt"
+        params_filename2 = "static_single_irrt_parameter_sets.txt"
+
+        plot_box_comparison(results_filename, params_filename, results_filename2, params_filename2, "lambda", "I_Fused")
+        plot_box_comparison(results_filename, params_filename, results_filename2, params_filename2, "lambda", "I_Gained")
+        plt.show()
+
+        plot_comparison(results_filename, params_filename, "lambda", ["I_Gained", "I_Fused"])
+        plt.show()
+
+        _ = plot_box(results_filename, params_filename, "lambda", "I_Fused")
+
+        _ = plot_box(results_filename, params_filename, "lambda", "I_Gained")
+        plt.show()
+
+        # results_filename = "sandbox_irrt_results.txt"
+        # params_filename = "sandbox_irrt_parameter_sets.txt"
+        #
+        # plot_comparison(results_filename, params_filename, "lambda", ["I_Gained", "I_Fused"])
+        # plt.show()
+        #
+        # _ = plot_box(results_filename, params_filename, "lambda", "I_Fused")
+        #
+        # _ = plot_box(results_filename, params_filename, "lambda", "I_Gained")
+        # plt.show()
+
+        # f.savefig('name.png', bbox_inches='tight')
+
+        # results_filename_2 = "archive/static_single_results_r2.txt"
+        # params_filename_2 = "archive/static_single_parameter_sets_r2.txt"
+
+        # plot_box(results_filename_2, params_filename, "gamma", "I_Fused")
+        #
+        # plot_box(results_filename_2, params_filename, "gamma", "I_Gained")
+        # plt.show()
+        # plt.close()
+        #
+        # plot_box(results_filename_2, params_filename_2, "lambda", "I_Fused")
+        #
+        # plot_box(results_filename_2, params_filename_2, "lambda", "I_Gained")
+        # plt.show()
+
+        return
 
     elif cmd == 'q':
         print(" returning to main menu")
@@ -188,8 +229,16 @@ def interpret_benchmark_sim_cmd(cmd):
             working = False
 
     if working:
-        results_filename = environment_name + '_results.txt'
-        params_filename = environment_name + '_parameter_sets.txt'
+
+        if irrt:
+            results_filename = environment_name + '_irrt_results.txt'
+            params_filename = environment_name + '_irrt_parameter_sets.txt'
+            file_params = "irrt_parameters_benchmark.txt"
+            params_list = load_parameter_file(file_params, os.path.dirname(__file__))
+
+        else:
+            results_filename = environment_name + '_results.txt'
+            params_filename = environment_name + '_parameter_sets.txt'
 
         results_file = os.path.join(os.path.dirname(__file__), 'results', results_filename)
         params_file = os.path.join(os.path.dirname(__file__), 'results', params_filename)
@@ -217,8 +266,9 @@ def interpret_benchmark_sim_cmd(cmd):
                     params.get("t_limit"),
                     params.get("gamma"),
                     params.get("n_agents"),
+                    irrt,
+                    True,
                     False,
-                    False
                 )
 
                 results.update({"param_set": p, "run": r})
@@ -393,12 +443,58 @@ def plot_box(results_filename, params_filename, x_key, y_key):
     points = range(1, len(x_new) + 1)
 
     f, ax = plt.subplots()
-    ax.boxplot(y_new)
+    bp = ax.boxplot(y_new, patch_artist=True)
+
     ax.set_title(x_key + " vs " + y_key)
     ax.set_xlabel(x_key)
+    ax.yaxis.grid(True)
     ax.set_ylabel(y_key)
 
     plt.xticks(points, x_new)
+
+    for box in bp['boxes']:
+        box.set(color='tab:blue', linewidth=2)
+
+    for whisker in bp['whiskers']:
+        whisker.set(color='tab:gray', linewidth=2)
+
+    for cap in bp['caps']:
+        cap.set(color='tab:gray', linewidth=2)
+
+    for median in bp['medians']:
+        median.set(color='tab:gray', linewidth=2)
+
+    for flier in bp['fliers']:
+        flier.set(marker='o', color='tab:blue', alpha=0.5)
+
+    return f, ax
+
+
+def plot_box_comparison(rfn1, pfn1, rfn2, pfn2, x_key, y_key):
+    results_file_1 = os.path.join(os.path.dirname(__file__), 'results', rfn1)
+    params_file_1 = os.path.join(os.path.dirname(__file__), 'results', pfn1)
+
+    x1, y1 = get_results_full(x_key, y_key, params_file_1, results_file_1)
+    zipped_lists = zip(x1, y1)
+    sorted_pairs = sorted(zipped_lists)
+    tuples = zip(*sorted_pairs)
+    x1_new, y1_new = [list(i) for i in tuples]
+
+    results_file_2 = os.path.join(os.path.dirname(__file__), 'results', rfn2)
+    params_file_2 = os.path.join(os.path.dirname(__file__), 'results', pfn2)
+
+    x2, y2 = get_results_full(x_key, y_key, params_file_2, results_file_2)
+    zipped_lists = zip(x2, y2)
+    sorted_pairs = sorted(zipped_lists)
+    tuples = zip(*sorted_pairs)
+    x2_new, y2_new = [list(i) for i in tuples]
+
+    x_new = x1_new + x2_new
+    y_new = y1_new + y2_new
+    points = range(1, len(x_new) + 1)
+
+    f, ax = plt.subplots()
+    bp = ax.boxplot(y_new, patch_artist=True)
 
 
 def plot_comparison_dual(rfn1, pfn1, rfn2, pfn2, x_key, y_keys):

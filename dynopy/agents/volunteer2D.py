@@ -1,21 +1,21 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from math import sqrt, cos, sin, atan2
+from math import sqrt, cos, sin, atan2, trunc
 import time
 import matplotlib.patches as patch
 import numpy as np
 from dynopy.agents.robot2D import Robot2D
 from dynopy.data_objects.state import State_2D
 from dynopy.data_objects.input import Input_2D
-from dynopy.motion_planning.RIG_tree import RIG_tree
+import dynopy.motion_planning.IRRT as irrt
 import dynopy.motion_planning.RIG_tree_R_based as RIG2
 from dynopy.motion_planning.tree_analysis import update_information, identify_fusion_nodes, pick_path_max_I, \
     pick_path_max_R, prune_step, plot_tree, print_nodes_with_reward
 
 
 class Volunteer2D(Robot2D):
-    def __init__(self, name: str, cfg, state=None, plot_full=False):
+    def __init__(self, name: str, cfg, state=None, irrt=False, plot_full=False):
         super().__init__(name, state, plot_full)
 
         self.cfg = cfg
@@ -27,6 +27,9 @@ class Volunteer2D(Robot2D):
         self.channel_range = {}     # name : range
         self.information_shared = {}
         self.information_novel = {}
+        self.irrt = irrt
+        self.goals = []
+        self.goal = None
         # TODO: add other agents planned paths as dict of channel: path
 
     def load_waypoints(self, waypoints, budget):
@@ -52,6 +55,42 @@ class Volunteer2D(Robot2D):
                     f = self.cfg.get("fusion_range")
 
                 self.channel_range.update({agent.get_name(): f})
+
+                if self.irrt:
+                    # setting agents locations as goal points
+                    self.goals.append([agent.get_name(), agent.get_position(), 0])
+
+        if self.irrt:
+            self.goals.append(["home", self.cfg.get("home"), 0])
+            self.goals.reverse()
+
+            points = []
+
+            for g in self.goals:
+                points.append(g[1])
+
+            # print(points)
+
+            distances = []
+            start = self.get_position()
+            while points:
+                g = points.pop()
+                distances.append(irrt.get_distance(start, g))
+                start = g
+
+            min_dist = sum(distances)
+            budgets = [trunc(self.cfg.get("budget")*x/min_dist) - 1 for x in distances]
+            budgets.reverse()
+
+            # b_sum = self.cfg.get("budget")
+            for goal, budget in zip(self.goals, budgets):
+                goal[2] = budget
+                # b_sum -= budget
+            # print(points)
+            # print(distances)
+            # print(self.goals)
+
+            self.goal = self.goals.pop()
 
     def fuse(self, channel):
         """
@@ -101,9 +140,11 @@ class Volunteer2D(Robot2D):
         """
 
         self.execute_planning_cycle()
+
         if self.plot_full:
             plot_tree(self.E, "lightcoral")
         root = self.path.pop()
+
         self.path_log.append(root)
         self.V = [x for x in self.V if x != root]
         self.E = [x for x in self.E if x[0] != root]
@@ -115,7 +156,7 @@ class Volunteer2D(Robot2D):
         x1 = x0 + r*cos(theta)
         y1 = y0 + r*sin(theta)
         k1 = root.get_time()            # TODO: simply takes node time, could update based on current time instead
-        state = State_2D(x1, y1, time=k1)
+        state = State_2D(x1, y1, theta, time=k1)
 
         self.trajectory_log.append(action)
         self.state = state
@@ -133,7 +174,7 @@ class Volunteer2D(Robot2D):
         r = np.random.rand(2)
 
         u1 = u1_range[0] + r[0]*(u1_range[1] - u1_range[0])
-        u2 = u2_range[0] + r[0]*(u2_range[1] - u2_range[0])
+        u2 = u2_range[0] + r[1]*(u2_range[1] - u2_range[0])
 
         u = Input_2D(u1, u2)
 
@@ -177,11 +218,17 @@ class Volunteer2D(Robot2D):
         return direction, distance
 
     def execute_planning_cycle(self):
+
+        # print(len(self.V))
+        # self.get_state().print()
+        # if not len(self.V):
+        #     self.get_state().print()
+
         t_0 = time.process_time()
-        self.expand_tree()
+        self.expand_tree(self.irrt)
 
         t_1 = time.process_time() - t_0
-        self.select_path()
+        self.select_path(self.irrt)
 
         t_2 = time.process_time() - t_1 - t_0
         if self.plot_full:
@@ -197,6 +244,9 @@ class Volunteer2D(Robot2D):
 
         t_5 = time.process_time() - t_4 - t_3 - t_2 - t_1 - t_0
 
+        if self.irrt:
+            self.check_at_goal()
+
         if self.plot_full:
             print("Time Step:\t{}\n Expanion:\t{}\n Selection:\t{}\n Pruning:\t{}\n Generation:\t{}\n".format(
                 self.state.get_time(), t_1, t_2, t_4, t_5))
@@ -209,25 +259,41 @@ class Volunteer2D(Robot2D):
 
             print(" Reward:\t{}\n".format(I_added/len(self.channel_list)))
 
-    def expand_tree(self):
+    def expand_tree(self, IRRT=False):
         # self.V, self.E, self.V_closed = RIG_tree(self.V, self.E, self.V_closed, self.get_X_free(), self.get_X_free(),
         #                                          self.get_pdf(), self.get_position(), self.cfg)
 
-        self.V, self.E = RIG2.RIG_tree(self.V, self.E, self.get_X_free(), self.get_X_free(), self.get_pdf(),
-                                       self.get_state(), self.cfg, self.sample_dynamics, self.channel_list)
+        if not IRRT:
+            self.V, self.E = RIG2.RIG_tree(self.V, self.E, self.get_X_free(), self.get_X_free(), self.get_pdf(),
+                                           self.get_state(), self.cfg, self.sample_dynamics, self.channel_list)
+        else:
+            # TODO needs to take waypoints from channel list as goal points and update as it goes
+            self.V, self.E, self.V_closed = irrt.IRRT_tree(self.V, self.E, self.V_closed, self.get_X_free(),
+                                                      self.get_X_free(), self.get_pdf(), self.get_state(), self.goal[1],
+                                                      self.cfg, self.sample_dynamics, self.channel_list, self.goal[2])
 
         # print_nodes_with_reward(self.V)
 
-    def select_path(self):
+    def select_path(self, IRRT=False):
         # for agent, path in self.channel_list.items():
         #     f = self.channel_range.get(agent)
         #     identify_fusion_nodes(self.V, path, agent, f)
 
-        RIG2.update_information(self.V, self.E, self.pdf, self.i_gained, self.information_shared, self.channel_list,
+        if not IRRT:
+            RIG2.update_information(self.V, self.E, self.pdf, self.i_gained, self.information_shared, self.channel_list,
                                 self.cfg)
 
-        # self.path = pick_path_max_I(self.V, self.E)
-        self.path = pick_path_max_R(self.V, self.E)
+            # self.path = pick_path_max_I(self.V, self.E)
+            self.path = pick_path_max_R(self.V, self.E)
+
+        else:
+            RIG2.update_information(self.V, self.E, self.pdf, self.i_gained, self.information_shared, self.channel_list,
+                                    self.cfg)
+
+            self.path = irrt.pick_irrt_path(self.V, self.E)
+            # TODO: finish this
+            # print([x.get_position() for x in self.path])
+            # print(self.get_position())
 
     def prune_passed_nodes(self):
         self.V, self.E = prune_step(self.V, self.E, self.path)
@@ -248,3 +314,19 @@ class Volunteer2D(Robot2D):
         for channel in self.information_novel.keys():
             info_k1 = self.information_novel.get(channel) + i_gained
             self.information_novel.update({channel: info_k1})
+
+    def check_at_goal(self):
+
+        # print(len(self.trajectory))
+
+        if len(self.path) == 1 and self.path[0].get_goal_status:
+            # print("At goal!")
+
+            try:
+                self.goal = self.goals.pop()
+                self.V = []
+                self.E = []
+                self.V_closed = []
+            except IndexError:
+                pass
+                # print("Home!")
